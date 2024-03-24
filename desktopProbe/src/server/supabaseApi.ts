@@ -488,4 +488,16 @@ export class F2aSupabaseApi {
       this._supabase.from("notes").delete().eq("id", noteId)
     );
   }
+
+  /**
+   * Create an advanced filter for the job list.
+   */
+  async createAdvancedFilter({ name, rules }: { name: string; rules: string }) {
+    return this._supabaseApiCall(async () =>
+      this._supabase.from("advanced_filters").insert({
+        name,
+        rules,
+      })
+    );
+  }
 }

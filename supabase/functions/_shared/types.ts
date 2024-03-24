@@ -99,6 +99,28 @@ export type Note = {
   files: string[];
 };
 
+type SalaryOperators = "greaterThan" | "lessThan";
+type StringOperators = "includes" | "notIncludes";
+
+type SalaryFilterRule = {
+  field: "salary";
+  operator: SalaryOperators;
+  value: string;
+};
+
+type StringFilterRule = {
+  field: "title" | "companyName";
+  operator: StringOperators;
+  value: string;
+};
+
+export type FilterRule = SalaryFilterRule | StringFilterRule;
+
+export type AdvancedFilter = {
+  name: string;
+  rules: FilterRule[];
+};
+
 /**
  * Supabase database schema.
  */

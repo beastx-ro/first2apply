@@ -211,4 +211,14 @@ export function initRendererIpcApi({
   ipcMain.handle("delete-note", async (event, { noteId }) =>
     _apiCall(() => supabaseApi.deleteNote(noteId))
   );
+
+  ipcMain.handle("create-advanced-filter", async (event, { name, rules }) =>
+    _apiCall(async () => {
+      const advancedFilter = await supabaseApi.createAdvancedFilter({
+        name,
+        rules,
+      });
+      return { advancedFilter };
+    })
+  );
 }

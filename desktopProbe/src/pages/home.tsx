@@ -1,9 +1,9 @@
 import {
   ArchiveIcon,
   DotsVerticalIcon,
+  DownloadIcon,
   TrashIcon,
   UpdateIcon,
-  DownloadIcon,
 } from "@radix-ui/react-icons";
 import { useEffect, useState, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -14,32 +14,21 @@ import { useLinks } from "@/hooks/links";
 import { useHotkeys } from "react-hotkeys-hook";
 
 import {
+  changeAllJobsStatus,
+  exportJobsToCsv,
+  getJobById,
   listJobs,
   openExternalUrl,
   scanJob,
   updateJobLabels,
   updateJobStatus,
-  getJobById,
-  changeAllJobsStatus,
-  exportJobsToCsv,
 } from "@/lib/electronMainSdk";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DefaultLayout } from "./defaultLayout";
-import { JobsSkeleton } from "@/components/skeletons/jobsSkeleton";
-import { JobsList } from "@/components/jobsList";
-import { JobSummary } from "@/components/jobSummary";
 import { JobDetails } from "@/components/jobDetails";
 import { JobNotes } from "@/components/jobNotes";
-import { Button } from "@/components/ui/button";
+import { JobSummary } from "@/components/jobSummary";
+import { JobsList } from "@/components/jobsList";
+import { JobsSkeleton } from "@/components/skeletons/jobsSkeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,6 +39,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DefaultLayout } from "./defaultLayout";
 
 import { toast } from "@/components/ui/use-toast";
 import {
