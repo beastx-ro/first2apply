@@ -13,6 +13,9 @@ export enum SiteProvider {
   builtin = "builtin",
   naukri = "naukri",
   robertHalf = "robertHalf",
+  talent = "talent",
+  zipRecruiter = "zipRecruiter",
+  aijobs = "aijobs",
 }
 
 export const JOB_LABELS = {

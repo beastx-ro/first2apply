@@ -55,6 +55,15 @@ const SITE_PROVIDER_QUERY_SELECTORS: Record<
   [SiteProvider.robertHalf]: {
     description: ["div[data-testid=job-description]"],
   },
+  [SiteProvider.talent]: {
+    description: [".job__description"],
+  },
+  [SiteProvider.zipRecruiter]: {
+    description: [",job-body"],
+  },
+  [SiteProvider.aijobs]: {
+    description: [""],
+  },
 };
 
 type JobDescription = {
@@ -106,6 +115,12 @@ export function parseJobDescription({
       return parseNaukriJobDescription({ html });
     case SiteProvider.robertHalf:
       return parseRobertHalfJobDescription({ html });
+    case SiteProvider.talent:
+      return parseTalentJobDescription({ html });
+    case SiteProvider.zipRecruiter:
+      return parseZipRecruiterJobDescription({ html });
+    case SiteProvider.aijobs:
+      return parseAijobsJobsJobDescription({ html });
   }
 }
 
@@ -441,4 +456,69 @@ function parseRobertHalfJobDescription({}: { html: string }): JobDescription {
   // the entire JD is parsed from the list so no need to parse the description
 
   return {};
+}
+
+/**
+ * Parse a Talent job description from the HTML.
+ */
+function parseTalentJobDescription({ html }: { html: string }): JobDescription {
+  const { descriptionContainer } = extractCommonDomElements({
+    provider: SiteProvider.builtin,
+    html,
+  });
+
+  let description: string | undefined;
+  if (descriptionContainer) {
+    description = turndownService.turndown(descriptionContainer.innerHTML);
+  }
+
+  return {
+    content: description,
+  };
+}
+
+/**
+ * Parse a Zip Recruiter job description from the HTML.
+ */
+function parseZipRecruiterJobDescription({
+  html,
+}: {
+  html: string;
+}): JobDescription {
+  const { descriptionContainer } = extractCommonDomElements({
+    provider: SiteProvider.builtin,
+    html,
+  });
+
+  let description: string | undefined;
+  if (descriptionContainer) {
+    description = turndownService.turndown(descriptionContainer.innerHTML);
+  }
+
+  return {
+    content: description,
+  };
+}
+
+/**
+ * Parse a ai jobs job description from the HTML.
+ */
+function parseAijobsJobsJobDescription({
+  html,
+}: {
+  html: string;
+}): JobDescription {
+  const { descriptionContainer } = extractCommonDomElements({
+    provider: SiteProvider.builtin,
+    html,
+  });
+
+  let description: string | undefined;
+  if (descriptionContainer) {
+    description = turndownService.turndown(descriptionContainer.innerHTML);
+  }
+
+  return {
+    content: description,
+  };
 }

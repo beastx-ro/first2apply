@@ -195,6 +195,12 @@ function parseSiteJobsList({
       return parseNaukriJobs({ siteId: site.id, html });
     case SiteProvider.robertHalf:
       return parseRobertHalfJobs({ siteId: site.id, html });
+    case SiteProvider.talent:
+      return parseTalentJobs({ siteId: site.id, html });
+    case SiteProvider.zipRecruiter:
+      return parseZipRecruiterJobs({ siteId: site.id, html });
+    case SiteProvider.aijobs:
+      return parseAijobsJobs({ siteId: site.id, html });
   }
 }
 
@@ -1470,6 +1476,229 @@ export function parseRobertHalfJobs({
       jobType,
       description,
       tags,
+    };
+  });
+
+  const validJobs = jobs.filter((job): job is ParsedJob => !!job);
+  return {
+    jobs: validJobs,
+    listFound: true,
+    elementsCount: jobElements.length,
+  };
+}
+
+/**
+ * Method used to parse a talent job page.
+ */
+export function parseTalentJobs({
+  siteId,
+  html,
+}: {
+  siteId: number;
+  html: string;
+}): JobSiteParseResult {
+  const document = new DOMParser().parseFromString(html, "text/html");
+  if (!document) throw new Error("Could not parse html");
+
+  const jobsList = document.querySelector(".jobList");
+  if (!jobsList)
+    return {
+      jobs: [],
+      listFound: false,
+      elementsCount: 0,
+    };
+
+  const jobElements = Array.from(
+    jobsList.querySelectorAll(".card")
+  ) as Element[];
+
+  const jobs = jobElements.map((el): ParsedJob | null => {
+    const externalUrl = el
+      .querySelector(".link-job-wrap")
+      ?.getAttribute("data-link")
+      ?.trim();
+    if (!externalUrl) return null;
+
+    const externalId = el.getAttribute("data-id")?.trim();
+    if (!externalId) return null;
+
+    const title = el.querySelector(".card__job-title")?.textContent?.trim();
+    if (!title) return null;
+
+    const companyName = el
+      .querySelector(".card__job-empname-label")
+      ?.textContent?.trim();
+    if (!companyName) return null;
+
+    const companyLogo = el
+      .querySelector(".card__job-logo")
+      ?.getAttribute("src")
+      ?.trim();
+
+    const location =
+      el.querySelector(".card__job-location")?.textContent?.trim() || "";
+
+    const jobType =
+      el.querySelector("card__job-badge-remote")?.textContent?.trim() || "";
+
+    return {
+      siteId,
+      externalId,
+      externalUrl,
+      title,
+      companyName,
+      companyLogo,
+      location,
+      jobType,
+    };
+  });
+
+  const validJobs = jobs.filter((job): job is ParsedJob => !!job);
+  return {
+    jobs: validJobs,
+    listFound: true,
+    elementsCount: jobElements.length,
+  };
+}
+
+/**
+ * Method used to parse a zip recruiter job page.
+ */
+export function parseZipRecruiterJobs({
+  siteId,
+  html,
+}: {
+  siteId: number;
+  html: string;
+}): JobSiteParseResult {
+  const document = new DOMParser().parseFromString(html, "text/html");
+  if (!document) throw new Error("Could not parse html");
+
+  const jobsList = document.querySelector(".jobList");
+  if (!jobsList)
+    return {
+      jobs: [],
+      listFound: false,
+      elementsCount: 0,
+    };
+
+  const jobElements = Array.from(
+    jobsList.querySelectorAll(".job-listing")
+  ) as Element[];
+
+  const jobs = jobElements.map((el): ParsedJob | null => {
+    const externalUrl = el
+      .querySelector(".job-link")
+      ?.getAttribute("href")
+      ?.trim();
+    console.log(externalUrl);
+    if (!externalUrl) return null;
+
+    const externalId = externalUrl.split("?")[0].split("/").pop();
+    console.log(externalId);
+    if (!externalId) return null;
+
+    const title = el.querySelector(".jobList-title")?.textContent?.trim();
+    console.log(title);
+    if (!title) return null;
+
+    const companyName = el.querySelector(".comp-name")?.textContent?.trim();
+    console.log(companyName);
+    if (!companyName) return null;
+
+    let location = el.querySelector(".loc")?.textContent?.trim() || "";
+    console.log(location);
+
+    const additionalLocations = location.split(", ").length - 3;
+    location =
+      location.split(", ").slice(0, 3).join(", ") +
+      (additionalLocations > 0 ? ` + ${additionalLocations} more` : "");
+
+    const tagsList = Array.from(el.querySelectorAll(".tag-li")) as Element[];
+
+    const tags = tagsList.map((tag) => tag.textContent.trim());
+
+    return {
+      siteId,
+      externalId,
+      externalUrl,
+      title,
+      companyName,
+      location,
+      tags,
+    };
+  });
+
+  const validJobs = jobs.filter((job): job is ParsedJob => !!job);
+  return {
+    jobs: validJobs,
+    listFound: true,
+    elementsCount: jobElements.length,
+  };
+}
+
+/**
+ * Method used to parse a ai jobs job page.
+ */
+export function parseAijobsJobs({
+  siteId,
+  html,
+}: {
+  siteId: number;
+  html: string;
+}): JobSiteParseResult {
+  const document = new DOMParser().parseFromString(html, "text/html");
+  if (!document) throw new Error("Could not parse html");
+
+  const jobsList = document.querySelector(".jobs-wrapper");
+  if (!jobsList) {
+    return {
+      jobs: [],
+      listFound: false,
+      elementsCount: 0,
+    };
+  }
+
+  const jobElements = Array.from(
+    jobsList.querySelectorAll(".item-job")
+  ) as Element[];
+
+  const jobs = jobElements.map((el): ParsedJob | null => {
+    const externalUrl = el
+      .querySelector(".job-title a")
+      ?.getAttribute("href")
+      ?.trim();
+    console.log(externalUrl);
+    if (!externalUrl) return null;
+
+    const externalId = el.getAttribute("data-job_id")?.trim();
+    console.log(externalId);
+    if (!externalId) return null;
+
+    const title = el.querySelector(".job-title")?.textContent?.trim();
+    console.log(title);
+    if (!title) return null;
+
+    const companyName = "";
+    if (!companyName) return null;
+
+    const companyLogo = el
+      .querySelector(".employer-logo img")
+      ?.getAttribute("src")
+      ?.trim();
+
+    const location =
+      el.querySelector(".job-location")?.textContent?.trim() || "";
+    console.log(location);
+
+    return {
+      siteId,
+      externalId,
+      externalUrl,
+      title,
+      companyName,
+      companyLogo,
+      location,
     };
   });
 
