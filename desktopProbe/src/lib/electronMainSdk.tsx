@@ -1,6 +1,7 @@
 import { User } from "@supabase/supabase-js";
 import { JobScannerSettings } from "./types";
 import {
+  AdvancedFilter,
   Job,
   JobLabel,
   JobSite,
@@ -390,4 +391,24 @@ export async function addFileToNote({
  */
 export async function deleteNote(noteId: number): Promise<void> {
   await _mainProcessApiCall("delete-note", { noteId });
+}
+
+/**
+ * Get user's advanced filters.
+ */
+export async function getUserAdvancedFilters(): Promise<AdvancedFilter[]> {
+  return await _mainProcessApiCall("get-user-advanced-filters", {});
+}
+
+/**
+ * Upsert advanced filters for the user job list.
+ */
+export async function upsertAdvancedFilters(
+  advancedFilters: AdvancedFilter[]
+): Promise<AdvancedFilter[]> {
+  const { createdFilters } = await _mainProcessApiCall<{
+    createdFilters: AdvancedFilter[];
+  }>("upsert-advanced-filters", advancedFilters);
+
+  return createdFilters;
 }

@@ -57,6 +57,7 @@ import {
   JobLabel,
   JobStatus,
 } from "../../../supabase/functions/_shared/types";
+import { AdvancedFilters } from "../components/advancedFilters/advancedFilters";
 
 const JOB_BATCH_SIZE = 30;
 const ALL_JOB_STATUSES: JobStatus[] = ["new", "applied", "archived"];
@@ -461,6 +462,7 @@ export function Home() {
           </TabsTrigger>
         </TabsList>
 
+        <AdvancedFilters />
         {listing.jobs.length > 0 ? (
           ALL_JOB_STATUSES.map((statusItem) => {
             return (

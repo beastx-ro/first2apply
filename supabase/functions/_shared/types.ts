@@ -117,7 +117,7 @@ type StringFilterRule = {
 export type FilterRule = SalaryFilterRule | StringFilterRule;
 
 export type AdvancedFilter = {
-  name: string;
+  filterName: string;
   rules: FilterRule[];
 };
 

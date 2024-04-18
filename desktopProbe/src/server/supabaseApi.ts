@@ -4,16 +4,16 @@ import {
   SupabaseClient,
   User,
 } from "@supabase/supabase-js";
+import { backOff } from "exponential-backoff";
+import * as luxon from "luxon";
 import {
+  AdvancedFilter,
   DbSchema,
   Job,
   JobLabel,
   JobStatus,
   Link,
-  Review,
 } from "../../../supabase/functions/_shared/types";
-import * as luxon from "luxon";
-import { backOff } from "exponential-backoff";
 
 /**
  * Class used to interact with our Supabase API.
@@ -490,14 +490,37 @@ export class F2aSupabaseApi {
   }
 
   /**
-   * Create an advanced filter for the job list.
+   * Get user's advanced filter.
    */
-  async createAdvancedFilter({ name, rules }: { name: string; rules: string }) {
-    return this._supabaseApiCall(async () =>
-      this._supabase.from("advanced_filters").insert({
-        name,
-        rules,
-      })
+  async getUserAdvancedFilters() {
+    return this._supabaseApiCall(
+      async () =>
+        await this._supabase
+          .from("advanced_filters")
+          .select("filterName, rules")
     );
+  }
+
+  /**
+   * Upsert advanced filters for the user.
+   */
+  async upsertAdvancedFilters({ filters }: { filters: AdvancedFilter[] }) {
+    return this._supabaseApiCall(async () => {
+      const parsedFilters = filters.map((filter) => ({
+        filterName: filter.filterName,
+        rules: filter.rules.map((rule) => JSON.stringify(rule)),
+      }));
+      const { data, error } = await this._supabase.rpc(
+        "transactional_upsert_filters",
+        { new_filters: parsedFilters }
+      );
+
+      if (error) {
+        console.error("Failed to upsert filters:", error);
+        throw error;
+      }
+
+      return data;
+    });
   }
 }
