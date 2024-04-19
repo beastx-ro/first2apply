@@ -175,6 +175,21 @@ export type DbSchema = {
       };
     };
     Views: {};
-    Functions: {};
+    Functions: {
+      list_jobs: {
+        Args: {
+          jobs_status: JobStatus;
+          jobs_after: string | null;
+          jobs_page_size: number;
+        };
+        Returns: Job[];
+      };
+      transactional_upsert_filters: {
+        Args: {
+          new_filters: AdvancedFilter[];
+        };
+        Returns: AdvancedFilter[];
+      };
+    };
   };
 };

@@ -406,9 +406,10 @@ export async function getUserAdvancedFilters(): Promise<AdvancedFilter[]> {
 export async function upsertAdvancedFilters(
   advancedFilters: AdvancedFilter[]
 ): Promise<AdvancedFilter[]> {
-  const { createdFilters } = await _mainProcessApiCall<{
-    createdFilters: AdvancedFilter[];
-  }>("upsert-advanced-filters", advancedFilters);
+  const res = await _mainProcessApiCall<AdvancedFilter[]>(
+    "upsert-advanced-filters",
+    advancedFilters
+  );
 
-  return createdFilters;
+  return res;
 }

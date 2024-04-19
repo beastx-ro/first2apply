@@ -25,8 +25,6 @@ export const OperatorSelection = ({
 
   const fieldValue = watch(`filters.${filterIdx}.rules.${ruleIdx}.field`);
 
-  if (!fieldValue) return null;
-
   return (
     <Controller
       control={control}

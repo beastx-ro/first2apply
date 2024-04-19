@@ -4,18 +4,15 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { AdvancedFilter } from "../../../../supabase/functions/_shared/types";
+import { useAdvancedFilters } from "../../hooks/advancedFilters";
 import { useError } from "../../hooks/error";
-import { useSession } from "../../hooks/session";
-import {
-  getUserAdvancedFilters,
-  upsertAdvancedFilters,
-} from "../../lib/electronMainSdk";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Form } from "../ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { toast } from "../ui/use-toast";
 import { FilterManager } from "./filterManager";
+import { isEqual } from "lodash";
 
 export const MAX_INPUT_LENGTH = 50;
 
@@ -76,6 +73,7 @@ export type FormRule = {
 
 export type FormValues = {
   filters: Array<{
+    id: string;
     filterName: string;
     rules: FormRule[];
   }>;
@@ -111,11 +109,10 @@ const schema = z.object({
 });
 
 export function AdvancedFilters() {
-  const { isLoggedIn } = useSession();
   const { handleError } = useError();
+  const { filters, updateFilters, isLoading } = useAdvancedFilters();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -125,56 +122,63 @@ export function AdvancedFilters() {
 
   const {
     handleSubmit,
-    formState: { errors, isValid: isValidForm },
+    formState: { isValid: isValidForm },
     getValues,
     reset,
   } = form;
 
-  const getAllUserAdvancedFilters = async () => {
-    try {
-      if (!isLoggedIn) return;
-      const advancedFilters = await getUserAdvancedFilters();
-      reset({ filters: advancedFilters });
-      setIsLoading(false);
-    } catch (error) {
-      handleError({ error });
-    }
+  useEffect(() => {
+    reset({ filters });
+  }, [filters]);
+
+  const omitId = (filter: FormValues["filters"][number]) => {
+    const { id, ...rest } = filter;
+    return rest as AdvancedFilter;
   };
 
-  useEffect(() => {
-    getAllUserAdvancedFilters();
-  }, [isLoggedIn]);
-
-  const onSubmit = async (data: { filters: AdvancedFilter[] }) => {
-    console.log("SUBMITTING", data);
+  const onSubmit = async (data: { filters: FormValues["filters"] }) => {
     const { filters } = data;
-    const filledFilters = filters.filter(
-      (filter) =>
-        filter.filterName &&
-        filter.rules.filter((rule) => rule.field && rule.operator && rule.value)
-          .length > 0
-    );
+
+    // Remove empty filters
+    const filledFilters = filters
+      .filter(
+        (filter) =>
+          filter.filterName &&
+          filter.rules.filter(
+            (rule) => rule.field && rule.operator && rule.value
+          ).length > 0
+      )
+      .map(omitId);
 
     const payload: AdvancedFilter[] = filledFilters;
 
     setIsSubmitting(true);
 
     try {
-      const updatedFilters = await upsertAdvancedFilters(payload);
+      await updateFilters(payload);
       toast({
         title: "Success",
         description: "Filters saved successfully!",
         variant: "success",
       });
-      if (!updatedFilters) return;
-      console.log("Updated Filters", updatedFilters);
-      reset({ filters: updatedFilters });
     } catch (error) {
       handleError({ error });
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const filterFormValues = getValues("filters");
+
+  const hasNewChanges = !isEqual(filters, filterFormValues.map(omitId));
+  console.log(
+    "HAS CHANGES?",
+    {
+      first: filters,
+      second: filterFormValues.map(omitId),
+    },
+    hasNewChanges
+  );
 
   return (
     <div className="flex items-center  mt-2">
@@ -191,7 +195,9 @@ export function AdvancedFilters() {
               <FilterManager />
               <div className="w-full flex justify-end">
                 <Button
-                  disabled={!isValidForm || isSubmitting || isLoading}
+                  disabled={
+                    !isValidForm || isSubmitting || isLoading || !hasNewChanges
+                  }
                   onClick={handleSubmit(onSubmit)}
                 >
                   Save
@@ -202,12 +208,16 @@ export function AdvancedFilters() {
         </Form>
       </Popover>
       <div className="ml-4 flex justify-evenly">
-        {getValues("filters").length ? (
+        {filterFormValues?.length ? (
           <>
             <h3 className="mr-2">Filtered By: </h3>
-            {getValues("filters").map((filter, idx) => (
-              <Badge key={idx}>{filter.filterName}</Badge>
-            ))}
+            {filterFormValues.map(({ filterName, id }) =>
+              filterName ? (
+                <Badge key={id} className="mr-1">
+                  {filterName}
+                </Badge>
+              ) : null
+            )}
           </>
         ) : null}
       </div>

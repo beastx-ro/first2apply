@@ -224,7 +224,7 @@ export function initRendererIpcApi({
       const advancedFilters = await supabaseApi.upsertAdvancedFilters({
         filters,
       });
-      return { advancedFilters };
+      return advancedFilters;
     })
   );
 }

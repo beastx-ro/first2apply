@@ -192,7 +192,8 @@ using (auth.uid() = user_id);
 
 -- Custom db transaction to suync filters
 CREATE OR REPLACE FUNCTION transactional_upsert_filters(new_filters jsonb)
-RETURNS SETOF advanced_filters AS $$
+RETURNS TABLE("filterName" text, rules jsonb) AS
+$$
 DECLARE
     current_user_id uuid := auth.uid();  -- Retrieves the authenticated user's ID from Supabase.
 BEGIN
@@ -208,9 +209,11 @@ BEGIN
         rules = EXCLUDED.rules;
 
     -- Return the current state of filters for the user
-    RETURN QUERY SELECT * FROM advanced_filters WHERE user_id = current_user_id;
+    RETURN QUERY SELECT af."filterName", af.rules FROM advanced_filters af WHERE user_id = current_user_id;
 END;
-$$ LANGUAGE plpgsql;
+$$
+LANGUAGE plpgsql;
+
 
 
 -- create custom DB functions

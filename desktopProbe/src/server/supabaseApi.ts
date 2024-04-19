@@ -180,7 +180,6 @@ export class F2aSupabaseApi {
   }) {
     const jobs = await this._supabaseApiCall<Job[], PostgrestError>(
       async () => {
-        // @ts-ignore
         const res = await this._supabase.rpc("list_jobs", {
           jobs_status: status,
           jobs_after: after ?? null,
@@ -502,25 +501,14 @@ export class F2aSupabaseApi {
   }
 
   /**
-   * Upsert advanced filters for the user.
+   * Upsert advanced filters and return the updated filters.
    */
   async upsertAdvancedFilters({ filters }: { filters: AdvancedFilter[] }) {
-    return this._supabaseApiCall(async () => {
-      const parsedFilters = filters.map((filter) => ({
-        filterName: filter.filterName,
-        rules: filter.rules.map((rule) => JSON.stringify(rule)),
-      }));
-      const { data, error } = await this._supabase.rpc(
-        "transactional_upsert_filters",
-        { new_filters: parsedFilters }
-      );
-
-      if (error) {
-        console.error("Failed to upsert filters:", error);
-        throw error;
-      }
-
-      return data;
-    });
+    return this._supabaseApiCall(
+      async () =>
+        await this._supabase.rpc("transactional_upsert_filters", {
+          new_filters: filters,
+        })
+    );
   }
 }

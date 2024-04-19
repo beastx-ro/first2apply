@@ -5,6 +5,7 @@ import { FormLabel } from "../ui/form";
 import { FormValues, defaultEmptyFilter } from "./advancedFilters";
 import { FilterNameInput } from "./inputButtons/filterNameInput";
 import { RulesManager } from "./rulesManager";
+import { v4 as uuid } from "uuid";
 
 export function FilterManager() {
   const { control } = useFormContext<FormValues>();
@@ -18,32 +19,38 @@ export function FilterManager() {
   const advancedFilters = filterArray.fields;
 
   const addNewFilter = () => {
-    filterArray.append(defaultEmptyFilter);
+    filterArray.append({ ...defaultEmptyFilter, id: uuid() });
   };
 
-  const removeFilter = ({ filterIdx }: { filterIdx: number }) => {
-    filterArray.remove(filterIdx);
+  const removeFilter = ({ id }: { id: string }) => {
+    filterArray.remove(
+      filterArray.fields.findIndex((filter) => filter.id === id)
+    );
   };
 
   return (
     <div>
       {advancedFilters.length ? (
-        advancedFilters.map((_, filterIdx) => (
-          <div className="" key={filterIdx}>
+        advancedFilters.map((filter, filterIdx) => (
+          <div className="" key={filter.id}>
             <FormLabel>Name</FormLabel>
 
             <div className="flex items-center">
               <FilterNameInput filterIdx={filterIdx} />
               <div className="w-full flex justify-end">
                 <Button
+                  className="bg-destructive/60 hover:bg-destructive/40 focus:bg-destructive/40 transition-colors duration-200 ease-in-out
+                  text-gray-50/90 hover:text-gray-50/70 focus:text-gray-50/70
+                  "
                   variant="destructive"
-                  onClick={() => removeFilter({ filterIdx })}
+                  onClick={() => removeFilter({ id: filter.id })}
                 >
                   Remove Filter
                 </Button>
               </div>
             </div>
             <RulesManager filterIdx={filterIdx} />
+            <div className="h-px mt-2 w-full bg-muted" />
           </div>
         ))
       ) : (

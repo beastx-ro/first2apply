@@ -19,9 +19,8 @@ export const FieldSelection = ({
   filterIdx: number;
   ruleIdx: number;
 }) => {
-  const { control, watch, setValue } = useFormContext();
+  const { control, setValue } = useFormContext();
   const pathPrefix = `filters.${filterIdx}.rules.${ruleIdx}`;
-  const filterNameValue = watch(`filterName`);
 
   const resetOperatorAndValue = () => {
     // Reset the operator and value when the field changes
@@ -42,7 +41,7 @@ export const FieldSelection = ({
     <Controller
       control={control}
       name={`${pathPrefix}.field`}
-      render={({ field: { onChange, value } }) => (
+      render={({ field: { value } }) => (
         <Select value={value} onValueChange={onFieldChange}>
           <SelectTrigger className="w-[152px] h-10">
             <SelectValue placeholder="Select" />

@@ -1,5 +1,5 @@
 import { Controller, useFormContext } from "react-hook-form";
-import { FormItem, FormLabel } from "../../ui/form";
+import { FormItem } from "../../ui/form";
 import { Input } from "../../ui/input";
 import { FormValues, MAX_INPUT_LENGTH } from "../advancedFilters";
 
@@ -20,14 +20,12 @@ export const FilterNameInput = ({ filterIdx }: { filterIdx: number }) => {
       render={({ field }) => (
         <div className="">
           <FormItem className="mt-2">
+            <>{console.log("FILTER NAME INPUT", field.value)}</>
             <Input
+              {...field}
               className="w-[300px]"
               placeholder="Filter name..."
-              id="filterName"
-              type="filterName"
               maxLength={MAX_INPUT_LENGTH}
-              value={field.value}
-              {...field}
             />
             {error && <p>{`${error}`}</p>}
           </FormItem>

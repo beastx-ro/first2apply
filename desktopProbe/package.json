@@ -25,10 +25,12 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.2.0",
     "@electron-forge/plugin-webpack": "^7.2.0",
     "@electron-forge/publisher-s3": "^7.2.0",
+    "@types/lodash": "^4.17.0",
     "@types/luxon": "^3.4.2",
     "@types/node-cron": "^3.0.11",
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
+    "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@vercel/webpack-asset-relocator-loader": "^1.7.3",
@@ -79,6 +81,7 @@
     "electron-store": "^8.2.0",
     "exponential-backoff": "^3.1.1",
     "json-2-csv": "^5.5.0",
+    "lodash": "^4.17.21",
     "luxon": "^3.4.4",
     "next-themes": "^0.2.1",
     "node-cron": "^3.0.3",
@@ -95,6 +98,7 @@
     "semver": "^7.6.0",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^9.0.1",
     "zod": "^3.22.4"
   }
 }

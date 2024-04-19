@@ -3,18 +3,23 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 import InfiniteScroll from "react-infinite-scroll-component";
 
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Icons } from "@/components/icons";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 
 import { ArchiveIcon, TrashIcon } from "@radix-ui/react-icons";
 
-import { cn } from "@/lib/utils";
 import { LABEL_COLOR_CLASSES } from "@/lib/labels";
+import { cn } from "@/lib/utils";
 
 import { Job } from "../../../supabase/functions/_shared/types";
 import { createRef, useEffect, useMemo, useState } from "react";
+import { useAdvancedFilters } from "../hooks/advancedFilters";
+import {
+  FIELD_VALUES,
+  OPERATOR_VALUES,
+} from "./advancedFilters/advancedFilters";
 import { DeleteJobDialog } from "./deleteJobDialog";
 
 export function JobsList({
@@ -37,6 +42,7 @@ export function JobsList({
   onDelete: (job: Job) => void;
 }) {
   const { siteLogos } = useSites();
+  const { filters } = useAdvancedFilters();
 
   const [jobToDelete, setJobToDelete] = useState<Job | undefined>();
   const [scrollToIndex, setScrollToIndex] = useState<number | undefined>();
@@ -118,6 +124,44 @@ export function JobsList({
     { preventDefault: true }
   );
 
+  const jobsList = jobs.filter((job) => {
+    const matchesFilters = filters.every((filter) => {
+      return filter.rules.every((rule) => {
+        switch (rule.field) {
+          case FIELD_VALUES.SALARY: {
+            const jobSalary = job.salary;
+            // if job doesn't have salary, it doesn't match the filter
+            // We could additionally have an option where you can still let the ones without salary pass
+            if (!jobSalary) {
+              return false;
+            }
+            if (rule.operator === OPERATOR_VALUES.GREATER) {
+              return parseInt(job.salary) > parseInt(rule.value);
+            }
+            if (rule.operator === OPERATOR_VALUES.LESS) {
+              return parseInt(job.salary) < parseInt(rule.value);
+            }
+          }
+
+          case FIELD_VALUES.COMPANY_NAME:
+            if (rule.operator === OPERATOR_VALUES.INCLUDES) {
+              return job.companyName
+                .toLocaleLowerCase()
+                .includes(rule.value.toLocaleLowerCase());
+            }
+            if (rule.operator === OPERATOR_VALUES.NOT_INCLUDES) {
+              return !job.companyName
+                .toLowerCase()
+                .includes(rule.value.toLocaleLowerCase());
+            }
+          default:
+            return true;
+        }
+      });
+    });
+    return matchesFilters;
+  });
+
   return (
     <InfiniteScroll
       dataLength={jobs.length}
@@ -128,7 +172,7 @@ export function JobsList({
       scrollableTarget={parentContainerId}
     >
       <ul>
-        {jobs.map((job, index) => {
+        {jobsList.map((job, index) => {
           return (
             <li
               key={job.id}

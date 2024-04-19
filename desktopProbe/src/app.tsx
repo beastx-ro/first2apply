@@ -31,6 +31,7 @@ import { FeedbackPage } from "./pages/feedback";
 
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
+import { AdvancedFiltersProvider } from "./hooks/advancedFilters";
 
 TimeAgo.addDefaultLocale(en);
 
@@ -103,7 +104,9 @@ function App() {
           <SettingsProvider>
             <SitesProvider>
               <LinksProvider>
-                <RouterProvider router={router}></RouterProvider>
+                <AdvancedFiltersProvider>
+                  <RouterProvider router={router}></RouterProvider>
+                </AdvancedFiltersProvider>
               </LinksProvider>
             </SitesProvider>
           </SettingsProvider>

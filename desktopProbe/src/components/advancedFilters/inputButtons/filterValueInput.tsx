@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { FormControl, FormItem, FormLabel } from "../../ui/form";
+import { FormControl, FormItem } from "../../ui/form";
 import { Input } from "../../ui/input";
 import { FIELD_VALUES } from "../advancedFilters";
 
@@ -63,8 +63,8 @@ export const FilterValueInput = ({
     <Controller
       control={control}
       name={valueName}
-      render={({ field }) => (
-        <div className="">
+      render={() => (
+        <div>
           <div className="min-w-40">
             {isSalary ? (
               <FormItem className="w-full">
@@ -73,7 +73,7 @@ export const FilterValueInput = ({
                   onChange={handleInputChange} // Use the custom onChange handler
                   id={FIELD_VALUES.SALARY}
                   type="text"
-                  // // Prevents entering non-integer values (e.g., decimals, e)
+                  // Prevents entering non-integer values (e.g., decimals, e)
                   onKeyDown={(e) =>
                     ["e", "E", "+", "-", "."].includes(e.key) &&
                     e.preventDefault()

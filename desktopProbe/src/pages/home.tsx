@@ -5,7 +5,7 @@ import {
   TrashIcon,
   UpdateIcon,
 } from "@radix-ui/react-icons";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { useError } from "@/hooks/error";
