@@ -99,6 +99,28 @@ export type Note = {
   files: string[];
 };
 
+type SalaryOperators = "greaterThan" | "lessThan";
+type StringOperators = "includes" | "notIncludes";
+
+type SalaryFilterRule = {
+  field: "salary";
+  operator: SalaryOperators;
+  value: string;
+};
+
+type StringFilterRule = {
+  field: "title" | "companyName";
+  operator: StringOperators;
+  value: string;
+};
+
+export type FilterRule = SalaryFilterRule | StringFilterRule;
+
+export type AdvancedFilter = {
+  filterName: string;
+  rules: FilterRule[];
+};
+
 /**
  * Supabase database schema.
  */
@@ -153,6 +175,21 @@ export type DbSchema = {
       };
     };
     Views: {};
-    Functions: {};
+    Functions: {
+      list_jobs: {
+        Args: {
+          jobs_status: JobStatus;
+          jobs_after: string | null;
+          jobs_page_size: number;
+        };
+        Returns: Job[];
+      };
+      transactional_upsert_filters: {
+        Args: {
+          new_filters: AdvancedFilter[];
+        };
+        Returns: AdvancedFilter[];
+      };
+    };
   };
 };

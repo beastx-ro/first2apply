@@ -4,16 +4,16 @@ import {
   SupabaseClient,
   User,
 } from "@supabase/supabase-js";
+import { backOff } from "exponential-backoff";
+import * as luxon from "luxon";
 import {
+  AdvancedFilter,
   DbSchema,
   Job,
   JobLabel,
   JobStatus,
   Link,
-  Review,
 } from "../../../supabase/functions/_shared/types";
-import * as luxon from "luxon";
-import { backOff } from "exponential-backoff";
 
 /**
  * Class used to interact with our Supabase API.
@@ -180,7 +180,6 @@ export class F2aSupabaseApi {
   }) {
     const jobs = await this._supabaseApiCall<Job[], PostgrestError>(
       async () => {
-        // @ts-ignore
         const res = await this._supabase.rpc("list_jobs", {
           jobs_status: status,
           jobs_after: after ?? null,
@@ -486,6 +485,30 @@ export class F2aSupabaseApi {
   async deleteNote(noteId: number) {
     return this._supabaseApiCall(async () =>
       this._supabase.from("notes").delete().eq("id", noteId)
+    );
+  }
+
+  /**
+   * Get user's advanced filter.
+   */
+  async getUserAdvancedFilters() {
+    return this._supabaseApiCall(
+      async () =>
+        await this._supabase
+          .from("advanced_filters")
+          .select("filterName, rules")
+    );
+  }
+
+  /**
+   * Upsert advanced filters and return the updated filters.
+   */
+  async upsertAdvancedFilters({ filters }: { filters: AdvancedFilter[] }) {
+    return this._supabaseApiCall(
+      async () =>
+        await this._supabase.rpc("transactional_upsert_filters", {
+          new_filters: filters,
+        })
     );
   }
 }
