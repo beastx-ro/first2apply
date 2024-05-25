@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { ThemeProvider } from "@/components/themeProvider";
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -15,6 +15,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <Component {...pageProps} />
       </ThemeProvider>
       <GoogleAnalytics gaId="G-YZM4X6MLS6" />
+      <GoogleTagManager gtmId="AW-11450121273" />
     </>
   );
 }

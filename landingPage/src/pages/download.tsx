@@ -1,6 +1,6 @@
 import { DefaultLayout } from "@/components/defaultLayout";
 import { Button } from "@/components/ui/button";
-import { sendGAEvent } from "@next/third-parties/google";
+import { sendGAEvent, sendGTMEvent } from "@next/third-parties/google";
 import Head from "next/head";
 
 export default function Download() {
@@ -86,13 +86,14 @@ export default function Download() {
             {/* macos apple silicon */}
             <a
               href="https://s3.eu-central-1.amazonaws.com/first2apply.com/releases/darwin/arm64/First+2+Apply-1.4.0-arm64.dmg"
-              onClick={() =>
+              onClick={() => {
+                sendGTMEvent({ event: "file_download" });
                 sendGAEvent("event", "file_download", {
                   file_name: "First 2 Apply-1.4.0-arm64",
                   file_extension: "dmg",
                   link_domain: "first2apply.com",
-                })
-              }
+                });
+              }}
             >
               <Button
                 size="lg"
@@ -117,13 +118,14 @@ export default function Download() {
             {/* windows */}
             <a
               href="ms-windows-store://pdp/?productid=9NK18WV87SV2"
-              onClick={() =>
+              onClick={() => {
+                sendGTMEvent({ event: "file_download" });
                 sendGAEvent("event", "file_download", {
                   file_name: "First 2 Apply-1.4.0",
                   file_extension: "exe",
                   link_domain: "first2apply.com",
-                })
-              }
+                });
+              }}
             >
               <Button
                 size="lg"
@@ -148,13 +150,14 @@ export default function Download() {
             {/* macos x64 */}
             <a
               href="https://s3.eu-central-1.amazonaws.com/first2apply.com/releases/darwin/x64/First+2+Apply-1.4.0-x64.dmg"
-              onClick={() =>
+              onClick={() => {
+                sendGTMEvent({ event: "file_download" });
                 sendGAEvent("event", "file_download", {
                   file_name: "First 2 Apply-1.4.0-x64",
                   file_extension: "dmg",
                   link_domain: "first2apply.com",
-                })
-              }
+                });
+              }}
             >
               <Button
                 size="lg"
@@ -179,13 +182,14 @@ export default function Download() {
             {/* linux */}
             <a
               href="https://s3.eu-central-1.amazonaws.com/first2apply.com/releases/linux/x64/first-2-apply_1.4.0_amd64.deb"
-              onClick={() =>
+              onClick={() => {
+                sendGTMEvent({ event: "file_download" });
                 sendGAEvent("event", "file_download", {
                   file_name: "First 2 Apply-1.4.0-amd64",
                   file_extension: "deb",
                   link_domain: "first2apply.com",
-                })
-              }
+                });
+              }}
             >
               <Button
                 size="lg"

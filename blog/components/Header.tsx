@@ -26,6 +26,12 @@ const Header = () => {
         </Link>
       </div>
       <div className="flex items-center space-x-4 leading-5 sm:space-x-6">
+        <a
+          href="https://first2apply.com"
+          className="hidden font-medium text-gray-900 dark:text-gray-100 sm:block"
+        >
+          Product
+        </a>
         {headerNavLinks
           .filter((link) => link.href !== '/')
           .map((link) => (

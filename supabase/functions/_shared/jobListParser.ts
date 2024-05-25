@@ -1277,7 +1277,7 @@ export function parseBuiltinJobs({
   ) as Element[];
 
   const jobs = jobElements.map((el): ParsedJob | null => {
-    const jobInfo = el.querySelector("#job-card-alias");
+    const jobInfo = el.querySelector("h2 > a");
     if (!jobInfo) return null;
 
     const externalUrl = `https://builtin.com${jobInfo.getAttribute(
