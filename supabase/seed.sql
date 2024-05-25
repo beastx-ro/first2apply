@@ -45,12 +45,14 @@ public.jobs (
   status public."Job Status" not null default 'new'::"Job Status",
   description text null,
   labels text[] not null default '{}'::text[],
+  search_vector tsvector not null defaul to_tsvector('english', title || ' ' || "companyName" || ' ' || description),
   constraint jobs_pkey primary key (id),
   constraint jobs_user_id_externalid_key unique (user_id, "externalId"),
   constraint jobs_user_id_fkey foreign key (user_id) references auth.users (id) on delete restrict,
   constraint jobs_siteid_fkey foreign key ("siteId") references sites (id) on update restrict on delete restrict
 ) tablespace pg_default;
 create index jobs_user_id_updated_at_id_status_idx on public.jobs (user_id, updated_at desc, id desc, status);
+create index jobs_search_vector_idx on public.jobs using gin(search_vector);
 
 create table
 public.reviews (
@@ -180,5 +182,16 @@ begin
     order by updated_at desc, id desc
     limit jobs_page_size;
   end if;
+end; $$
+language plpgsql;
+
+-- Return jobs that match the search query
+create or replace function text_search_jobs(search_query text)
+returns setof jobs as $$
+begin
+    return query select *
+      from public.jobs
+      where search_vector @@ to_tsquery('english', search_query)
+      order by ts_rank(search_vector, to_tsquery('english', search_query) desc;
 end; $$
 language plpgsql;

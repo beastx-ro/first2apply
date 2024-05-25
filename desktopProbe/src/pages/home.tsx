@@ -22,6 +22,7 @@ import {
   getJobById,
   changeAllJobsStatus,
   exportJobsToCsv,
+  getJobsByText,
 } from "@/lib/electronMainSdk";
 
 import {
@@ -57,6 +58,7 @@ import {
   JobLabel,
   JobStatus,
 } from "../../../supabase/functions/_shared/types";
+import { SearchBar } from "@/components/searchBar";
 
 const JOB_BATCH_SIZE = 30;
 const ALL_JOB_STATUSES: JobStatus[] = ["new", "applied", "archived"];
@@ -116,30 +118,29 @@ export function Home() {
     navigate(`?status=${ALL_JOB_STATUSES[nextIndex]}&r=${Math.random()}`);
   });
 
+  const getJobList = async () => {
+    try {
+      const result = await listJobs({ status, limit: JOB_BATCH_SIZE });
+      setListing({
+        ...result,
+        isLoading: false,
+        hasMore: result.jobs.length === JOB_BATCH_SIZE,
+      });
+
+      const firstJob = result.jobs[0];
+      if (firstJob) {
+        scanJobAndSelect(firstJob);
+      } else {
+        setSelectedJobId(null);
+      }
+    } catch (error) {
+      handleError({ error, title: "Failed to load jobs" });
+    }
+  };
+
   // reload jobs when location changes
   useEffect(() => {
-    const asyncLoad = async () => {
-      try {
-        setListing((listing) => ({ ...listing, isLoading: true }));
-        const result = await listJobs({ status, limit: JOB_BATCH_SIZE });
-
-        setListing({
-          ...result,
-          isLoading: false,
-          hasMore: result.jobs.length === JOB_BATCH_SIZE,
-        });
-
-        const firstJob = result.jobs[0];
-        if (firstJob) {
-          scanJobAndSelect(firstJob);
-        } else {
-          setSelectedJobId(null);
-        }
-      } catch (error) {
-        handleError({ error, title: "Failed to load jobs" });
-      }
-    };
-    asyncLoad();
+    getJobList();
   }, [status, location.search]); // using location.search to trigger the effect when the query parameter changes
 
   // effect used to load a new batch of jobs after updating the status of a job
@@ -304,6 +305,25 @@ export function Home() {
     }
   };
 
+  const onJobTextSearch = async (search: string) => {
+    if (!search) {
+      getJobList();
+      return;
+    }
+
+    try {
+      const jobs = await getJobsByText(search);
+      // TODO: Implement pagination for search results
+      setListing((listing) => ({
+        ...listing,
+        jobs: jobs,
+        hasMore: false,
+      }));
+    } catch (error) {
+      handleError({ error, title: "Failed to search jobs" });
+    }
+  };
+
   const onLoadMore = async () => {
     try {
       const result = await listJobs({
@@ -460,6 +480,8 @@ export function Home() {
             )}
           </TabsTrigger>
         </TabsList>
+
+        <SearchBar onJobTextSearch={onJobTextSearch} />
 
         {listing.jobs.length > 0 ? (
           ALL_JOB_STATUSES.map((statusItem) => {

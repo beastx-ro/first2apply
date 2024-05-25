@@ -211,4 +211,8 @@ export function initRendererIpcApi({
   ipcMain.handle("delete-note", async (event, { noteId }) =>
     _apiCall(() => supabaseApi.deleteNote(noteId))
   );
+
+  ipcMain.handle("get-jobs-by-text", async (event, { search_query }) =>
+    _apiCall(() => supabaseApi.getJobsByText({ search_query }))
+  );
 }
