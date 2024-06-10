@@ -492,15 +492,19 @@ export class F2aSupabaseApi {
   /**
    * Get jobs based on search query.
    */
-  async getJobsByText({ search_query }: { search_query: string }) {
-    // If is empty then we bring back all jobs
-    if (!search_query) {
-    }
+  async getJobsByText({
+    search_query,
+    status,
+  }: {
+    search_query: string;
+    status: JobStatus;
+  }) {
     const parsedQuery = search_query.split(" ").join(" & ");
     const jobs = await this._supabaseApiCall<Job[], PostgrestError>(
       async () => {
         const res = await this._supabase.rpc("text_search_jobs", {
           search_query: parsedQuery,
+          jobs_status: status,
         });
         return res;
       }

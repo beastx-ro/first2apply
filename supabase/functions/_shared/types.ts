@@ -157,6 +157,7 @@ export type DbSchema = {
       text_search_jobs: {
         Args: {
           search_query: string;
+          jobs_status: JobStatus;
         };
         Returns: Job[];
       };

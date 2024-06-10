@@ -212,7 +212,7 @@ export function initRendererIpcApi({
     _apiCall(() => supabaseApi.deleteNote(noteId))
   );
 
-  ipcMain.handle("get-jobs-by-text", async (event, { search_query }) =>
-    _apiCall(() => supabaseApi.getJobsByText({ search_query }))
+  ipcMain.handle("get-jobs-by-text", async (event, { search_query, status }) =>
+    _apiCall(() => supabaseApi.getJobsByText({ search_query, status }))
   );
 }

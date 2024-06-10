@@ -45,7 +45,11 @@ public.jobs (
   status public."Job Status" not null default 'new'::"Job Status",
   description text null,
   labels text[] not null default '{}'::text[],
-  search_vector tsvector not null defaul to_tsvector('english', title || ' ' || "companyName" || ' ' || description),
+  search_vector tsvector generated always as (
+    setweight(to_tsvector('simple', COALESCE("companyName",'')), 'A') || ' ' ||
+    setweight(to_tsvector('english', COALESCE(title,'')), 'B') || ' ' ||
+    setweight(to_tsvector('english', COALESCE(description,'')), 'C')
+  ) stored;
   constraint jobs_pkey primary key (id),
   constraint jobs_user_id_externalid_key unique (user_id, "externalId"),
   constraint jobs_user_id_fkey foreign key (user_id) references auth.users (id) on delete restrict,
@@ -186,12 +190,12 @@ end; $$
 language plpgsql;
 
 -- Return jobs that match the search query
-create or replace function text_search_jobs(search_query text)
+create or replace function text_search_jobs(search_query text, jobs_status "Job Status")
 returns setof jobs as $$
 begin
     return query select *
       from public.jobs
-      where search_vector @@ to_tsquery('english', search_query)
-      order by ts_rank(search_vector, to_tsquery('english', search_query) desc;
+      where status = jobs_status and search_vector @@ to_tsquery('english', search_query)
+      order by ts_rank(search_vector, to_tsquery('english', search_query)) desc;
 end; $$
 language plpgsql;

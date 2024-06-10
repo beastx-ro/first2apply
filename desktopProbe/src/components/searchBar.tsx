@@ -24,16 +24,28 @@ export function SearchBar({
     setHasSearched(true);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   return (
-    <div className="flex w-full justify-end">
+    <div className="flex w-full justify-end py-2">
       <div className="w=300px flex items-center">
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={handleKeyDown}
           type="text"
           placeholder="Search..."
+          className="rounded-tr-none rounded-br-none"
+          onFocus={() => setHasSearched(false)}
         />
-        <Button onClick={handleSearch}>
+        <Button
+          className="rounded-tl-none rounded-bl-none"
+          onClick={handleSearch}
+        >
           <MagnifyingGlassIcon />
         </Button>
       </div>

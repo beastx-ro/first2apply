@@ -310,9 +310,8 @@ export function Home() {
       getJobList();
       return;
     }
-
     try {
-      const jobs = await getJobsByText(search);
+      const jobs = await getJobsByText({ search_query: search, status });
       // TODO: Implement pagination for search results
       setListing((listing) => ({
         ...listing,
