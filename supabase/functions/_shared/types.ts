@@ -153,6 +153,14 @@ export type DbSchema = {
       };
     };
     Views: {};
-    Functions: {};
+    Functions: {
+      text_search_jobs: {
+        Args: {
+          search_query: string;
+          jobs_status: JobStatus;
+        };
+        Returns: Job[];
+      };
+    };
   };
 };

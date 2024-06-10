@@ -391,3 +391,20 @@ export async function addFileToNote({
 export async function deleteNote(noteId: number): Promise<void> {
   await _mainProcessApiCall("delete-note", { noteId });
 }
+
+/**
+ * Get jobs based on search query.
+ */
+export async function getJobsByText({
+  search_query,
+  status,
+}: {
+  search_query: string;
+  status: JobStatus;
+}): Promise<Job[]> {
+  const jobs = await _mainProcessApiCall<Job[]>("get-jobs-by-text", {
+    search_query,
+    status,
+  });
+  return jobs;
+}

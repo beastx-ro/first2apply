@@ -488,4 +488,27 @@ export class F2aSupabaseApi {
       this._supabase.from("notes").delete().eq("id", noteId)
     );
   }
+
+  /**
+   * Get jobs based on search query.
+   */
+  async getJobsByText({
+    search_query,
+    status,
+  }: {
+    search_query: string;
+    status: JobStatus;
+  }) {
+    const parsedQuery = search_query.split(" ").join(" & ");
+    const jobs = await this._supabaseApiCall<Job[], PostgrestError>(
+      async () => {
+        const res = await this._supabase.rpc("text_search_jobs", {
+          search_query: parsedQuery,
+          jobs_status: status,
+        });
+        return res;
+      }
+    );
+    return jobs;
+  }
 }
