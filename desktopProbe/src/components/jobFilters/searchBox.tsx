@@ -1,25 +1,28 @@
 import { Cross2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
-import { useState } from 'react';
 
-import { Input } from './ui/input';
+import { Input } from '../ui/input';
 
-export function SearchBox() {
-  const [inputValue, setInputValue] = useState('');
-
+export function SearchBox({
+  inputValue,
+  setInputValue,
+}: {
+  inputValue: string;
+  setInputValue: (value: string) => void;
+}) {
   const handleClearInput = () => {
     setInputValue('');
   };
 
   return (
-    <div className="relative mb-3 ml-[1px] mr-2 mt-1 h-12">
+    <div className="relative h-full">
       <Input
-        className="h-full w-full overflow-x-scroll rounded-xl px-11"
+        className="h-full w-full overflow-x-scroll rounded-xl px-11 focus-visible:outline-none focus-visible:ring-0"
         placeholder="Search..."
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
       />
 
-      <MagnifyingGlassIcon className="absolute left-5 top-3.5 h-5 w-fit text-muted-foreground" />
+      <MagnifyingGlassIcon className="absolute left-3 top-3.5 h-5 w-fit text-muted-foreground" />
 
       {inputValue && (
         <Cross2Icon

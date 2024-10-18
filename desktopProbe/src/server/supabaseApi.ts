@@ -161,12 +161,29 @@ export class F2aSupabaseApi {
   /**
    * List all jobs for the current user.
    */
-  async listJobs({ status, limit = 50, after }: { status: JobStatus; limit?: number; after?: string }) {
+  async listJobs({
+    status,
+    search,
+    siteIds,
+    linkIds,
+    limit = 50,
+    after,
+  }: {
+    status: JobStatus;
+    search?: string;
+    siteIds?: number[];
+    linkIds?: number[];
+    limit?: number;
+    after?: string;
+  }) {
     const jobs = await this._supabaseApiCall<Job[], PostgrestError>(async () => {
       const res = await this._supabase.rpc('list_jobs', {
         jobs_status: status,
         jobs_after: after ?? null,
         jobs_page_size: limit,
+        jobs_search: search,
+        jobs_site_ids: siteIds,
+        jobs_link_ids: linkIds,
       });
 
       return res;

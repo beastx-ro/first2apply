@@ -112,7 +112,22 @@ export async function deleteLink(linkId: number): Promise<void> {
 /**
  * List all jobs.
  */
-export async function listJobs({ status, limit, after }: { status: JobStatus; limit?: number; after?: string }) {
+export async function listJobs({
+  status,
+  search,
+  siteIds,
+  linkIds,
+  limit,
+  after,
+}: {
+  status: JobStatus;
+  search?: string;
+  siteIds?: number[];
+  linkIds?: number[];
+  limit?: number;
+  after?: string;
+}) {
+  console.log('listJobs', { status, search, siteIds, linkIds, limit, after });
   const result = await _mainProcessApiCall<{
     jobs: Job[];
     new: number;
@@ -122,6 +137,9 @@ export async function listJobs({ status, limit, after }: { status: JobStatus; li
     nextPageToken?: string;
   }>('list-jobs', {
     status,
+    search,
+    siteIds,
+    linkIds,
     limit,
     after,
   });

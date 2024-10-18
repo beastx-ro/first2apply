@@ -1,8 +1,9 @@
 import { JobDetails } from '@/components/jobDetails';
+import { JobFilters } from '@/components/jobFilters';
+import { JobFiltersType } from '@/components/jobFilters/jobFiltersMenu';
 import { JobNotes } from '@/components/jobNotes';
 import { JobSummary } from '@/components/jobSummary';
 import { JobsList } from '@/components/jobsList';
-import { SearchBox } from '@/components/searchBox';
 import { JobsSkeleton } from '@/components/skeletons/jobsSkeleton';
 import {
   AlertDialog,
@@ -79,7 +80,11 @@ export function Home() {
   const jobDescriptionRef = useRef<HTMLDivElement>(null);
 
   // Parse the query parameters to determine the active tab
-  const status = (new URLSearchParams(location.search).get('status') || 'new') as JobStatus;
+  const searchParams = new URLSearchParams(location.search);
+  const status = (searchParams.get('status') || 'new') as JobStatus;
+  const search = searchParams.get('search') || undefined; // search query
+  const siteIds = searchParams.get('site_ids') ? searchParams.get('site_ids').split(',').map(Number) : undefined;
+  const linkIds = searchParams.get('link_ids') ? searchParams.get('link_ids').split(',').map(Number) : undefined;
 
   const [listing, setListing] = useState<JobListing>({
     isLoading: true,
@@ -115,8 +120,11 @@ export function Home() {
           return;
         }
 
+        console.log(location.search);
         setListing((listing) => ({ ...listing, isLoading: true }));
-        const result = await listJobs({ status, limit: JOB_BATCH_SIZE });
+
+        const result = await listJobs({ status, search, siteIds, linkIds, limit: JOB_BATCH_SIZE });
+        console.log('found jobs', result.jobs.length);
 
         setListing({
           ...result,
@@ -135,7 +143,7 @@ export function Home() {
       }
     };
     asyncLoad();
-  }, [status, location.search]); // using location.search to trigger the effect when the query parameter changes
+  }, [location.search]); // using location.search to trigger the effect when the query parameter changes
 
   // effect used to load a new batch of jobs after updating the status of a job
   // and there are still jobs to load
@@ -171,7 +179,9 @@ export function Home() {
 
   // Handle tab change
   const onTabChange = (tabValue: string) => {
-    navigate(`?status=${tabValue}&r=${Math.random()}`);
+    navigate(
+      `?status=${tabValue}&search=${search}&site_ids=${siteIds?.join(',')}&link_ids=${linkIds?.join(',')}&r=${Math.random()}`,
+    );
   };
 
   // archive all jobs from the current tab
@@ -382,6 +392,15 @@ export function Home() {
     }
   }, [selectedJobId]);
 
+  /**
+   * Update the query params when the search input changes.
+   */
+  const onSearchJobs = ({ search, filters }: { search: string; filters: JobFiltersType }) => {
+    navigate(
+      `?status=${status}&search=${search}&site_ids=${filters.sites.join(',')}&link_ids=${filters.links.join(',')}`,
+    );
+  };
+
   if (isLoadingLinks) {
     return <Loading />;
   }
@@ -468,72 +487,75 @@ export function Home() {
           </TabsTrigger>
         </TabsList>
 
-        {listing.jobs.length > 0 ? (
-          ALL_JOB_STATUSES.map((statusItem) => {
-            return (
-              <TabsContent key={statusItem} value={statusItem} className="focus-visible:ring-0">
-                {listing.isLoading || statusItem !== status ? (
-                  <JobsSkeleton />
-                ) : (
-                  <section className="flex">
-                    {/* jobs list */}
-                    <div id="jobsList" className="no-scrollbar h-[calc(100vh-100px)] w-1/2 overflow-scroll lg:w-2/5">
-                      <SearchBox />
+        {ALL_JOB_STATUSES.map((statusItem) => {
+          return (
+            <TabsContent key={statusItem} value={statusItem} className="focus-visible:ring-0">
+              <section className="flex">
+                {/* jobs list */}
+                <div id="jobsList" className="no-scrollbar h-[calc(100vh-100px)] w-1/2 overflow-scroll lg:w-2/5">
+                  <JobFilters search={search} siteIds={siteIds} linkIds={linkIds} onSearchJobs={onSearchJobs} />
+                  <div className="mt-2"></div>
 
-                      <JobsList
-                        jobs={listing.jobs}
-                        selectedJobId={selectedJobId}
-                        hasMore={listing.hasMore}
-                        parentContainerId="jobsList"
-                        onLoadMore={onLoadMore}
-                        onSelect={(job) => scanJobAndSelect(job)}
+                  {listing.isLoading || statusItem !== status ? (
+                    <JobsSkeleton />
+                  ) : (
+                    <>
+                      {listing.jobs.length > 0 ? (
+                        <JobsList
+                          jobs={listing.jobs}
+                          selectedJobId={selectedJobId}
+                          hasMore={listing.hasMore}
+                          parentContainerId="jobsList"
+                          onLoadMore={onLoadMore}
+                          onSelect={(job) => scanJobAndSelect(job)}
+                          onArchive={(j) => {
+                            onUpdateJobStatus(j.id, 'archived');
+                          }}
+                          onDelete={(j) => {
+                            onUpdateJobStatus(j.id, 'deleted');
+                          }}
+                        />
+                      ) : (
+                        <p className="m-auto mt-20 max-w-md px-6 text-center">
+                          No new job listings right now, but don't worry! We're on the lookout and will update you as
+                          soon as we find anything.
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* JD side panel */}
+                <div
+                  ref={jobDescriptionRef}
+                  className="h-[calc(100vh-100px)] w-1/2 space-y-4 overflow-scroll border-l-[1px] border-muted pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4"
+                >
+                  {selectedJob && (
+                    <>
+                      <JobSummary
+                        job={selectedJob}
+                        onApply={(j) => {
+                          onApplyToJob(j);
+                        }}
                         onArchive={(j) => {
                           onUpdateJobStatus(j.id, 'archived');
                         }}
                         onDelete={(j) => {
                           onUpdateJobStatus(j.id, 'deleted');
                         }}
+                        onUpdateLabels={onUpdateJobLabels}
+                        onView={onViewJob}
                       />
-                    </div>
-
-                    {/* JD side panel */}
-                    <div
-                      ref={jobDescriptionRef}
-                      className="h-[calc(100vh-100px)] w-1/2 space-y-4 overflow-scroll border-l-[1px] border-muted pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4"
-                    >
-                      {selectedJob && (
-                        <>
-                          <JobSummary
-                            job={selectedJob}
-                            onApply={(j) => {
-                              onApplyToJob(j);
-                            }}
-                            onArchive={(j) => {
-                              onUpdateJobStatus(j.id, 'archived');
-                            }}
-                            onDelete={(j) => {
-                              onUpdateJobStatus(j.id, 'deleted');
-                            }}
-                            onUpdateLabels={onUpdateJobLabels}
-                            onView={onViewJob}
-                          />
-                          <JobDetails job={selectedJob} isScrapingDescription={!!selectedJob.isLoadingJD}></JobDetails>
-                          <hr className="border-t border-muted" />
-                          <JobNotes jobId={selectedJobId} />
-                        </>
-                      )}
-                    </div>
-                  </section>
-                )}
-              </TabsContent>
-            );
-          })
-        ) : (
-          <p className="m-auto mt-20 max-w-md text-center">
-            No new job listings right now, but don't worry! We're on the lookout and will update you as soon as we find
-            anything.
-          </p>
-        )}
+                      <JobDetails job={selectedJob} isScrapingDescription={!!selectedJob.isLoadingJD}></JobDetails>
+                      <hr className="border-t border-muted" />
+                      <JobNotes jobId={selectedJobId} />
+                    </>
+                  )}
+                </div>
+              </section>
+            </TabsContent>
+          );
+        })}
       </Tabs>
     </DefaultLayout>
   );
