@@ -1774,9 +1774,11 @@ export function parseTalentJobs({
     const location =
       el.querySelector(".card__job-location")?.textContent?.trim() || "";
 
-    const jobType =
-      el.querySelector(".card__job-badge-remote")?.textContent?.trim() ||
-      "onsite";
+    const jobType = el
+      .querySelector(".card__job-badge-remote")
+      ?.textContent?.trim()
+      ? "remote"
+      : "onsite";
 
     return {
       siteId,
@@ -1787,6 +1789,7 @@ export function parseTalentJobs({
       companyLogo,
       location,
       jobType,
+      labels: [],
     };
   });
 
