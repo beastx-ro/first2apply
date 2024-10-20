@@ -152,3 +152,6 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 
 [functions.handle-stripe-webhook]
 verify_jwt = false
+
+[functions.handle-profile-change-webhook]
+verify_jwt = false

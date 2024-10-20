@@ -4,13 +4,20 @@ import { CORS_HEADERS } from "../_shared/cors.ts";
 import { getExceptionMessage } from "../_shared/errorUtils.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { DbSchema, SubscriptionTier } from "../_shared/types.ts";
+import { createLoggerWithMeta } from "../_shared/logger.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: CORS_HEADERS });
   }
 
+  const logger = createLoggerWithMeta({
+    function: "handle-stripe-webhook",
+  });
   try {
+    const requestId = crypto.randomUUID();
+    logger.addMeta("request_id", requestId);
+
     // init supabase client
     const supabaseClient = createClient<DbSchema>(
       Deno.env.get("SUPABASE_URL") ?? "",
