@@ -14,15 +14,15 @@ export function SearchBox({
   };
 
   return (
-    <div className="relative h-full">
+    <div className="relative h-12 flex-grow">
       <Input
-        className="h-full w-full overflow-x-scroll rounded-xl px-11 focus-visible:outline-none focus-visible:ring-0"
+        className="h-full w-full overflow-x-scroll rounded-md px-11 focus-visible:outline-none focus-visible:ring-0"
         placeholder="Search..."
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
       />
 
-      <MagnifyingGlassIcon className="absolute left-3 top-3.5 h-5 w-fit text-muted-foreground" />
+      <MagnifyingGlassIcon className="absolute left-5 top-3.5 h-5 w-fit text-muted-foreground" />
 
       {inputValue && (
         <Cross2Icon

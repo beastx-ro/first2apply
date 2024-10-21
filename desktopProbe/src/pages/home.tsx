@@ -492,9 +492,11 @@ export function Home() {
             <TabsContent key={statusItem} value={statusItem} className="focus-visible:ring-0">
               <section className="flex">
                 {/* jobs list */}
-                <div id="jobsList" className="no-scrollbar h-[calc(100vh-100px)] w-1/2 overflow-scroll lg:w-2/5">
+                <div
+                  id="jobsList"
+                  className="no-scrollbar h-[calc(100vh-100px)] w-1/2 space-y-3 overflow-scroll lg:w-2/5"
+                >
                   <JobFilters search={search} siteIds={siteIds} linkIds={linkIds} onSearchJobs={onSearchJobs} />
-                  <div className="mt-2"></div>
 
                   {listing.isLoading || statusItem !== status ? (
                     <JobsSkeleton />

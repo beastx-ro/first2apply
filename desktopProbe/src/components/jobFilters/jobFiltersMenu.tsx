@@ -1,5 +1,6 @@
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
@@ -16,8 +17,6 @@ import { cn } from '@/lib/utils';
 import { FilterIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Checkbox } from '../ui/checkbox';
-
 export type JobFiltersType = {
   sites: number[];
   links: number[];
@@ -33,11 +32,14 @@ export function JobFiltersMenu({
   onApplyFilters: (filters: JobFiltersType) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeFilterCount, setActiveFilterCount] = useState(0);
 
   const { siteLogos, sites } = useSites();
-  const sortedSites = sites.sort((a, b) => a.name.localeCompare(b.name));
-
   const { links } = useLinks();
+
+  const sortedSites = sites
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .filter((site) => links.some((link) => link.site_id === site.id));
 
   const onSelectSite = (siteId: number) => {
     if (selectedSites.includes(siteId)) {
@@ -65,39 +67,53 @@ export function JobFiltersMenu({
     onApplyFilters({ sites: [], links: [] });
   };
 
+  useEffect(() => {
+    const appliedFiltersCount = [selectedSites.length, selectedLinks.length].filter((count) => count > 0).length;
+    setActiveFilterCount(appliedFiltersCount);
+  }, [selectedSites, selectedLinks]);
+
   return (
     <DropdownMenu open={isOpen} onOpenChange={(opened) => setIsOpen(opened)}>
       <DropdownMenuTrigger
-        className="h-6 w-6 focus-visible:outline-none focus-visible:ring-0"
+        className="relative flex h-12 w-12 items-center justify-center rounded-md bg-transparent transition-colors duration-200 ease-in-out hover:bg-foreground/10 focus-visible:outline-none focus-visible:ring-0"
         onClick={(evt) => {
           evt.preventDefault();
           evt.stopPropagation();
         }}
       >
-        <FilterIcon className={cn('m-auto h-6 w-auto text-muted-foreground', isOpen && 'text-primary')} />
+        <FilterIcon className={cn('h-auto w-6 text-foreground/90', isOpen && 'text-primary')} />
+        {activeFilterCount > 0 && (
+          <div
+            className={cn(
+              'absolute bottom-1.5 right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-foreground p-0 text-[10px] text-background dark:font-bold',
+              isOpen && 'bg-primary',
+            )}
+          >
+            {activeFilterCount}
+          </div>
+        )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
-        {/* sites */}
+
+      <DropdownMenuContent className="w-56" side="right" sideOffset={8} align="start">
+        {/* Job Boards */}
         <DropdownMenuGroup>
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger>Site</DropdownMenuSubTrigger>
+            <DropdownMenuSubTrigger>Job Boards</DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent>
+              <DropdownMenuSubContent sideOffset={8} alignOffset={-5}>
                 {sortedSites.map((site) => (
-                  <DropdownMenuItem
+                  <DropdownMenuCheckboxItem
                     key={site.id}
-                    onClick={() => {}}
+                    checked={selectedSites.includes(site.id)}
                     onSelect={(evt) => {
                       evt.preventDefault();
                       onSelectSite(site.id);
                     }}
+                    className="pr-8"
                   >
-                    <div className="flex items-center">
-                      <Checkbox className="mr-2 text-muted" checked={selectedSites.includes(site.id)} />
-                      <img src={siteLogos[site.id]} alt={site.name} className="mr-2 h-4 w-4 rounded-full" />
-                      <p>{site.name}</p>
-                    </div>
-                  </DropdownMenuItem>
+                    <img src={siteLogos[site.id]} alt={site.name} className="mr-2 h-4 w-4 rounded-full" />
+                    <p>{site.name}</p>
+                  </DropdownMenuCheckboxItem>
                 ))}
 
                 <DropdownMenuSeparator />
@@ -106,35 +122,35 @@ export function JobFiltersMenu({
                     evt.preventDefault();
                     clearSites();
                   }}
+                  disabled={selectedSites.length === 0}
+                  className="px-8 text-destructive"
                 >
-                  Clear All
+                  Reset Board Selection
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>
         </DropdownMenuGroup>
 
-        {/* links */}
+        {/* Links */}
         <DropdownMenuGroup>
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger>My Searches</DropdownMenuSubTrigger>
+            <DropdownMenuSubTrigger>Searches</DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent>
+              <DropdownMenuSubContent sideOffset={8} alignOffset={-37}>
                 {links.map((link) => (
-                  <DropdownMenuItem
+                  <DropdownMenuCheckboxItem
                     key={link.id}
-                    onClick={() => {}}
+                    checked={selectedLinks.includes(link.id)}
                     onSelect={(evt) => {
                       evt.preventDefault();
                       onSelectLink(link.id);
                     }}
+                    className="pr-8"
                   >
-                    <div className="flex items-center">
-                      <Checkbox className="mr-2 text-muted" checked={selectedLinks.includes(link.id)} />
-                      <img src={siteLogos[link.site_id]} alt={link.title} className="mr-2 h-4 w-4 rounded-full" />
-                      <p>{link.title}</p>
-                    </div>
-                  </DropdownMenuItem>
+                    <img src={siteLogos[link.site_id]} alt={link.title} className="mr-2 h-4 w-4 rounded-full" />
+                    <p>{link.title}</p>
+                  </DropdownMenuCheckboxItem>
                 ))}
 
                 <DropdownMenuSeparator />
@@ -143,8 +159,10 @@ export function JobFiltersMenu({
                     evt.preventDefault();
                     clearLinks();
                   }}
+                  disabled={selectedLinks.length === 0}
+                  className="px-8 text-destructive"
                 >
-                  Clear All
+                  Reset Search Selection
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
@@ -156,8 +174,10 @@ export function JobFiltersMenu({
           onSelect={() => {
             clearAll();
           }}
+          disabled={selectedSites.length === 0 && selectedLinks.length === 0}
+          className="text-destructive"
         >
-          Clear All
+          Remove Filters
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

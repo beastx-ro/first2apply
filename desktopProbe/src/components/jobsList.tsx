@@ -151,7 +151,7 @@ export function JobsList({
                         <TooltipTrigger>
                           <Button
                             variant="secondary"
-                            className="h-[22px] w-[22px] bg-transparent px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/10 focus:bg-foreground/10"
+                            className="h-[22px] w-[22px] rounded-sm bg-transparent px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/10 focus:bg-foreground/10"
                             onClick={(evt) => {
                               onArchive(job);
                               evt.stopPropagation();
@@ -174,7 +174,7 @@ export function JobsList({
                       <TooltipTrigger>
                         <Button
                           variant="destructive"
-                          className="h-[22px] w-[22px] bg-transparent px-0 transition-colors duration-200 ease-in-out hover:bg-destructive/20 focus:bg-destructive/20"
+                          className="h-[22px] w-[22px] rounded-sm bg-transparent px-0 transition-colors duration-200 ease-in-out hover:bg-destructive/20 focus:bg-destructive/20"
                           onClick={(evt) => {
                             // onDelete(job);
                             setJobToDelete(job);

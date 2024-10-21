@@ -45,10 +45,8 @@ export function JobFilters({
   }, [inputValue, filters, emitChanges]);
 
   return (
-    <div className="flex items-center justify-center gap-4 pr-4">
-      <div className="h-12 flex-grow">
-        <SearchBox inputValue={inputValue} setInputValue={setInputValue} />
-      </div>
+    <div className="flex items-center justify-center gap-2 pr-2">
+      <SearchBox inputValue={inputValue} setInputValue={setInputValue} />
 
       <JobFiltersMenu
         selectedSites={siteIds || []}
