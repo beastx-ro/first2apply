@@ -1,5 +1,5 @@
 import { debounce } from 'lodash';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { JobFiltersMenu, JobFiltersType } from './jobFilters/jobFiltersMenu';
 import { SearchBox } from './jobFilters/searchBox';
@@ -24,25 +24,28 @@ export function JobFilters({
     links: [],
   });
 
-  // Debounce the function to emit the inputValue + filters pair
-  const emitChanges = useCallback(
-    debounce((value, updatedFilters) => {
-      onSearchJobs({ search: value, filters: updatedFilters });
-    }, 500),
-    [],
+  // Debounced search for input value
+  const emitDebouncedSearch = useCallback(
+    debounce((value: string, currentFilters: JobFiltersType) => {
+      onSearchJobs({ search: value, filters: currentFilters });
+    }, 250),
+    [filters],
   );
 
-  // Handle changes to inputValue or filters
-  // how to avoid emitting changes when the component is first mounted?
-  const isFirstRender = useRef(true);
+  // Initial call to load jobs
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
+    onSearchJobs({ search: inputValue, filters: filters });
+  }, []); // Empty dependency array to run only once on mount
 
-    emitChanges(inputValue, filters);
-  }, [inputValue, filters, emitChanges]);
+  // Emit search on inputValue change, debounced
+  useEffect(() => {
+    emitDebouncedSearch(inputValue, filters);
+  }, [inputValue, filters, emitDebouncedSearch]);
+
+  // Emit filter changes immediately without debounce
+  useEffect(() => {
+    onSearchJobs({ search: inputValue, filters: filters });
+  }, [filters]);
 
   return (
     <div className="flex items-center justify-center gap-2 pr-2">
