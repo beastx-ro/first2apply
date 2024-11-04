@@ -4,7 +4,7 @@ import { JobFiltersType } from '@/components/jobFilters/jobFiltersMenu';
 import { JobNotes } from '@/components/jobNotes';
 import { JobSummary } from '@/components/jobSummary';
 import { JobsList } from '@/components/jobsList';
-import { JobsSkeleton } from '@/components/skeletons/jobsSkeleton';
+import { JobDetailsSkeleton, JobSummarySkeleton, JobsListSkeleton } from '@/components/skeletons/jobsSkeleton';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -499,61 +499,64 @@ export function Home() {
                   <JobFilters search={search} siteIds={siteIds} linkIds={linkIds} onSearchJobs={onSearchJobs} />
 
                   {listing.isLoading || statusItem !== status ? (
-                    <JobsSkeleton />
+                    <JobsListSkeleton />
+                  ) : listing.jobs.length > 0 ? (
+                    <JobsList
+                      jobs={listing.jobs}
+                      selectedJobId={selectedJobId}
+                      hasMore={listing.hasMore}
+                      parentContainerId="jobsList"
+                      onLoadMore={onLoadMore}
+                      onSelect={(job) => scanJobAndSelect(job)}
+                      onArchive={(j) => {
+                        onUpdateJobStatus(j.id, 'archived');
+                      }}
+                      onDelete={(j) => {
+                        onUpdateJobStatus(j.id, 'deleted');
+                      }}
+                    />
                   ) : (
-                    <>
-                      {listing.jobs.length > 0 ? (
-                        <JobsList
-                          jobs={listing.jobs}
-                          selectedJobId={selectedJobId}
-                          hasMore={listing.hasMore}
-                          parentContainerId="jobsList"
-                          onLoadMore={onLoadMore}
-                          onSelect={(job) => scanJobAndSelect(job)}
+                    <p className="m-auto mt-20 max-w-md px-6 text-center">
+                      No new job listings right now, but don't worry! We're on the lookout and will update you as soon
+                      as we find anything.
+                    </p>
+                  )}
+                </div>
+
+                {/* JD side panel */}
+                {listing.isLoading || statusItem !== status ? (
+                  <div className="h-[calc(100vh-100px)] w-1/2 animate-pulse space-y-4 overflow-scroll border-l-[1px] border-muted pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4">
+                    <JobSummarySkeleton />
+                    <JobDetailsSkeleton />
+                  </div>
+                ) : (
+                  <div
+                    ref={jobDescriptionRef}
+                    className="h-[calc(100vh-100px)] w-1/2 space-y-4 overflow-scroll border-l-[1px] border-muted pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4"
+                  >
+                    {selectedJob && (
+                      <>
+                        <JobSummary
+                          job={selectedJob}
+                          onApply={(j) => {
+                            onApplyToJob(j);
+                          }}
                           onArchive={(j) => {
                             onUpdateJobStatus(j.id, 'archived');
                           }}
                           onDelete={(j) => {
                             onUpdateJobStatus(j.id, 'deleted');
                           }}
+                          onUpdateLabels={onUpdateJobLabels}
+                          onView={onViewJob}
                         />
-                      ) : (
-                        <p className="m-auto mt-20 max-w-md px-6 text-center">
-                          No new job listings right now, but don't worry! We're on the lookout and will update you as
-                          soon as we find anything.
-                        </p>
-                      )}
-                    </>
-                  )}
-                </div>
-
-                {/* JD side panel */}
-                <div
-                  ref={jobDescriptionRef}
-                  className="h-[calc(100vh-100px)] w-1/2 space-y-4 overflow-scroll border-l-[1px] border-muted pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4"
-                >
-                  {selectedJob && (
-                    <>
-                      <JobSummary
-                        job={selectedJob}
-                        onApply={(j) => {
-                          onApplyToJob(j);
-                        }}
-                        onArchive={(j) => {
-                          onUpdateJobStatus(j.id, 'archived');
-                        }}
-                        onDelete={(j) => {
-                          onUpdateJobStatus(j.id, 'deleted');
-                        }}
-                        onUpdateLabels={onUpdateJobLabels}
-                        onView={onViewJob}
-                      />
-                      <JobDetails job={selectedJob} isScrapingDescription={!!selectedJob.isLoadingJD}></JobDetails>
-                      <hr className="border-t border-muted" />
-                      <JobNotes jobId={selectedJobId} />
-                    </>
-                  )}
-                </div>
+                        <JobDetails job={selectedJob} isScrapingDescription={!!selectedJob.isLoadingJD}></JobDetails>
+                        <hr className="border-t border-muted" />
+                        <JobNotes jobId={selectedJobId} />
+                      </>
+                    )}
+                  </div>
+                )}
               </section>
             </TabsContent>
           );
@@ -575,7 +578,7 @@ function Loading() {
         <Skeleton className="flex-1" />
       </div>
 
-      <JobsSkeleton />
+      <JobsListSkeleton />
     </DefaultLayout>
   );
 }

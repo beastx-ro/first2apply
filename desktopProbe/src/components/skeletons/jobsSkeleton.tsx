@@ -109,18 +109,3 @@ export function JobDetailsSkeleton() {
     </div>
   );
 }
-
-export const JobsSkeleton: FC = () => {
-  return (
-    <section className="flex">
-      <div className="no-scrollbar h-[calc(100vh-100px)] w-1/2 overflow-scroll lg:w-2/5">
-        <JobsListSkeleton />
-      </div>
-
-      <div className="h-[calc(100vh-100px)] w-1/2 animate-pulse space-y-4 overflow-scroll border-l-[1px] border-muted pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4">
-        <JobSummarySkeleton />
-        <JobDetailsSkeleton />
-      </div>
-    </section>
-  );
-};
