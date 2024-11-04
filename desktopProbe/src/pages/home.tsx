@@ -420,7 +420,9 @@ export function Home() {
             }`}
           >
             {status === 'new' && <span className="w-6" />}
-            New Jobs {`(${listing.new})`}
+            {search
+              ? `Search results ${`(${listing.jobs.length}${listing.hasMore ? '+' : ''})`}`
+              : `New jobs ${`(${listing.new})`}`}
             {status === 'new' && (
               <TabActions
                 tab="new"
