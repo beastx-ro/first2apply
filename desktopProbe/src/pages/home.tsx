@@ -419,18 +419,22 @@ export function Home() {
               status === 'new' ? 'justify-between' : 'justify-center'
             }`}
           >
-            {status === 'new' && <span className="w-6" />}
-            {search
-              ? `Search results ${`(${listing.jobs.length}${listing.hasMore ? '+' : ''})`}`
-              : `New jobs ${`(${listing.new})`}`}
-            {status === 'new' && (
-              <TabActions
-                tab="new"
-                onTabChange={onTabChange}
-                onCsvExport={onCsvExport}
-                onArchiveAll={onArchiveAll}
-                onDeleteAll={onDeleteAll}
-              />
+            {status === 'new' ? (
+              <>
+                <span className="w-6" />
+                {search
+                  ? `Search results ${`(${listing.jobs.length}${listing.hasMore ? '+' : ''})`}`
+                  : `New jobs ${`(${listing.new})`}`}
+                <TabActions
+                  tab="new"
+                  onTabChange={onTabChange}
+                  onCsvExport={onCsvExport}
+                  onArchiveAll={onArchiveAll}
+                  onDeleteAll={onDeleteAll}
+                />
+              </>
+            ) : (
+              `New jobs ${`(${listing.new})`}`
             )}
           </TabsTrigger>
           <TabsTrigger
@@ -439,16 +443,22 @@ export function Home() {
               status === 'applied' ? 'justify-between' : 'justify-center'
             }`}
           >
-            {status === 'applied' && <span className="w-6" />}
-            Applied {`(${listing.applied})`}
-            {status === 'applied' && (
-              <TabActions
-                tab="applied"
-                onTabChange={onTabChange}
-                onCsvExport={onCsvExport}
-                onArchiveAll={onArchiveAll}
-                onDeleteAll={onDeleteAll}
-              />
+            {status === 'applied' ? (
+              <>
+                <span className="w-6" />
+                {search
+                  ? `Search results ${`(${listing.jobs.length}${listing.hasMore ? '+' : ''})`}`
+                  : `Applied ${`(${listing.applied})`}`}
+                <TabActions
+                  tab="applied"
+                  onTabChange={onTabChange}
+                  onCsvExport={onCsvExport}
+                  onArchiveAll={onArchiveAll}
+                  onDeleteAll={onDeleteAll}
+                />
+              </>
+            ) : (
+              `Applied ${`(${listing.applied})`}`
             )}
           </TabsTrigger>
           <TabsTrigger
@@ -457,16 +467,22 @@ export function Home() {
               status === 'archived' ? 'justify-between' : 'justify-center'
             }`}
           >
-            {status === 'archived' && <span className="w-6" />}
-            Archived {`(${listing.archived})`}
-            {status === 'archived' && (
-              <TabActions
-                tab="archived"
-                onTabChange={onTabChange}
-                onCsvExport={onCsvExport}
-                onArchiveAll={onArchiveAll}
-                onDeleteAll={onDeleteAll}
-              />
+            {status === 'archived' ? (
+              <>
+                <span className="w-6" />
+                {search
+                  ? `Search results ${`(${listing.jobs.length}${listing.hasMore ? '+' : ''})`}`
+                  : `Archived ${`(${listing.archived})`}`}
+                <TabActions
+                  tab="archived"
+                  onTabChange={onTabChange}
+                  onCsvExport={onCsvExport}
+                  onArchiveAll={onArchiveAll}
+                  onDeleteAll={onDeleteAll}
+                />
+              </>
+            ) : (
+              `Archived ${`(${listing.archived})`}`
             )}
           </TabsTrigger>
           <TabsTrigger
@@ -475,16 +491,22 @@ export function Home() {
               status === 'excluded_by_advanced_matching' ? 'justify-between' : 'justify-center'
             }`}
           >
-            {status === 'excluded_by_advanced_matching' && <span className="w-6" />}
-            Filtered out {`(${listing.filtered})`}
-            {status === 'excluded_by_advanced_matching' && (
-              <TabActions
-                tab="excluded_by_advanced_matching"
-                onTabChange={onTabChange}
-                onCsvExport={onCsvExport}
-                onArchiveAll={onArchiveAll}
-                onDeleteAll={onDeleteAll}
-              />
+            {status === 'excluded_by_advanced_matching' ? (
+              <>
+                <span className="w-6" />
+                {search
+                  ? `Search results ${`(${listing.jobs.length}${listing.hasMore ? '+' : ''})`}`
+                  : `Fitered out ${`(${listing.filtered})`}`}
+                <TabActions
+                  tab="excluded_by_advanced_matching"
+                  onTabChange={onTabChange}
+                  onCsvExport={onCsvExport}
+                  onArchiveAll={onArchiveAll}
+                  onDeleteAll={onDeleteAll}
+                />
+              </>
+            ) : (
+              `Fitered out ${`(${listing.filtered})`}`
             )}
           </TabsTrigger>
         </TabsList>
