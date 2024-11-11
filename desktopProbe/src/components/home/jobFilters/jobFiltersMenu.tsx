@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useLinks } from '@/hooks/links';
 import { useSites } from '@/hooks/sites';
-import { cn } from '@/lib/utils';
 import { FilterIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -22,6 +21,9 @@ export type JobFiltersType = {
   links: number[];
 };
 
+/**
+ * Job filters menu component.
+ */
 export function JobFiltersMenu({
   selectedSites,
   selectedLinks,
@@ -37,6 +39,7 @@ export function JobFiltersMenu({
   const { siteLogos, sites } = useSites();
   const { links } = useLinks();
 
+  // Sort sites alphabetically and filter out sites that don't have any links
   const sortedSites = sites
     .sort((a, b) => a.name.localeCompare(b.name))
     .filter((site) => links.some((link) => link.site_id === site.id));
@@ -112,6 +115,7 @@ export function JobFiltersMenu({
                 ))}
 
                 <DropdownMenuSeparator />
+                {/* Reset filter button */}
                 <DropdownMenuItem
                   onSelect={(evt) => {
                     evt.preventDefault();
@@ -149,6 +153,7 @@ export function JobFiltersMenu({
                 ))}
 
                 <DropdownMenuSeparator />
+                {/* Reset filter button */}
                 <DropdownMenuItem
                   onSelect={(evt) => {
                     evt.preventDefault();
@@ -165,6 +170,8 @@ export function JobFiltersMenu({
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
+
+        {/* Reset all filters button */}
         <DropdownMenuItem
           onSelect={() => {
             clearAll();

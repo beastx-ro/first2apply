@@ -8,12 +8,15 @@ import { createRef, useEffect, useMemo, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { Job } from '../../../supabase/functions/_shared/types';
+import { Job } from '../../../../supabase/functions/_shared/types';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Button } from '../ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { DeleteJobDialog } from './deleteJobDialog';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Button } from './ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
+/**
+ * List of jobs component.
+ */
 export function JobsList({
   jobs,
   selectedJobId,
@@ -60,7 +63,7 @@ export function JobsList({
     return () => clearTimeout(timer);
   }, [scrollToIndex, itemRefs]);
 
-  // Down arrow keyboard shortcut
+  // Navigate between jobs using arrow keys
   useHotkeys(
     'down',
     () => {
@@ -73,8 +76,6 @@ export function JobsList({
     },
     [selectedIndex, jobs],
   );
-
-  // Up arrow keyboard shortcut
   useHotkeys(
     'up',
     () => {

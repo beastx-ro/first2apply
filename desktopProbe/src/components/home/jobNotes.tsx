@@ -10,19 +10,21 @@ import { useToast } from '@/components/ui/use-toast';
 import { useError } from '@/hooks/error';
 import { addFileToNote, createNote, deleteNote, listNotes, updateNote } from '@/lib/electronMainSdk';
 import { PlusIcon } from '@radix-ui/react-icons';
-import { Pencil2Icon, TrashIcon, UploadIcon } from '@radix-ui/react-icons';
+import { Pencil2Icon, TrashIcon } from '@radix-ui/react-icons';
 import { useEffect, useState } from 'react';
 import Markdown from 'react-markdown';
 import TextareaAutosize from 'react-textarea-autosize';
 import remarkGfm from 'remark-gfm';
 
-import { Note } from '../../../supabase/functions/_shared/types';
-import { AlertDialogFooter, AlertDialogHeader } from './ui/alert-dialog';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader } from './ui/card';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { Note } from '../../../../supabase/functions/_shared/types';
+import { AlertDialogFooter, AlertDialogHeader } from '../ui/alert-dialog';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '../ui/card';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
+/**
+ * Job notes component.
+ */
 export function JobNotes({ jobId }: { jobId: number }) {
   const { handleError } = useError();
   const { toast } = useToast();
@@ -190,6 +192,9 @@ export function JobNotes({ jobId }: { jobId: number }) {
   );
 }
 
+/**
+ * job note component.
+ */
 function JobNote({
   note,
   onDelete,
@@ -350,7 +355,7 @@ function EditJobNote({
 }
 
 /**
- * Component used to render a delete note confirmation dialog.
+ * Delete note confirmation dialog component.
  */
 export function DeleteNoteDialog({
   isOpen,

@@ -2,11 +2,11 @@ import { useSites } from '@/hooks/sites';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-import { Job } from '../../../supabase/functions/_shared/types';
-import { Skeleton } from './ui/skeleton';
+import { Job } from '../../../../supabase/functions/_shared/types';
+import { Skeleton } from '../ui/skeleton';
 
 /**
- * Component to display the details of a job.
+ * Job details component.
  */
 export function JobDetails({ job, isScrapingDescription }: { job: Job; isScrapingDescription: boolean }) {
   const { sites } = useSites();
@@ -98,7 +98,7 @@ export function JobDetails({ job, isScrapingDescription }: { job: Job; isScrapin
           fill="none"
           stroke="#2f2e41"
           stroke-miterlimit="10"
-          stroke-width="2"
+          strokeWidth="2"
         />
         <path
           d="M341,359.5s130-36,138,80-107,149-17,172"
@@ -106,7 +106,7 @@ export function JobDetails({ job, isScrapingDescription }: { job: Job; isScrapin
           fill="none"
           stroke="#2f2e41"
           stroke-miterlimit="10"
-          stroke-width="2"
+          strokeWidth="2"
         />
         <path
           d="M215.40233,637.78332s39.0723-10.82,41.47675,24.04449-32.15951,44.78287-5.10946,51.69566"
@@ -114,7 +114,7 @@ export function JobDetails({ job, isScrapingDescription }: { job: Job; isScrapin
           fill="none"
           stroke="#2f2e41"
           stroke-miterlimit="10"
-          stroke-width="2"
+          strokeWidth="2"
         />
         <path
           d="M810.09554,663.73988,802.218,714.03505s-38.78182,20.60284-11.51335,21.20881,155.73324,0,155.73324,0,24.84461,0-14.54318-21.81478l-7.87756-52.719Z"
@@ -211,7 +211,7 @@ export function JobDetails({ job, isScrapingDescription }: { job: Job; isScrapin
         xmlns="http://www.w3.org/2000/svg"
         className="mx-auto my-10 hidden h-fit w-2/3 dark:block"
       >
-        <g clip-path="url(#clip0_2001_2)">
+        <g clipPath="url(#clip0_2001_2)">
           <path
             d="M292.609 426C410.246 426 505.609 330.637 505.609 213C505.609 95.3633 410.246 0 292.609 0C174.972 0 79.6091 95.3633 79.6091 213C79.6091 330.637 174.972 426 292.609 426Z"
             fill="#222222"
@@ -249,19 +249,19 @@ export function JobDetails({ job, isScrapingDescription }: { job: Job; isScrapin
           <path
             d="M462.609 626C552.609 649 725.609 596 744.609 536"
             stroke="#717171"
-            stroke-width="2"
+            strokeWidth="2"
             stroke-miterlimit="10"
           />
           <path
             d="M309.609 259C309.609 259 439.609 223 447.609 339C455.609 455 340.609 488 430.609 511"
             stroke="#717171"
-            stroke-width="2"
+            strokeWidth="2"
             stroke-miterlimit="10"
           />
           <path
             d="M184.011 537.283C184.011 537.283 223.084 526.463 225.488 561.328C227.893 596.192 193.329 606.111 220.379 613.023"
             stroke="#717171"
-            stroke-width="2"
+            strokeWidth="2"
             stroke-miterlimit="10"
           />
           <path

@@ -1,7 +1,9 @@
+import { Input } from '@/components/ui/input';
 import { Cross2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
 
-import { Input } from '../ui/input';
-
+/**
+ * Search box component.
+ */
 export function SearchBox({
   inputValue,
   setInputValue,

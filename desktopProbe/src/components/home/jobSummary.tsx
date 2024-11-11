@@ -2,19 +2,19 @@ import { LABEL_COLOR_CLASSES } from '@/lib/labels';
 import { BackpackIcon, CookieIcon, ExternalLinkIcon, ListBulletIcon, TrashIcon } from '@radix-ui/react-icons';
 import React from 'react';
 
-import { JOB_LABELS, Job, JobLabel } from '../../../supabase/functions/_shared/types';
+import { JOB_LABELS, Job, JobLabel } from '../../../../supabase/functions/_shared/types';
+import { Avatar, AvatarImage } from '../ui/avatar';
+import { Button } from '../ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { DeleteJobDialog } from './deleteJobDialog';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Button } from './ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 function isJobLabel(value: any): value is JobLabel {
   return Object.values(JOB_LABELS).includes(value);
 }
 
 /**
- * Component to display the details of a job.
+ * Job summary component.
  */
 export function JobSummary({
   job,
@@ -171,8 +171,7 @@ export function JobSummary({
 }
 
 /**
- * Component used to render a label selector.
- * For now we only allow setting one label per job.
+ * Label selector component. For now we only allow setting one label per job.
  */
 function JobLabelSelector({
   job,

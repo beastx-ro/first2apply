@@ -5,7 +5,7 @@ import { JobFiltersMenu, JobFiltersType } from './jobFilters/jobFiltersMenu';
 import { SearchBox } from './jobFilters/searchBox';
 
 /**
- * Component for managing job filters.
+ * Job filters component.
  */
 export function JobFilters({
   search,

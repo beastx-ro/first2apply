@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Job } from '../../../supabase/functions/_shared/types';
+import { Job } from '../../../../supabase/functions/_shared/types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,8 +10,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from './ui/alert-dialog';
-import { Checkbox } from './ui/checkbox';
+} from '../ui/alert-dialog';
+import { Checkbox } from '../ui/checkbox';
 
 let SHOW_DELETE_WARNING = true;
 
