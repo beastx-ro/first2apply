@@ -3,6 +3,8 @@ import {
   Element,
 } from "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts";
 import turndown from "npm:turndown@7.1.2";
+import { encodeHex } from "jsr:@std/encoding/hex";
+
 import { Job, JobType, Link, SiteProvider } from "./types.ts";
 import { JobSite } from "./types.ts";
 
@@ -109,7 +111,7 @@ export function cleanJobUrl({
 /**
  * Parse a job page from a given url.
  */
-export function parseJobsListUrl({
+export async function parseJobsListUrl({
   allJobSites,
   link,
   html,
@@ -127,7 +129,10 @@ export function parseJobsListUrl({
     );
   }
 
-  const { jobs, listFound, elementsCount } = parseSiteJobsList({ site, html });
+  const { jobs, listFound, elementsCount } = await parseSiteJobsList({
+    site,
+    html,
+  });
 
   const parseFailed = !listFound || (elementsCount > 0 && jobs.length === 0);
 
@@ -147,13 +152,13 @@ type JobSiteParseResult = {
 /**
  * Parse jobs list from a site provided url.
  */
-function parseSiteJobsList({
+async function parseSiteJobsList({
   site,
   html,
 }: {
   site: JobSite;
   html: string;
-}): JobSiteParseResult {
+}): Promise<JobSiteParseResult> {
   switch (site.provider) {
     case SiteProvider.linkedin:
       return parseLinkedInJobs({ siteId: site.id, html });
@@ -184,7 +189,7 @@ function parseSiteJobsList({
     case SiteProvider.robertHalf:
       return parseRobertHalfJobs({ siteId: site.id, html });
     case SiteProvider.zipRecruiter:
-      return parseZipRecruiterJobs({ siteId: site.id, html });
+      return await parseZipRecruiterJobs({ siteId: site.id, html });
     case SiteProvider.usaJobs:
       return parseUSAJobsJobs({ siteId: site.id, html });
     case SiteProvider.talent:
@@ -1586,17 +1591,23 @@ export function parseRobertHalfJobs({
 /**
  * Method used to parse a zip recruiter job page.
  */
-export function parseZipRecruiterJobs({
+async function parseZipRecruiterJobs({
   siteId,
   html,
 }: {
   siteId: number;
   html: string;
-}): JobSiteParseResult {
+}): Promise<JobSiteParseResult> {
   const document = new DOMParser().parseFromString(html, "text/html");
   if (!document) throw new Error("Could not parse html");
 
-  const jobsList = document.querySelector("ul.jobList");
+  let jobsList = document.querySelector("ul.jobList");
+  let isUsMode = false;
+  if (!jobsList) {
+    jobsList = document.querySelector("div.job_results_two_pane.flex.flex-col");
+    isUsMode = true;
+  }
+
   if (!jobsList)
     return {
       jobs: [],
@@ -1604,38 +1615,97 @@ export function parseZipRecruiterJobs({
       elementsCount: 0,
     };
   const jobElements = Array.from(
-    jobsList.querySelectorAll(".job-listing")
+    isUsMode
+      ? jobsList.querySelectorAll(".job_result_two_pane")
+      : jobsList.querySelectorAll(".job-listing")
   ) as Element[];
 
-  const jobs = jobElements.map((el): ParsedJob | null => {
-    const externalUrlEl = el.querySelector("a.jobList-title");
-    const externalUrl = externalUrlEl?.getAttribute("href")?.trim();
-    if (!externalUrl) return null;
+  const parseJobsListRow = (elements: Element[]) => {
+    return elements.map((el): ParsedJob | null => {
+      const externalUrlEl = el.querySelector("a.jobList-title");
+      const externalUrl = externalUrlEl?.getAttribute("href")?.trim();
+      if (!externalUrl) return null;
 
-    const externalId = externalUrlEl?.getAttribute("id")?.trim();
-    if (!externalId) return null;
+      const externalId = externalUrlEl?.getAttribute("id")?.trim();
+      if (!externalId) return null;
 
-    const title = externalUrlEl?.textContent?.trim();
-    if (!title) return null;
+      const title = externalUrlEl?.textContent?.trim();
+      if (!title) return null;
 
-    const metaEl = el.querySelector("ul.jobList-introMeta");
-    const companyName = metaEl?.querySelector("li")?.textContent?.trim();
-    if (!companyName) return null;
+      const metaEl = el.querySelector("ul.jobList-introMeta");
+      const companyName = metaEl?.querySelector("li")?.textContent?.trim();
+      if (!companyName) return null;
 
-    const location = metaEl
-      ?.querySelector("li:nth-child(2)")
-      ?.textContent?.trim();
+      const location = metaEl
+        ?.querySelector("li:nth-child(2)")
+        ?.textContent?.trim();
 
-    return {
-      siteId,
-      externalId,
-      externalUrl,
-      title,
-      companyName,
-      location,
-      labels: [],
-    };
-  });
+      return {
+        siteId,
+        externalId,
+        externalUrl,
+        title,
+        companyName,
+        location,
+        labels: [],
+      };
+    });
+  };
+
+  const parseJobsListUs = async (elements: Element[]) => {
+    return await Promise.all(
+      elements.map(async (el): Promise<ParsedJob | null> => {
+        const externalUrlEl = el.querySelector("h2 > a");
+        const externalUrl = externalUrlEl?.getAttribute("href")?.trim();
+        if (!externalUrl) return null;
+
+        const title = externalUrlEl?.textContent?.trim();
+        if (!title) return null;
+
+        const companyName = el
+          .querySelector("a[data-testid=job-card-company]")
+          ?.textContent?.trim();
+        if (!companyName) return null;
+
+        const companyLogoUrl = el
+          .querySelector("img.w-auto.max-h-\\[40px\\]")
+          ?.getAttribute("src")
+          ?.trim();
+
+        const location = el
+          .querySelector("a[data-testid=job-card-location]")
+          ?.textContent?.trim();
+
+        const hashBody = new TextEncoder().encode(
+          `${companyName} ${title} ${location}`
+        );
+        const hashBuffer = await crypto.subtle.digest("SHA-256", hashBody);
+        const externalId = encodeHex(hashBuffer);
+
+        const salary = el
+          .querySelector(
+            "article > div > div > div.flex.flex-col:nth-child(2) > div > div > p"
+          )
+          ?.textContent?.trim();
+
+        return {
+          siteId,
+          externalId,
+          externalUrl,
+          title,
+          companyName,
+          companyLogo: companyLogoUrl,
+          location,
+          salary,
+          labels: [],
+        };
+      })
+    );
+  };
+
+  const jobs = isUsMode
+    ? await parseJobsListUs(jobElements)
+    : parseJobsListRow(jobElements);
 
   const validJobs = jobs.filter((job): job is ParsedJob => !!job);
   return {

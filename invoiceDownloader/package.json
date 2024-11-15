@@ -1,0 +1,30 @@
+{
+  "name": "invoices",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "nodemon --exec \"node --require ts-node/register --inspect=0.0.0.0:9229 src/main.ts\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
+    "lodash": "^4.17.21",
+    "luxon": "^3.5.0",
+    "stripe": "^17.1.0",
+    "url-join": "^4.0.1",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.13",
+    "@types/luxon": "^3.4.2",
+    "@types/url-join": "^4.0.3",
+    "@types/xml2js": "^0.4.14",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}

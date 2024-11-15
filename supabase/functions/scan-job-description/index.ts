@@ -127,7 +127,12 @@ Deno.serve(async (req) => {
         status: updatedJob.status,
         updated_at: new Date(),
       })
-      .eq("id", jobId);
+      .eq("id", jobId)
+
+      // I think this is causing jobs to be put back on new from deleted
+      // if the app fails to process an entire batch in one cron interval
+      // then the same job will be processed twice (since it's status is processing still)
+      .eq("status", "processing");
     if (updateJobErr) {
       throw updateJobErr;
     }

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { CheckCircledIcon } from "@radix-ui/react-icons";
 import { Button } from "./ui/button";
+import { QueryParamsLink } from "./queryParamsLink";
 
 const tabs = ["Monthly", "Quarterly", "Biannually", "Yearly"] as const;
 const plans = ["Basic", "Pro"] as const;
@@ -179,11 +180,18 @@ export function PricingSection() {
                 </ul>
 
                 {/* CTA */}
-                <a href={`${stripeConfig[plan.name][selectedTab]}`}>
+                <QueryParamsLink
+                  baseUrl={`${stripeConfig[plan.name][selectedTab]}`}
+                >
                   <Button size="lg" className="mt-10 w-40 self-center">
                     Select
                   </Button>
-                </a>
+                </QueryParamsLink>
+                {/* <a href={`${stripeConfig[plan.name][selectedTab]}`}>
+                  <Button size="lg" className="mt-10 w-40 self-center">
+                    Select
+                  </Button>
+                </a> */}
               </CardFooter>
             </Card>
           ))}

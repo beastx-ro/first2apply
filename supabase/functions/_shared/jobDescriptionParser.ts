@@ -65,7 +65,11 @@ const SITE_PROVIDER_QUERY_SELECTORS: Record<
     description: ["div[data-testid=job-description]"],
   },
   [SiteProvider.zipRecruiter]: {
-    description: ["div.job-body"],
+    description: [
+      "div.job-body",
+      "div.job_description",
+      "section.company_description",
+    ],
   },
   [SiteProvider.usaJobs]: {
     description: ["#requirements"],
@@ -152,7 +156,7 @@ function extractCommonDomElements({
   let descriptionContainer: Element | null = null;
   for (const selector of descriptionSelectors) {
     const container = document.querySelector(selector);
-    if (container) {
+    if (container && container.textContent.trim().length > 0) {
       descriptionContainer = container;
       break;
     }
