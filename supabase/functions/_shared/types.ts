@@ -242,9 +242,25 @@ export type DbSchema = {
           jobs_status: JobStatus;
           jobs_after: number | null;
           jobs_page_size: number;
+          jobs_search?: string;
+          jobs_site_ids?: number[];
+          jobs_link_ids?: number[];
         };
         Args: {};
         Returns: Job[];
+      };
+      count_jobs: {
+        Params: {
+          jobs_status?: JobStatus;
+          jobs_search?: string;
+          jobs_site_ids?: number[];
+          jobs_link_ids?: number[];
+        };
+        Args: {};
+        Returns: Array<{
+          status: JobStatus;
+          job_count: number;
+        }>;
       };
       get_user_id_by_email: {
         Params: { email: string };

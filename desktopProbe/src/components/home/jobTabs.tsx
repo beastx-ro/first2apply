@@ -53,9 +53,9 @@ export function JobTabs() {
   // Parse the query parameters to determine the active tab
   const searchParams = new URLSearchParams(location.search);
   const status = (searchParams.get('status') || 'new') as JobStatus;
-  const search = searchParams.get('search') || undefined;
-  const siteIds = searchParams.get('site_ids') ? searchParams.get('site_ids').split(',').map(Number) : undefined;
-  const linkIds = searchParams.get('link_ids') ? searchParams.get('link_ids').split(',').map(Number) : undefined;
+  const search = searchParams.get('search') || '';
+  const siteIds = searchParams.get('site_ids') ? searchParams.get('site_ids').split(',').map(Number) : [];
+  const linkIds = searchParams.get('link_ids') ? searchParams.get('link_ids').split(',').map(Number) : [];
 
   const [listing, setListing] = useState<JobListing>({
     isLoading: true,
@@ -136,9 +136,7 @@ export function JobTabs() {
           {status === 'new' ? (
             <>
               <span className="w-6" />
-              {search
-                ? `Search results ${`(${listing.jobs.length}${listing.hasMore ? '+' : ''})`}`
-                : `New jobs ${`(${listing.new})`}`}
+              <span>New jobs {`(${listing.new})`}</span>
               <TabActions
                 tab="new"
                 onTabChange={onTabChange}
@@ -160,9 +158,7 @@ export function JobTabs() {
           {status === 'applied' ? (
             <>
               <span className="w-6" />
-              {search
-                ? `Search results ${`(${listing.jobs.length}${listing.hasMore ? '+' : ''})`}`
-                : `Applied ${`(${listing.applied})`}`}
+              <span>Applied {`(${listing.applied})`}</span>
               <TabActions
                 tab="applied"
                 onTabChange={onTabChange}
@@ -184,9 +180,7 @@ export function JobTabs() {
           {status === 'archived' ? (
             <>
               <span className="w-6" />
-              {search
-                ? `Search results ${`(${listing.jobs.length}${listing.hasMore ? '+' : ''})`}`
-                : `Archived ${`(${listing.archived})`}`}
+              <span>Archived {`(${listing.archived})`}</span>
               <TabActions
                 tab="archived"
                 onTabChange={onTabChange}
@@ -208,9 +202,7 @@ export function JobTabs() {
           {status === 'excluded_by_advanced_matching' ? (
             <>
               <span className="w-6" />
-              {search
-                ? `Search results ${`(${listing.jobs.length}${listing.hasMore ? '+' : ''})`}`
-                : `Fitered out ${`(${listing.filtered})`}`}
+              <span>Filtered out {`(${listing.filtered})`}</span>
               <TabActions
                 tab="excluded_by_advanced_matching"
                 onTabChange={onTabChange}
@@ -220,7 +212,7 @@ export function JobTabs() {
               />
             </>
           ) : (
-            `Fitered out ${`(${listing.filtered})`}`
+            `Filtered out ${`(${listing.filtered})`}`
           )}
         </TabsTrigger>
       </TabsList>

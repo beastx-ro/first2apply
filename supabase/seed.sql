@@ -185,7 +185,14 @@ to authenticated
 using (auth.uid() = user_id);
 
 -- create custom DB functions
-create or replace function list_jobs(jobs_status "Job Status", jobs_after text, jobs_page_size integer)
+create or replace function list_jobs(
+    jobs_status "Job Status", 
+    jobs_after text, 
+    jobs_page_size integer, 
+    jobs_search text default null,
+    jobs_site_ids integer[] default null,
+    jobs_link_ids integer[] default null
+)
 returns setof jobs as $$
 declare
   after_id integer;
@@ -194,20 +201,18 @@ begin
   if jobs_after is not null then
     after_id := split_part(jobs_after, '!', 1)::integer;
     after_updated_at := split_part(jobs_after, '!', 2)::timestamp;
-    return query
-    select *
-    from jobs
-    where status = jobs_status and (updated_at, id) < (after_updated_at, after_id)
-    order by updated_at desc, id desc
-    limit jobs_page_size;
-  else
-    return query
-    select *
-    from jobs
-    where status = jobs_status
-    order by updated_at desc, id desc
-    limit jobs_page_size;
   end if;
+
+  return query
+  select *
+  from jobs
+  where status = jobs_status
+    and (jobs_after is null or (updated_at, id) < (after_updated_at, after_id))
+    and (array_length(jobs_site_ids, 1) is null or "siteId" = any(jobs_site_ids))
+    and (array_length(jobs_link_ids, 1) is null or link_id = any(jobs_link_ids))
+    and (jobs_search is null or job_search_vector @@ plainto_tsquery('english', jobs_search))
+  order by updated_at desc, id desc
+  limit jobs_page_size;
 end; $$
 language plpgsql;
 
@@ -332,3 +337,69 @@ begin
   where user_id = for_user_id;
 end;
 $$;
+
+-- create search vector for jobs
+alter table public.jobs
+add column job_search_vector tsvector;
+
+create or replace function update_job_search_vector()
+returns trigger as $$
+begin
+  -- Update the job_search_vector column with weighted tsvector values
+  new.job_search_vector := 
+    setweight(to_tsvector('english', coalesce(new.title, '')), 'A') ||
+    setweight(to_tsvector('english', coalesce(new."companyName", '')), 'B');
+  return new;
+end;
+$$ language plpgsql;
+
+create trigger trigger_update_job_search_vector
+before insert or update of title, "companyName" on jobs
+for each row
+execute function update_job_search_vector();
+
+-- run this one time to update all existing rows
+DO $$
+DECLARE
+  batch_size INT := 10000;
+  min_id INT;
+  max_id INT;
+BEGIN
+  -- Find the range of IDs in the table
+  SELECT MIN(id), MAX(id) INTO min_id, max_id FROM public.jobs;
+
+  -- Process in batches
+  WHILE min_id <= max_id LOOP
+    UPDATE public.jobs
+    SET job_search_vector = 
+      setweight(to_tsvector('english', coalesce(title, '')), 'A') ||
+      setweight(to_tsvector('english', coalesce("companyName", '')), 'B')
+    WHERE id >= min_id AND id < min_id + batch_size;
+
+    -- Move to the next batch
+    min_id := min_id + batch_size;
+
+    -- Optionally, log progress
+    RAISE NOTICE 'Processed up to ID: %', min_id;
+  END LOOP;
+END $$;
+
+create or replace function count_jobs(
+    jobs_status "Job Status" default null, 
+    jobs_search text default null,
+    jobs_site_ids integer[] default null,
+    jobs_link_ids integer[] default null
+)
+returns table(status "Job Status", job_count bigint) as $$
+begin
+  return query
+  select j.status, count(*) as job_count
+  from jobs j
+  where (jobs_status is null or j.status = jobs_status)
+    and (array_length(jobs_site_ids, 1) is null or j."siteId" = any(jobs_site_ids))
+    and (array_length(jobs_link_ids, 1) is null or j.link_id = any(jobs_link_ids))
+    and (jobs_search is null or j.job_search_vector @@ plainto_tsquery('english', jobs_search))
+  group by j.status
+  order by j.status;
+end; $$
+language plpgsql;

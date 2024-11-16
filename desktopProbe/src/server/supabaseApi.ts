@@ -176,32 +176,38 @@ export class F2aSupabaseApi {
     limit?: number;
     after?: string;
   }) {
-    const jobs = await this._supabaseApiCall<Job[], PostgrestError>(async () => {
-      const res = await this._supabase.rpc('list_jobs', {
-        jobs_status: status,
-        jobs_after: after ?? null,
-        jobs_page_size: limit,
-        jobs_search: search,
-        jobs_site_ids: siteIds,
-        jobs_link_ids: linkIds,
-      });
+    const jobs_search = search || undefined;
+    const jobs_site_ids = siteIds?.length > 0 ? siteIds : undefined;
+    const jobs_link_ids = linkIds?.length > 0 ? linkIds : undefined;
+    const [jobs, counters] = await Promise.all([
+      this._supabaseApiCall<Job[], PostgrestError>(async () => {
+        const res = await this._supabase.rpc('list_jobs', {
+          jobs_status: status,
+          jobs_after: after ?? null,
+          jobs_page_size: limit,
+          jobs_search,
+          jobs_site_ids,
+          jobs_link_ids,
+        });
 
-      return res;
-    });
-
-    // also return counters for grouped statuses
-    const statusses: JobStatus[] = ['new', 'archived', 'applied', 'excluded_by_advanced_matching'];
-    const counters = await Promise.all(
-      statusses.map(async (status) => {
-        const { count, error } = await this._supabase
-          .from('jobs')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', status);
-        if (error) throw error;
-
-        return { status, count };
+        return res;
       }),
-    );
+      this._supabaseApiCall<
+        Array<{
+          status: JobStatus;
+          job_count: number;
+        }>,
+        PostgrestError
+      >(async () => {
+        const res = await this._supabase.rpc('count_jobs', {
+          jobs_search,
+          jobs_site_ids,
+          jobs_link_ids,
+        });
+
+        return res;
+      }),
+    ]);
 
     let nextPageToken: string | undefined;
     if (jobs.length === limit) {
@@ -210,12 +216,13 @@ export class F2aSupabaseApi {
       nextPageToken = `${lastJob.id}!${lastJob.updated_at}`;
     }
 
+    const countersMap = new Map(counters.map((c) => [c.status, c.job_count]));
     return {
       jobs,
-      new: counters[0].count,
-      archived: counters[1].count,
-      applied: counters[2].count,
-      filtered: counters[3].count,
+      new: countersMap.get('new') ?? 0,
+      archived: countersMap.get('archived') ?? 0,
+      applied: countersMap.get('applied') ?? 0,
+      filtered: countersMap.get('excluded_by_advanced_matching') ?? 0,
       nextPageToken,
     };
   }

@@ -1,5 +1,5 @@
 import { debounce } from 'lodash';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { JobFiltersMenu, JobFiltersType } from './jobFilters/jobFiltersMenu';
 import { SearchBox } from './jobFilters/searchBox';
@@ -13,12 +13,12 @@ export function JobFilters({
   linkIds,
   onSearchJobs,
 }: {
-  search?: string;
+  search: string;
   siteIds: number[];
   linkIds: number[];
   onSearchJobs: (_: { search: string; filters: JobFiltersType }) => void;
 }) {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState(search);
   const [filters, setFilters] = useState<JobFiltersType>({
     sites: [],
     links: [],
@@ -28,22 +28,17 @@ export function JobFilters({
   const emitDebouncedSearch = useCallback(
     debounce((value: string, currentFilters: JobFiltersType) => {
       onSearchJobs({ search: value, filters: currentFilters });
-    }, 250),
+    }, 350),
     [filters],
   );
 
-  // Initial call to load jobs
-  useEffect(() => {
-    onSearchJobs({ search: inputValue, filters: filters });
-  }, []); // Empty dependency array to run only once on mount
-
   // Emit search on inputValue change, debounced
-  useEffect(() => {
+  useDidMountEffect(() => {
     emitDebouncedSearch(inputValue, filters);
   }, [inputValue, filters, emitDebouncedSearch]);
 
   // Emit filter changes immediately without debounce
-  useEffect(() => {
+  useDidMountEffect(() => {
     onSearchJobs({ search: inputValue, filters: filters });
   }, [filters]);
 
@@ -61,3 +56,18 @@ export function JobFilters({
     </div>
   );
 }
+
+const useDidMountEffect = (effect: React.EffectCallback, deps?: React.DependencyList) => {
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false; // Mark as not the first render
+      return; // Skip the first effect execution
+    }
+
+    // Run the effect for subsequent renders
+    effect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+};
