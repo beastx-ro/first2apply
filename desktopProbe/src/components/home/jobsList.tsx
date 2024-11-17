@@ -36,7 +36,7 @@ export function JobsList({
   onArchive: (job: Job) => void;
   onDelete: (job: Job) => void;
 }) {
-  const { siteLogos } = useSites();
+  const { siteLogos, siteMap } = useSites();
   const { links } = useLinks();
 
   const [jobToDelete, setJobToDelete] = useState<Job | undefined>();
@@ -239,16 +239,14 @@ export function JobsList({
 
               <div className="mt-4 flex items-center gap-12">
                 {/* Source */}
-                {fromLink && (
-                  <p className="flex items-center gap-2 text-xs leading-3 text-foreground/80">
-                    {/* Source logo */}
-                    <Avatar className="h-6 w-6">
-                      <AvatarImage src={siteLogos[job.siteId]} />
-                      <AvatarFallback>LI</AvatarFallback>
-                    </Avatar>
-                    {fromLink}
-                  </p>
-                )}
+                <p className="flex items-center gap-2 text-xs leading-3 text-foreground/80">
+                  {/* Source logo */}
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src={siteLogos[job.siteId]} />
+                    <AvatarFallback>LI</AvatarFallback>
+                  </Avatar>
+                  {fromLink ?? siteMap[job.siteId]?.name}
+                </p>
 
                 {/* Timestamp */}
                 <p className="ml-auto w-fit flex-shrink-0 text-xs text-foreground/80">
