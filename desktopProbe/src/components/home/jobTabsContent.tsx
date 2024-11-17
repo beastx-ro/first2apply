@@ -305,7 +305,7 @@ export function JobTabsContent({
               {/* Jobs list, search and filters side */}
               <div
                 id="jobsList"
-                className="no-scrollbar h-[calc(100vh-100px)] w-1/2 space-y-3 overflow-scroll lg:w-2/5"
+                className="no-scrollbar h-[calc(100vh-100px)] w-1/2 space-y-3 overflow-y-scroll lg:w-2/5"
               >
                 <JobFilters search={search} siteIds={siteIds} linkIds={linkIds} onSearchJobs={onSearchJobs} />
 
@@ -337,14 +337,14 @@ export function JobTabsContent({
 
               {/* Job description side */}
               {listing.isLoading || statusItem !== status ? (
-                <div className="h-[calc(100vh-100px)] w-1/2 animate-pulse space-y-4 overflow-scroll border-l-[1px] border-muted pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4">
+                <div className="no-scrollbar h-[calc(100vh-100px)] w-1/2 animate-pulse space-y-4 overflow-scroll border-l-[1px] border-muted pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4">
                   <JobSummarySkeleton />
                   <JobDetailsSkeleton />
                 </div>
               ) : listing.jobs.length > 0 ? (
                 <div
                   ref={jobDescriptionRef}
-                  className="h-[calc(100vh-100px)] w-1/2 space-y-4 overflow-scroll border-l-[1px] border-muted pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4"
+                  className="no-scrollbar h-[calc(100vh-100px)] w-1/2 space-y-4 overflow-y-scroll border-l-[1px] border-muted pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4"
                 >
                   {selectedJob && (
                     <>
