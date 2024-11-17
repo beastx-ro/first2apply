@@ -307,7 +307,9 @@ export function JobTabsContent({
                 id="jobsList"
                 className="no-scrollbar h-[calc(100vh-100px)] w-1/2 space-y-3 overflow-y-scroll lg:w-2/5"
               >
-                <JobFilters search={search} siteIds={siteIds} linkIds={linkIds} onSearchJobs={onSearchJobs} />
+                <div className="sticky top-0 z-50 bg-background pb-2">
+                  <JobFilters search={search} siteIds={siteIds} linkIds={linkIds} onSearchJobs={onSearchJobs} />
+                </div>
 
                 {listing.isLoading || statusItem !== status ? (
                   <JobsListSkeleton />

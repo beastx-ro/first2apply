@@ -34,7 +34,6 @@ export function JobFiltersMenu({
   onApplyFilters: (filters: JobFiltersType) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeFilterCount, setActiveFilterCount] = useState(0);
 
   const { siteLogos, sites } = useSites();
   const { links } = useLinks();
@@ -70,10 +69,7 @@ export function JobFiltersMenu({
     onApplyFilters({ sites: [], links: [] });
   };
 
-  useEffect(() => {
-    const appliedFiltersCount = [selectedSites.length, selectedLinks.length].filter((count) => count > 0).length;
-    setActiveFilterCount(appliedFiltersCount);
-  }, [selectedSites, selectedLinks]);
+  const activeFilterCount = selectedSites.length + selectedLinks.length;
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={(opened) => setIsOpen(opened)}>

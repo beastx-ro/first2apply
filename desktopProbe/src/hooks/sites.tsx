@@ -12,7 +12,8 @@ export const SitesContext = createContext<{
   isLoading: boolean;
   sites: JobSite[];
   siteLogos: Record<number, string>;
-}>({ isLoading: true, sites: [], siteLogos: {} });
+  siteMap: Record<number, JobSite>;
+}>({ isLoading: true, sites: [], siteLogos: {}, siteMap: {} });
 
 /**
  * Global hook used to access the supported sites.
@@ -49,6 +50,7 @@ export const SitesProvider = ({ children }: React.PropsWithChildren<{}>) => {
   }, [isLoggedIn]);
 
   const siteLogos = Object.fromEntries(sites.map((site) => [site.id, site.logo_url]));
+  const siteMap = Object.fromEntries(sites.map((site) => [site.id, site]));
 
   return (
     <SitesContext.Provider
@@ -56,6 +58,7 @@ export const SitesProvider = ({ children }: React.PropsWithChildren<{}>) => {
         isLoading,
         sites,
         siteLogos,
+        siteMap,
       }}
     >
       {children}
