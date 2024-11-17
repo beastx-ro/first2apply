@@ -36,6 +36,7 @@ export class JobScanner {
   private _cronJob: ScheduledTask | undefined;
   private _prowerSaveBlockerId: number | undefined;
   private _notificationsMap: Map<string, Notification> = new Map();
+  private _runningScansCount = 0;
 
   constructor(
     private _logger: ILogger,
@@ -64,6 +65,13 @@ export class JobScanner {
   }
 
   /**
+   * Check if there are any scans running.
+   */
+  isScanning() {
+    return this._runningScansCount > 0;
+  }
+
+  /**
    * Scan all links for the current user.
    */
   async scanAllLinks() {
@@ -80,6 +88,7 @@ export class JobScanner {
    */
   async scanLinks({ links }: { links: Link[] }) {
     try {
+      this._runningScansCount++;
       this._logger.info('scanning links...');
       this._analytics.trackEvent('scan_links_start', {
         links_count: links.length,
@@ -159,6 +168,8 @@ export class JobScanner {
       });
     } catch (error) {
       this._logger.error(getExceptionMessage(error));
+    } finally {
+      this._runningScansCount--;
     }
   }
 

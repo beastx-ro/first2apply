@@ -222,7 +222,7 @@ async function bootstrap() {
     jobScanner = new JobScanner(logger, supabaseApi, htmlDownloader, navigate, analytics);
 
     // init the renderer IPC API
-    initRendererIpcApi({ supabaseApi, jobScanner, nodeEnv: ENV.nodeEnv });
+    initRendererIpcApi({ supabaseApi, jobScanner, autoUpdater, nodeEnv: ENV.nodeEnv });
 
     // init the tray menu
     trayMenu = new TrayMenu({ logger, onQuit: quit, onNavigate: navigate });

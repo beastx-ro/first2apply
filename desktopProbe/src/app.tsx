@@ -7,6 +7,7 @@ import { Route, RouterProvider, createMemoryRouter, createRoutesFromElements } f
 import { withAuthGuard } from './components/authGuard';
 import { ThemeProvider } from './components/themeProvider';
 import { Toaster } from './components/ui/toaster';
+import { AppStateProvider } from './hooks/appState';
 import { LinksProvider } from './hooks/links';
 import { SessionProvider } from './hooks/session';
 import { SettingsProvider } from './hooks/settings';
@@ -70,23 +71,25 @@ function App() {
 
   return (
     <>
-      <SessionProvider>
-        <ThemeProvider
-          attribute="class"
-          // @ts-ignore
-          defaultTheme={window.electron?.theme || 'light'}
-          // defaultTheme={"light"}
-          disableTransitionOnChange
-        >
-          <SettingsProvider>
-            <SitesProvider>
-              <LinksProvider>
-                <RouterProvider router={router}></RouterProvider>
-              </LinksProvider>
-            </SitesProvider>
-          </SettingsProvider>
-        </ThemeProvider>
-      </SessionProvider>
+      <AppStateProvider>
+        <SessionProvider>
+          <ThemeProvider
+            attribute="class"
+            // @ts-ignore
+            defaultTheme={window.electron?.theme || 'light'}
+            // defaultTheme={"light"}
+            disableTransitionOnChange
+          >
+            <SettingsProvider>
+              <SitesProvider>
+                <LinksProvider>
+                  <RouterProvider router={router}></RouterProvider>
+                </LinksProvider>
+              </SitesProvider>
+            </SettingsProvider>
+          </ThemeProvider>
+        </SessionProvider>
+      </AppStateProvider>
 
       <Toaster />
     </>

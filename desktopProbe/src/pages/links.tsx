@@ -2,6 +2,7 @@ import { CreateLink } from '@/components/createLink';
 import { LinksList } from '@/components/linksList';
 import { LinksListSkeleton } from '@/components/skeletons/linksListSkeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useAppState } from '@/hooks/appState';
 import { useError } from '@/hooks/error';
 import { useLinks } from '@/hooks/links';
 import { debugLink } from '@/lib/electronMainSdk';
@@ -13,6 +14,7 @@ import { DefaultLayout } from './defaultLayout';
 export function LinksPage() {
   const { handleError } = useError();
   const { isLoading, links, removeLink, reloadLinks } = useLinks();
+  const { isScanning } = useAppState();
 
   // refresh links on component mount
   useEffect(() => {
@@ -56,7 +58,10 @@ export function LinksPage() {
   return (
     <DefaultLayout className="p-6 md:p-10">
       <div className="flex justify-between">
-        <h1 className="pb-2 text-2xl font-medium tracking-wide">Job Searches</h1>
+        <div className="flex items-end">
+          <h1 className="text-2xl font-medium tracking-wide">Job Searches</h1>
+          {isScanning && <span className="ml-4 pb-1 text-xs">( currently scanning for new jobs )</span>}
+        </div>
 
         {links.length > 0 && <CreateLink />}
       </div>

@@ -2,23 +2,24 @@ import { CronSchedule } from '@/components/cronSchedule';
 import { SettingsSkeleton } from '@/components/skeletons/SettingsSkeleton';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { useAppState } from '@/hooks/appState';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
 import { useSettings } from '@/hooks/settings';
-import { getProfile, getStripeConfig, logout, openExternalUrl } from '@/lib/electronMainSdk';
+import { applyAppUpdate, logout, openExternalUrl } from '@/lib/electronMainSdk';
 import { JobScannerSettings } from '@/lib/types';
 import * as luxon from 'luxon';
-import { useEffect, useState } from 'react';
 
-import { Profile, StripeConfig } from '../../../supabase/functions/_shared/types';
 import { DefaultLayout } from './defaultLayout';
 
 export function SettingsPage() {
   const { handleError } = useError();
   const { isLoading: isLoadingSession, logout: resetUser, user, profile, stripeConfig } = useSession();
   const { isLoading: isLoadingSettings, settings, updateSettings } = useSettings();
+  const { newUpdate } = useAppState();
 
   const isLoading = !profile || !stripeConfig || isLoadingSettings || isLoadingSession;
+  const hasNewUpdate = !!newUpdate;
 
   // Update settings
   const onUpdatedSettings = async (newSettings: JobScannerSettings) => {
@@ -49,6 +50,14 @@ export function SettingsPage() {
     }
   };
 
+  const onApplyUpdate = async () => {
+    try {
+      await applyAppUpdate();
+    } catch (error) {
+      handleError({ error });
+    }
+  };
+
   if (isLoading) {
     return (
       <DefaultLayout className="space-y-3 p-6 md:p-10">
@@ -60,6 +69,23 @@ export function SettingsPage() {
   return (
     <DefaultLayout className="space-y-3 p-6 md:p-10">
       <h1 className="pb-3 text-2xl font-medium tracking-wide">Settings ({user.email})</h1>
+
+      {/* new updates */}
+      {hasNewUpdate && (
+        <div className="flex flex-row items-center justify-between gap-6 rounded-lg border border-destructive p-6">
+          <div className="space-y-1">
+            <h2 className="text-lg">
+              New update available <span className="font-bold">{newUpdate.name}</span>
+            </h2>
+            <p className="text-sm font-light">{newUpdate.message}</p>
+          </div>
+          {!profile.is_trial && (
+            <Button className="w-fit" onClick={() => onApplyUpdate()}>
+              Update
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* cron settings */}
       <CronSchedule cronRule={settings.cronRule} onCronRuleChange={onCronRuleChange} />

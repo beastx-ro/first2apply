@@ -12,7 +12,7 @@ import {
   Review,
   StripeConfig,
 } from '../../../supabase/functions/_shared/types';
-import { JobScannerSettings } from './types';
+import { JobScannerSettings, NewAppVersion } from './types';
 
 async function _mainProcessApiCall<T>(channel: string, params?: object): Promise<T> {
   // @ts-ignore
@@ -367,4 +367,21 @@ export async function updateAdvancedMatchingConfig(
  */
 export async function debugLink(linkId: number): Promise<void> {
   await _mainProcessApiCall('debug-link', { linkId });
+}
+
+/**
+ * Get the current state of the application.
+ */
+export async function getAppState(): Promise<{
+  isScanning: boolean;
+  newUpdate?: NewAppVersion;
+}> {
+  return await _mainProcessApiCall('get-app-state', {});
+}
+
+/**
+ * Apply the latest app update.
+ */
+export async function applyAppUpdate(): Promise<void> {
+  await _mainProcessApiCall('apply-app-update', {});
 }

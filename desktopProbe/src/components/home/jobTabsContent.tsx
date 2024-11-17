@@ -1,5 +1,6 @@
 import { TabsContent } from '@/components/ui/tabs';
 import { toast } from '@/components/ui/use-toast';
+import { useAppState } from '@/hooks/appState';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
 import {
@@ -12,7 +13,7 @@ import {
 } from '@/lib/electronMainSdk';
 import { useEffect, useRef, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { Job, JobLabel, JobStatus } from '../../../../supabase/functions/_shared/types';
 import { JobDetails } from './jobDetails';
@@ -329,10 +330,12 @@ export function JobTabsContent({
                     }}
                   />
                 ) : (
-                  <p className="pt-20 text-center">
-                    {search || (siteIds && siteIds.length > 0) || (linkIds && linkIds.length > 0)
-                      ? "There aren't any jobs that match your search."
-                      : "No new job listings right now, but don't worry! We're on the lookout and will update you as soon as we find anything."}
+                  <p className="px-4 pt-20 text-center">
+                    {search || (siteIds && siteIds.length > 0) || (linkIds && linkIds.length > 0) ? (
+                      <NoSearchResults />
+                    ) : (
+                      "No new job listings right now, but don't worry! We're on the lookout and will update you as soon as we find anything."
+                    )}
                   </p>
                 )}
               </div>
@@ -597,3 +600,19 @@ export function JobTabsContent({
     </>
   );
 }
+
+const NoSearchResults = () => {
+  const { isScanning } = useAppState();
+
+  return isScanning ? (
+    <span>
+      There aren't any jobs that match your search. We are currently scanning your saved{' '}
+      <Link className="text-primary" to={`/links`}>
+        Job Searches
+      </Link>{' '}
+      for any new jobs. Please check back in a few minutes.
+    </span>
+  ) : (
+    <span>There aren't any jobs that match your search.</span>
+  );
+};

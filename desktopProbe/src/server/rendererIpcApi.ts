@@ -5,6 +5,7 @@ import os from 'os';
 
 import { Job } from '../../../supabase/functions/_shared/types';
 import { getExceptionMessage } from '../lib/error';
+import { F2aAutoUpdater } from './autoUpdater';
 import { JobScanner } from './jobScanner';
 import { getStripeConfig } from './stripeConfig';
 import { F2aSupabaseApi } from './supabaseApi';
@@ -29,10 +30,12 @@ async function _apiCall<T>(method: () => Promise<T>) {
 export function initRendererIpcApi({
   supabaseApi,
   jobScanner,
+  autoUpdater,
   nodeEnv,
 }: {
   supabaseApi: F2aSupabaseApi;
   jobScanner: JobScanner;
+  autoUpdater: F2aAutoUpdater;
   nodeEnv: string;
 }) {
   ipcMain.handle('get-os-type', (event) =>
@@ -108,6 +111,19 @@ export function initRendererIpcApi({
     _apiCall(async () => {
       const [updatedJob] = await jobScanner.scanJobs([job]);
       return { job: updatedJob };
+    }),
+  );
+  ipcMain.handle('get-app-state', async (event, {}) =>
+    _apiCall(async () => {
+      const isScanning = await jobScanner.isScanning();
+      const newUpdate = await autoUpdater.getNewUpdate();
+      return { isScanning, newUpdate };
+    }),
+  );
+  ipcMain.handle('apply-app-update', async (event, {}) =>
+    _apiCall(async () => {
+      await autoUpdater.applyUpdate();
+      return {};
     }),
   );
 

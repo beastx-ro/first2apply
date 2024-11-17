@@ -1,4 +1,5 @@
 import { IAnalyticsClient } from '@/lib/analytics';
+import { NewAppVersion } from '@/lib/types';
 import { Notification, app, autoUpdater, shell } from 'electron';
 import { ScheduledTask, schedule } from 'node-cron';
 import * as semver from 'semver';
@@ -98,6 +99,47 @@ export class F2aAutoUpdater {
   }
 
   /**
+   * Check if there is a cached update available.
+   */
+  getNewUpdate(): NewAppVersion | undefined {
+    if (!this._latestRelease) return;
+
+    return {
+      name: this._latestRelease.name,
+      url: this._latestRelease.url,
+      message: this._getUpdateNotificationMessage(),
+    };
+  }
+
+  /**
+   * Apply the update.
+   */
+  async applyUpdate() {
+    if (!this._latestRelease) return;
+
+    try {
+      process.platform === 'darwin'
+        ? this._logger.info('restarting to apply update ...')
+        : this._logger.info('opening download url ...');
+      this._analytics.trackEvent('apply_update', {
+        release_name: this._latestRelease.name,
+      });
+
+      // on linux/win32 we can't apply the update automatically, so just open the download page
+      // and let the user install it manually
+      if (process.platform !== 'darwin') {
+        shell.openExternal(this._latestRelease.url);
+        return;
+      }
+
+      await this._onQuit();
+      autoUpdater.quitAndInstall();
+    } catch (error) {
+      this._logger.error(getExceptionMessage(error));
+    }
+  }
+
+  /**
    * Show a notification for new updates.
    */
   private _showUpdateNotification({ releaseName, updateURL }: { releaseName: string; updateURL: string }) {
@@ -105,10 +147,7 @@ export class F2aAutoUpdater {
     this._latestRelease = { name: releaseName, url: updateURL };
 
     // show a notification
-    const message =
-      process.platform === 'darwin'
-        ? 'A new version has been downloaded. Restart the application to apply the updates.'
-        : 'A new version is available. You can now download and install it.';
+    const message = this._getUpdateNotificationMessage();
     const actions: Electron.NotificationAction[] | undefined =
       process.platform === 'darwin' ? [{ text: 'Restart Now', type: 'button' }] : undefined;
     this._notification = new Notification({
@@ -121,31 +160,8 @@ export class F2aAutoUpdater {
       release_name: releaseName,
     });
 
-    const applyUpdate = async () => {
-      try {
-        process.platform === 'darwin'
-          ? this._logger.info('restarting to apply update ...')
-          : this._logger.info('opening download url ...');
-        this._analytics.trackEvent('apply_update', {
-          release_name: releaseName,
-        });
-
-        // on linux/win32 we can't apply the update automatically, so just open the download page
-        // and let the user install it manually
-        if (process.platform !== 'darwin') {
-          shell.openExternal(updateURL);
-          return;
-        }
-
-        await this._onQuit();
-        autoUpdater.quitAndInstall();
-      } catch (error) {
-        this._logger.error(getExceptionMessage(error));
-      }
-    };
-
-    this._notification.on('action', applyUpdate);
-    this._notification.on('click', applyUpdate);
+    this._notification.on('action', () => this.applyUpdate());
+    this._notification.on('click', () => this.applyUpdate());
   }
 
   /**
@@ -208,5 +224,17 @@ export class F2aAutoUpdater {
     } else {
       this._logger.info('no updates available');
     }
+  }
+
+  /**
+   * Get an update notification message.
+   */
+  private _getUpdateNotificationMessage() {
+    const message =
+      process.platform === 'darwin'
+        ? 'A new version has been downloaded. Restart the application to apply the updates.'
+        : 'A new version is available. You can now download and install it.';
+
+    return message;
   }
 }
