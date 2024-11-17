@@ -216,12 +216,12 @@ export function JobsList({
                     </>
                   )}
                   {job.tags?.map((tag) => (
-                    <>
+                    <span key={job.id + tag}>
                       {(job.location || job.jobType || job.salary) && (
-                        <span className="text-3 mx-[14px] font-light text-foreground/40"> | </span>
+                        <span className="text-3 mx-[8px] font-light text-foreground/40"> | </span>
                       )}
-                      <span>| {tag}</span>
-                    </>
+                      <span>{tag}</span>
+                    </span>
                   ))}
                 </p>
 
