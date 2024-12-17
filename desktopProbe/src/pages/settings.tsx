@@ -16,7 +16,7 @@ export function SettingsPage() {
   const { handleError } = useError();
   const { isLoading: isLoadingSession, logout: resetUser, user, profile, stripeConfig } = useSession();
   const { isLoading: isLoadingSettings, settings, updateSettings } = useSettings();
-  const { newUpdate } = useAppState();
+  const { newUpdate, resumeFile, saveNewResume } = useAppState();
 
   const isLoading = !profile || !stripeConfig || isLoadingSettings || isLoadingSession;
   const hasNewUpdate = !!newUpdate;
@@ -152,6 +152,29 @@ export function SettingsPage() {
         )}
       </div>
 
+      {/* resume upload */}
+      <div className="flex flex-row items-center justify-between gap-6 rounded-lg border p-6">
+        <div className="space-y-1">
+          <h2 className="text-lg">Upload resume</h2>
+          <p className="text-sm font-light">Upload your resume to apply to jobs faster</p>
+        </div>
+        {resumeFile ? (
+          <>
+            <p>{resumeFile.filename}</p>
+            <Button className="w-fit" variant="destructive" onClick={() => saveNewResume()}>
+              Upload New Resume
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button className="w-fit" variant="secondary" onClick={() => saveNewResume()}>
+              Upload Resume
+            </Button>
+          </>
+        )}
+      </div>
+
+      {/* logout */}
       <div className="flex justify-end pt-4">
         <Button className="w-fit" variant="destructive" onClick={onLogout}>
           Logout

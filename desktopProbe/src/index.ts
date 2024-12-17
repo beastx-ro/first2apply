@@ -221,14 +221,14 @@ async function bootstrap() {
     // init the job scanner
     jobScanner = new JobScanner(logger, supabaseApi, htmlDownloader, navigate, analytics);
 
+    const userDataPath = app.getPath('userData');
+    const sessionPath = path.join(userDataPath, `${ENV.nodeEnv}-encrypted-session.json`);
+
     // init the renderer IPC API
-    initRendererIpcApi({ supabaseApi, jobScanner, autoUpdater, nodeEnv: ENV.nodeEnv });
+    initRendererIpcApi({ supabaseApi, jobScanner, autoUpdater, userDataPath, nodeEnv: ENV.nodeEnv });
 
     // init the tray menu
     trayMenu = new TrayMenu({ logger, onQuit: quit, onNavigate: navigate });
-
-    const userDataPath = app.getPath('userData');
-    const sessionPath = path.join(userDataPath, `${ENV.nodeEnv}-encrypted-session.json`);
 
     // manual logout for testing
     // fs.unlinkSync(sessionPath);

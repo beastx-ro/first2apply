@@ -12,7 +12,7 @@ import {
   Review,
   StripeConfig,
 } from '../../../supabase/functions/_shared/types';
-import { JobScannerSettings, NewAppVersion } from './types';
+import { JobScannerSettings, NewAppVersion, ResumeFile } from './types';
 
 async function _mainProcessApiCall<T>(channel: string, params?: object): Promise<T> {
   // @ts-ignore
@@ -384,4 +384,18 @@ export async function getAppState(): Promise<{
  */
 export async function applyAppUpdate(): Promise<void> {
   await _mainProcessApiCall('apply-app-update', {});
+}
+
+/**
+ * Save a resume PDF file.
+ */
+export async function saveResumePdf() {
+  return await _mainProcessApiCall<Pick<ResumeFile, 'filename'> | undefined>('save-resume-pdf', {});
+}
+
+/**
+ * Load the saved resume PDF file.
+ */
+export async function getSavedResume(): Promise<ResumeFile | undefined> {
+  return await _mainProcessApiCall('get-saved-resume', {});
 }

@@ -1,7 +1,10 @@
+import { ResumeFile } from '@/lib/types';
 import { dialog, ipcMain, shell } from 'electron';
 import fs from 'fs';
 import { json2csv } from 'json-2-csv';
 import os from 'os';
+import path from 'path';
+import pdf from 'pdf-parse';
 
 import { Job } from '../../../supabase/functions/_shared/types';
 import { getExceptionMessage } from '../lib/error';
@@ -31,11 +34,13 @@ export function initRendererIpcApi({
   supabaseApi,
   jobScanner,
   autoUpdater,
+  userDataPath,
   nodeEnv,
 }: {
   supabaseApi: F2aSupabaseApi;
   jobScanner: JobScanner;
   autoUpdater: F2aAutoUpdater;
+  userDataPath: string;
   nodeEnv: string;
 }) {
   ipcMain.handle('get-os-type', (event) =>
@@ -229,4 +234,73 @@ export function initRendererIpcApi({
   );
 
   ipcMain.handle('debug-link', async (event, { linkId }) => _apiCall(() => jobScanner.startDebugWindow({ linkId })));
+
+  ipcMain.handle(
+    'save-resume-pdf',
+    async (
+      event,
+    ): Promise<{
+      data: Pick<ResumeFile, 'filename'> | undefined;
+    }> => {
+      const pdf = await dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
+      });
+      if (pdf.canceled) return { data: undefined };
+
+      // make a copy of the file to the app's data directory
+      const filePath = pdf.filePaths[0];
+      const fileName = filePath.split('/').pop();
+      const destFolder = path.join(userDataPath, 'resumes');
+      if (!fs.existsSync(destFolder)) {
+        fs.mkdirSync(destFolder);
+      } else {
+        // clear the folder
+        fs.readdirSync(destFolder).forEach((file) => {
+          fs.unlinkSync(path.join(destFolder, file));
+        });
+      }
+      const destPath = path.join(destFolder, fileName);
+      fs.copyFileSync(filePath, destPath);
+
+      return { data: { filename: fileName } };
+    },
+  );
+
+  ipcMain.handle(
+    'get-saved-resume',
+    async (
+      event,
+    ): Promise<{
+      data: ResumeFile | undefined;
+    }> => {
+      const resumesFolder = path.join(userDataPath, 'resumes');
+      if (!fs.existsSync(resumesFolder)) {
+        return { data: undefined };
+      }
+
+      const files = fs.readdirSync(resumesFolder);
+      const resumeFile = files[0];
+
+      if (!resumeFile) {
+        return { data: undefined };
+      }
+
+      const filePath = path.join(resumesFolder, resumeFile);
+      const text = await extractTextFromPDF(filePath);
+
+      return {
+        data: {
+          filename: resumeFile,
+          text,
+        },
+      };
+    },
+  );
+}
+
+async function extractTextFromPDF(filePath: string) {
+  const dataBuffer = fs.readFileSync(filePath);
+  const data = await pdf(dataBuffer);
+  return data.text;
 }

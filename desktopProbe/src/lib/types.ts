@@ -38,3 +38,8 @@ export type NewAppVersion = {
   url: string;
   message: string;
 };
+
+export type ResumeFile = {
+  filename: string;
+  text: string;
+};

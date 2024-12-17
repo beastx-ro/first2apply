@@ -1,5 +1,5 @@
-import { getAppState } from '@/lib/electronMainSdk';
-import { NewAppVersion } from '@/lib/types';
+import { getAppState, getSavedResume, saveResumePdf } from '@/lib/electronMainSdk';
+import { NewAppVersion, ResumeFile } from '@/lib/types';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import { useError } from './error';
@@ -9,9 +9,12 @@ const AppStateContext = createContext<{
   isLoading: boolean;
   isScanning: boolean;
   newUpdate?: NewAppVersion;
+  resumeFile?: ResumeFile;
+  saveNewResume: () => void;
 }>({
   isLoading: true,
   isScanning: false,
+  saveNewResume: () => {},
 });
 
 /**
@@ -32,6 +35,7 @@ export const AppStateProvider = ({ children }: React.PropsWithChildren) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isScanning, setIsScanning] = useState(false);
   const [newUpdate, setNewUpdate] = useState<NewAppVersion | undefined>();
+  const [resumeFile, setResumeFile] = useState<ResumeFile | undefined>(undefined);
 
   // Load the user on mount
   useEffect(() => {
@@ -47,8 +51,41 @@ export const AppStateProvider = ({ children }: React.PropsWithChildren) => {
 
     asyncLoad().then(() => setIsLoading(false));
     const interval = setInterval(asyncLoad, 2000);
+
     return () => clearInterval(interval);
   }, []);
+
+  // Load the saved resume file
+  useEffect(() => {
+    const asyncLoad = async () => {
+      try {
+        const resumeFile = await getSavedResume();
+        if (resumeFile) {
+          setResumeFile(resumeFile);
+        }
+      } catch (error) {
+        handleError({ error });
+      }
+    };
+
+    asyncLoad();
+  }, []);
+
+  // Save a new resume file
+  const saveNewResume = async () => {
+    try {
+      const newResumeFile = await saveResumePdf();
+
+      if (newResumeFile) {
+        setResumeFile({
+          filename: newResumeFile.filename,
+          text: '',
+        });
+      }
+    } catch (error) {
+      handleError({ error });
+    }
+  };
 
   return (
     <AppStateContext.Provider
@@ -56,6 +93,8 @@ export const AppStateProvider = ({ children }: React.PropsWithChildren) => {
         isLoading,
         isScanning,
         newUpdate,
+        resumeFile,
+        saveNewResume,
       }}
     >
       {children}
