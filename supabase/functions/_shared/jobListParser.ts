@@ -270,6 +270,12 @@ export function parseLinkedInJobs({
         .querySelector(".job-search-card__location")
         ?.textContent?.trim();
 
+      const jobType = rawLocation?.toLowerCase().includes("remote")
+        ? "remote"
+        : rawLocation?.toLowerCase().includes("hybrid")
+        ? "hybrid"
+        : "onsite";
+
       const location = rawLocation
         ?.replace(/\(remote\)/i, "")
         .replace(/\(on\-site\)/i, "")
@@ -279,6 +285,7 @@ export function parseLinkedInJobs({
         siteId,
         externalId,
         externalUrl,
+        jobType,
         title,
         companyName,
         companyLogo,
