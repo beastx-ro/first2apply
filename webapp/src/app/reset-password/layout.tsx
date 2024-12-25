@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import "./globals.css";
 import { AppStateProvider } from "@/hooks/appState";
 import { SessionProvider } from "@/hooks/session";
 import { ThemeProvider } from "@/components/themeProvider";
@@ -7,7 +6,6 @@ import { SettingsProvider } from "@/hooks/settings";
 import { SitesProvider } from "@/hooks/sites";
 import { LinksProvider } from "@/hooks/links";
 import { Toaster } from "@/components/ui/toaster";
-import { Navbar } from "@/components/navbar";
 
 export const metadata: Metadata = {
   title: "First 2 Apply",
@@ -35,12 +33,9 @@ export default function RootLayout({
                 <SettingsProvider>
                   <SitesProvider>
                     <LinksProvider>
-                      <>
-                        <Navbar />
-                        <main className="pt-16 min-h-screen/2 max-w-[1536px] mx-auto px-6 md:px-10">
-                          <div className="mt-6">{children}</div>
-                        </main>
-                      </>
+                      <div className="mx-auto min-h-screen max-w-[600px] flex items-center justify-between">
+                        <div className="h-screen/2">{children}</div>
+                      </div>
                     </LinksProvider>
                   </SitesProvider>
                 </SettingsProvider>

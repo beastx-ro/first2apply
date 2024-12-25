@@ -49,7 +49,7 @@ function Loading() {
 function NoLinks() {
   return (
     <>
-      <div className="flex flex-col items-center gap-10">
+      <div className="mt-24 flex flex-col items-center gap-10  max-w-[900px] mx-auto">
         <h1 className="text-3xl font-semibold sm:text-4xl md:text-5xl lg:text-6xl">
           Be the: <span className="text-primary">first 2 apply</span>
         </h1>
@@ -59,8 +59,16 @@ function NoLinks() {
           notify you of new postings, providing you the edge to be the first in
           line.
         </p>
-        <Link href="/links">
-          <Button>Add new search</Button>
+        <p className="text-center text-muted-foreground">
+          First 2 Apply is a{" "}
+          <Link href="/help" className="text-primary underline">
+            DESKTOP app
+          </Link>
+          , you will need to install it on your computer and let it run in the
+          background. It will notify you when new jobs are available.
+        </p>
+        <Link href="https://first2apply.com/download">
+          <Button>Download app</Button>
         </Link>
       </div>
     </>

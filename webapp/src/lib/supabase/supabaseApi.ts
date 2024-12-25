@@ -54,10 +54,16 @@ export class F2aSupabaseApi {
   /**
    * Send a password reset email.
    */
-  sendPasswordResetEmail({ email }: { email: string }) {
+  sendPasswordResetEmail({
+    email,
+    redirectTo,
+  }: {
+    email: string;
+    redirectTo: string;
+  }) {
     return this._supabaseApiCall(() =>
       this._supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: "first2apply://reset-password",
+        redirectTo,
       })
     );
   }
@@ -120,7 +126,7 @@ export class F2aSupabaseApi {
   /**
    * Delete a link.
    */
-  deleteLink(linkId: string) {
+  deleteLink(linkId: number) {
     return this._supabaseApiCall(async () =>
       this._supabase.from("links").delete().eq("id", linkId)
     );

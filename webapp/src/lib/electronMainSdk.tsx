@@ -1,6 +1,7 @@
 "use client";
 
 import { User } from "@supabase/supabase-js";
+import urljoin from "url-join";
 
 import {
   AdvancedMatchingConfig,
@@ -18,6 +19,8 @@ import {
 import { JobScannerSettings, NewAppVersion } from "./types";
 import { createClient } from "./supabase/client";
 import { F2aSupabaseApi } from "./supabase/supabaseApi";
+import { getStripeConfig as getStripeConfigByEnv } from "./supabase/stripeConfig";
+import { ENV } from "./env";
 
 async function _mainProcessApiCall<T>(
   channel: string,
@@ -30,6 +33,13 @@ async function _mainProcessApiCall<T>(
   // if (error) throw new Error(error);
 
   return {} as T;
+}
+
+async function getSupabaseClient() {
+  const supabaseClient = await createClient<DbSchema>();
+  const f2aSupabaseClient = new F2aSupabaseApi(supabaseClient);
+
+  return f2aSupabaseClient;
 }
 
 /**
@@ -49,13 +59,8 @@ export async function signupWithEmail({
   email: string;
   password: string;
 }): Promise<User> {
-  const { user } = await _mainProcessApiCall<{ user: User }>(
-    "signup-with-email",
-    {
-      email,
-      password,
-    }
-  );
+  const f2aSupabaseClient = await getSupabaseClient();
+  const { user } = await f2aSupabaseClient.signupWithEmail({ email, password });
 
   return user;
 }
@@ -86,7 +91,13 @@ export async function sendPasswordResetEmail({
 }: {
   email: string;
 }): Promise<void> {
-  await _mainProcessApiCall("send-password-reset-email", { email });
+  const f2aSupabaseClient = await getSupabaseClient();
+  const redirectTo = urljoin(ENV.webappUrl, "reset-password");
+  await f2aSupabaseClient.sendPasswordResetEmail({
+    email,
+    redirectTo,
+  });
+  console.log(`Password reset email sent: ${redirectTo}`);
 }
 
 /**
@@ -97,10 +108,8 @@ export async function changePassword({
 }: {
   password: string;
 }): Promise<User> {
-  const { user } = await _mainProcessApiCall<{ user: User }>(
-    "change-password",
-    { password }
-  );
+  const f2aSupabaseClient = await getSupabaseClient();
+  const { user } = await f2aSupabaseClient.updatePassword({ password });
   return user;
 }
 
@@ -108,7 +117,8 @@ export async function changePassword({
  * Logout user session.
  */
 export async function logout(): Promise<void> {
-  await _mainProcessApiCall("logout", {});
+  const f2aSupabaseClient = await getSupabaseClient();
+  await f2aSupabaseClient.logout();
 }
 
 /**
@@ -154,7 +164,8 @@ export async function listLinks(): Promise<Link[]> {
  * Delete a link.
  */
 export async function deleteLink(linkId: number): Promise<void> {
-  await _mainProcessApiCall("delete-link", { linkId });
+  const f2aSupabaseClient = await getSupabaseClient();
+  await f2aSupabaseClient.deleteLink(linkId);
 }
 
 /**
@@ -276,7 +287,7 @@ export async function createReview({
   rating,
 }: {
   title: string;
-  description: string;
+  description?: string;
   rating: number;
 }): Promise<Review> {
   return await _mainProcessApiCall("create-user-review", {
@@ -304,7 +315,7 @@ export async function updateReview({
 }: {
   id: number;
   title: string;
-  description: string;
+  description?: string;
   rating: number;
 }): Promise<Review> {
   return await _mainProcessApiCall("update-user-review", {
@@ -319,9 +330,10 @@ export async function updateReview({
  * Get a job by id.
  */
 export async function getJobById(jobId: number): Promise<Job> {
-  const { job } = await _mainProcessApiCall<{ job: Job }>("get-job-by-id", {
-    jobId,
-  });
+  const supabaseClient = await createClient<DbSchema>();
+  const f2aSupabaseClient = new F2aSupabaseApi(supabaseClient);
+  const job = await f2aSupabaseClient.getJob(jobId);
+
   return job;
 }
 
@@ -351,10 +363,9 @@ export async function changeAllJobsStatus({
  * Get the profile of the current user.
  */
 export async function getProfile(): Promise<Profile> {
-  const { profile } = await _mainProcessApiCall<{ profile: Profile }>(
-    "get-profile",
-    {}
-  );
+  const supabaseClient = await createClient<DbSchema>();
+  const f2aSupabaseClient = new F2aSupabaseApi(supabaseClient);
+  const profile = await f2aSupabaseClient.getProfile();
   return profile;
 }
 
@@ -362,10 +373,7 @@ export async function getProfile(): Promise<Profile> {
  * Get Stripe config.
  */
 export async function getStripeConfig(): Promise<StripeConfig> {
-  const { config } = await _mainProcessApiCall<{ config: StripeConfig }>(
-    "get-stripe-config",
-    {}
-  );
+  const config = getStripeConfigByEnv(ENV.nodeEnv);
   return config;
 }
 
@@ -392,7 +400,10 @@ export async function createNote({
  * List all notes for a job.
  */
 export async function listNotes(job_id: number): Promise<Note[]> {
-  const notes = await _mainProcessApiCall<Note[]>("list-notes", { job_id });
+  const supabaseClient = await createClient<DbSchema>();
+  const f2aSupabaseClient = new F2aSupabaseApi(supabaseClient);
+
+  const notes = await f2aSupabaseClient.listNotes(job_id);
   return notes;
 }
 
@@ -439,7 +450,11 @@ export async function deleteNote(noteId: number): Promise<void> {
  * Get the advanced matching configuration for the current user.
  */
 export async function getAdvancedMatchingConfig(): Promise<AdvancedMatchingConfig | null> {
-  return await _mainProcessApiCall("get-advanced-matching-config", {});
+  const supabaseClient = await createClient<DbSchema>();
+  const f2aSupabaseClient = new F2aSupabaseApi(supabaseClient);
+
+  const config = await f2aSupabaseClient.getAdvancedMatchingConfig();
+  return config;
 }
 
 /**

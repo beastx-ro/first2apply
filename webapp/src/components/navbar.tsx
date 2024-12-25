@@ -3,15 +3,15 @@
 import { Icons } from "@/components/icons";
 import { useAppState } from "@/hooks/appState";
 import {
-  ChatBubbleIcon,
-  Crosshair2Icon,
-  GearIcon,
-  HomeIcon,
-  MagnifyingGlassIcon,
-  MoonIcon,
-  QuestionMarkCircledIcon,
+  HouseIcon,
+  SearchIcon,
+  CrosshairIcon,
+  MessagesSquareIcon,
+  SettingsIcon,
+  CircleHelpIcon,
   SunIcon,
-} from "@radix-ui/react-icons";
+  MoonIcon,
+} from "lucide-react";
 import { RefreshCw } from "lucide-react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
@@ -22,7 +22,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 export function Navbar() {
   // Hook to get the current location
@@ -33,21 +33,21 @@ export function Navbar() {
   const hasUpdate = !!newUpdate;
 
   const navItems = [
-    { name: "Jobs", path: "/", icon: <HomeIcon className="h-7 w-7" /> },
+    { name: "Jobs", path: "/", icon: <HouseIcon className="h-7 w-7" /> },
     {
       name: "Searches",
       path: "/links",
-      icon: <MagnifyingGlassIcon className="h-7 w-7" />,
+      icon: <SearchIcon className="h-7 w-7" />,
     },
     {
       name: "Filters",
       path: "/filters",
-      icon: <Crosshair2Icon className="h-7 w-7" />,
+      icon: <CrosshairIcon className="h-7 w-7" />,
     },
     {
       name: "Feedback",
       path: "/feedback",
-      icon: <ChatBubbleIcon className="h-7 w-7" />,
+      icon: <MessagesSquareIcon className="h-7 w-7" />,
     },
     {
       name: "Settings",
@@ -55,7 +55,7 @@ export function Navbar() {
 
       icon: (
         <div className="relative">
-          <GearIcon className="h-7 w-7" />
+          <SettingsIcon className="h-7 w-7" />
           {hasUpdate && (
             <div className="absolute -right-1.5 -top-1.5 h-2.5 w-2.5 rounded-full bg-destructive"></div>
           )}
@@ -65,7 +65,7 @@ export function Navbar() {
     {
       name: "Help",
       path: "/help",
-      icon: <QuestionMarkCircledIcon className="h-7 w-7" />,
+      icon: <CircleHelpIcon className="h-7 w-7" />,
     },
   ];
 
@@ -77,75 +77,77 @@ export function Navbar() {
     );
 
   return (
-    <nav className="fixed z-50 flex h-screen w-16 flex-col items-center justify-between border-r border-muted-foreground/20 py-6 md:p-10 2xl:w-56 2xl:items-start">
-      <div className="flex flex-col items-center gap-6 2xl:items-start">
-        <Link href={isScanning ? "/links" : "/"} className="mb-16 md:mb-20">
+    <nav className="fixed top-0 bg-background z-50 flex w-screen h-16 items-center justify-between border-b border-muted-foreground/20">
+      <div className="flex items-center w-full px-6">
+        <Link href={isScanning ? "/links" : "/"} className="">
           <TooltipProvider delayDuration={500}>
             <Tooltip>
               <TooltipTrigger className="flex gap-3">
                 <Logo />
-                <span className="hidden text-lg 2xl:inline-block">
+                <span className="text-lg font-semibold">
                   {isScanning ? "Scanning ..." : "First 2 Apply"}
                 </span>
               </TooltipTrigger>
 
-              <TooltipContent side="right" className="text-base 2xl:hidden">
+              <TooltipContent side="right" className="text-base xl:hidden">
                 {isScanning ? "Scanning for new jobs ..." : "First 2 Apply"}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </Link>
 
-        {navItems.map((item) => (
-          <TooltipProvider delayDuration={500} key={item.name}>
+        <div className="ml-auto flex gap-2">
+          {navItems.map((item) => (
+            <TooltipProvider delayDuration={500} key={item.name}>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Link
+                    key={item.name}
+                    href={item.path}
+                    className={`after:transition-width relative flex items-center gap-3 p-1 duration-200 after:absolute after:bottom-0 after:right-0 after:block after:h-0.5 after:w-0 after:bg-primary after:transition-all after:content-[''] hover:text-primary hover:after:w-full ${
+                      pathname === item.path && "text-primary"
+                    }`}
+                  >
+                    {item.icon}
+                    <span className="hidden text-lg 2xl:inline-block">
+                      {item.name}
+                    </span>
+                  </Link>
+                </TooltipTrigger>
+
+                <TooltipContent side="bottom" className="text-base 2xl:hidden">
+                  {item.name}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ))}
+
+          {/* theme toggle */}
+          <TooltipProvider delayDuration={500}>
             <Tooltip>
               <TooltipTrigger>
-                <Link
-                  key={item.name}
-                  href={item.path}
-                  className={`after:transition-width relative flex items-center gap-3 p-1 duration-200 after:absolute after:bottom-0 after:right-0 after:block after:h-0.5 after:w-0 after:bg-primary after:transition-all after:content-[''] hover:text-primary hover:after:w-full ${
-                    pathname === item.path && "text-primary"
-                  }`}
+                <button
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  className="flex items-center gap-3 p-1 hover:text-primary"
                 >
-                  {item.icon}
+                  {theme === "dark" ? (
+                    <SunIcon className="h-7 w-7" />
+                  ) : (
+                    <MoonIcon className="h-7 w-7" />
+                  )}
                   <span className="hidden text-lg 2xl:inline-block">
-                    {item.name}
+                    {theme === "dark" ? "Light Mode" : "Dark Mode"}
                   </span>
-                </Link>
+                </button>
               </TooltipTrigger>
 
               <TooltipContent side="right" className="text-base 2xl:hidden">
-                {item.name}
+                {theme === "dark" ? "Light Mode" : "Dark Mode"}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        ))}
+        </div>
       </div>
-
-      {/* theme toggle */}
-      <TooltipProvider delayDuration={500}>
-        <Tooltip>
-          <TooltipTrigger>
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="flex items-center gap-3 p-1 hover:text-primary"
-            >
-              {theme === "dark" ? (
-                <SunIcon className="h-7 w-7" />
-              ) : (
-                <MoonIcon className="h-7 w-7" />
-              )}
-              <span className="hidden text-lg 2xl:inline-block">
-                {theme === "dark" ? "Light Mode" : "Dark Mode"}
-              </span>
-            </button>
-          </TooltipTrigger>
-
-          <TooltipContent side="right" className="text-base 2xl:hidden">
-            {theme === "dark" ? "Light Mode" : "Dark Mode"}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
     </nav>
   );
 }
