@@ -915,7 +915,7 @@ export function parseFlexjobsJobs({
   const document = new DOMParser().parseFromString(html, "text/html");
   if (!document) throw new Error("Could not parse html");
 
-  const jobsList = document.querySelector(".sc-14nyru2-1.gfTJgV");
+  const jobsList = document.querySelector("#job-table-wrapper");
   if (!jobsList)
     return {
       jobs: [],
@@ -924,7 +924,7 @@ export function parseFlexjobsJobs({
     };
 
   const jobElements = Array.from(
-    jobsList.querySelectorAll("div.sc-14nyru2-2.fmkHkh > div")
+    jobsList.querySelectorAll("div.sc-14nyru2-3.ijOZYM > div")
   ) as Element[];
 
   const jobs = jobElements.map((el): ParsedJob | null => {
@@ -956,9 +956,9 @@ export function parseFlexjobsJobs({
       else if (jobTypeText.includes("no remote")) jobType = "onsite";
     }
 
-    const description = el.querySelector(
-      `p#description-${externalId}`
-    )?.textContent;
+    const description = el
+      .querySelector(`p#description-${externalId}`)
+      ?.textContent?.trim();
 
     return {
       siteId,
