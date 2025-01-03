@@ -226,7 +226,7 @@ export function parseLinkedInJobs({
   let jobsList = document.querySelector(".jobs-search__results-list");
   if (!jobsList) {
     // check if the user is logged into LinkedIn because then it has a totally different layout
-    jobsList = document.querySelector(".scaffold-layout__list");
+    jobsList = document.querySelector("ul.ECXtEXHpprFPgxgZwCEmgKrUHIPMRRTlXc");
     isLoggedIn = true;
   }
 
@@ -238,7 +238,9 @@ export function parseLinkedInJobs({
     };
   }
 
-  const jobElements = Array.from(jobsList.querySelectorAll("li")) as Element[];
+  const jobElements = Array.from(
+    jobsList.querySelectorAll(":scope > li")
+  ) as Element[];
   let jobs: Array<ParsedJob | null> = [];
   if (!isLoggedIn) {
     jobs = jobElements.map((el): ParsedJob | null => {
@@ -308,21 +310,22 @@ export function parseLinkedInJobs({
         ?.textContent?.trim();
       if (!title) return null;
 
-      const companyName = el
+      const companyNameAndLocation = el
         .querySelector(".artdeco-entity-lockup__subtitle > span")
         ?.textContent?.trim();
+      if (!companyNameAndLocation) return null;
+
+      const companyName = companyNameAndLocation.split("·")[0]?.trim();
       if (!companyName) return null;
+
+      const rawLocation = companyNameAndLocation.split("·")[1]?.trim();
+      if (!rawLocation) return null;
 
       const companyLogo =
         el
           .querySelector(".ivm-view-attr__img-wrapper")
           ?.querySelector("img")
           ?.getAttribute("src") || undefined;
-      const rawLocation = el
-        .querySelector(
-          "ul.job-card-container__metadata-wrapper > li.ozVyfYLPxTeVaPmuuWTtpUfNweVZyKil"
-        )
-        ?.textContent?.trim();
 
       const location = rawLocation
         ?.replace(/\(remote\)/i, "")
@@ -336,9 +339,23 @@ export function parseLinkedInJobs({
         : "onsite";
 
       const tags: string[] = [];
-      const easyApplyEl = el.querySelector(".job-card-container__apply-method");
-      if (easyApplyEl?.textContent?.trim().toLowerCase() === "easy apply") {
-        tags.push("easy apply");
+      const footerEl = el.querySelector(".job-card-list__footer-wrapper-v2");
+      if (footerEl) {
+        const tagsEl = footerEl.querySelectorAll("li");
+        tagsEl.forEach((tagEl) => {
+          if (tagEl.textContent?.trim()?.toLowerCase()?.includes("easy apply"))
+            tags.push("easy apply");
+        });
+      }
+
+      const benefits = el
+        .querySelector(
+          ".artdeco-entity-lockup__metadata .job-card-container__metadata-wrapper"
+        )
+        ?.textContent?.trim();
+      if (benefits) {
+        const benefitsList = benefits.split("·").map((b) => b.trim());
+        tags.push(...benefitsList);
       }
 
       return {
