@@ -540,11 +540,14 @@ type ExchangeRateMap = Record<
   }>
 >;
 let exchangeRateMap: ExchangeRateMap | undefined;
-async function getExchangeRateMap(): Promise<ExchangeRateMap> {
+async function getExchangeRateMap({
+  year,
+}: {
+  year: number;
+}): Promise<ExchangeRateMap> {
   if (exchangeRateMap) return exchangeRateMap;
 
-  const currentYear = luxon.DateTime.now().year;
-  const BNR_CURRENCY_EXHANGE_RATE_FEED_URL = `https://bnr.ro/files/xml/years/nbrfxrates${currentYear}.xml`;
+  const BNR_CURRENCY_EXHANGE_RATE_FEED_URL = `https://bnr.ro/files/xml/years/nbrfxrates${year}.xml`;
   const result = await axios.get(BNR_CURRENCY_EXHANGE_RATE_FEED_URL);
   const xmlStr = result.data;
 
@@ -587,7 +590,8 @@ async function getExchangeRate({
   day: string;
   currency: string;
 }) {
-  const exchangeRateMap = await getExchangeRateMap();
+  const year = luxon.DateTime.fromFormat(day, "yyyy-MM-dd").year;
+  const exchangeRateMap = await getExchangeRateMap({ year });
   const exchangeRates = exchangeRateMap[day];
   if (!exchangeRates) {
     throw new Error(`No exchange rates found for day ${day}`);
