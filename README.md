@@ -34,7 +34,7 @@ npm run start
 First, update the version in `package.json` and also in the `.appx` manifest.
 
 ### MacOS
-Forge supports automatically uploading the packaged app to S3, but unfortunatelly the download link is broken because we have whitespaces in the app name. So make sure to edit the generated `REALEASES.json` file with the actual link from S3 and upload it again
+Forge supports automatically uploading the packaged app to S3, but unfortunately the download link is broken because we have whitespaces in the app name. So make sure to edit the generated `REALEASES.json` file with the actual link from S3 and upload it again
 
 Run `npm run package` to test a production build locally first. Don't forget to uncomment the prov ENV vars in the desktop probe.
 
