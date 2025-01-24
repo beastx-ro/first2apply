@@ -8,6 +8,7 @@ public.sites (
   logo_url text not null,
   blacklisted_paths text[] not null default '{/}'::text[],
   provider text not null,
+  deprecated boolean not null default false,
   constraint sites_pkey primary key (id)
 ) tablespace pg_default;
 
