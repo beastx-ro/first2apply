@@ -13,13 +13,19 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useLinks } from '@/hooks/links';
 import { useSites } from '@/hooks/sites';
+import { LABEL_COLOR_CLASSES } from '@/lib/labels';
 import { FilterIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+
+import { JOB_LABELS } from '../../../../../supabase/functions/_shared/types';
 
 export type JobFiltersType = {
   sites: number[];
   links: number[];
+  labels: string[];
 };
+
+const ALL_LABELS = Object.values(JOB_LABELS);
 
 /**
  * Job filters menu component.
@@ -27,10 +33,12 @@ export type JobFiltersType = {
 export function JobFiltersMenu({
   selectedSites,
   selectedLinks,
+  selectedLabels,
   onApplyFilters,
 }: {
   selectedSites: number[];
   selectedLinks: number[];
+  selectedLabels: string[];
   onApplyFilters: (filters: JobFiltersType) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -45,31 +53,54 @@ export function JobFiltersMenu({
 
   const onSelectSite = (siteId: number) => {
     if (selectedSites.includes(siteId)) {
-      onApplyFilters({ sites: selectedSites.filter((id) => id !== siteId), links: selectedLinks });
+      onApplyFilters({
+        sites: selectedSites.filter((id) => id !== siteId),
+        links: selectedLinks,
+        labels: selectedLabels,
+      });
     } else {
-      onApplyFilters({ sites: [...selectedSites, siteId], links: selectedLinks });
+      onApplyFilters({ sites: [...selectedSites, siteId], links: selectedLinks, labels: selectedLabels });
     }
   };
 
   const onSelectLink = (linkId: number) => {
     if (selectedLinks.includes(linkId)) {
-      onApplyFilters({ sites: selectedSites, links: selectedLinks.filter((id) => id !== linkId) });
+      onApplyFilters({
+        sites: selectedSites,
+        links: selectedLinks.filter((id) => id !== linkId),
+        labels: selectedLabels,
+      });
     } else {
-      onApplyFilters({ sites: selectedSites, links: [...selectedLinks, linkId] });
+      onApplyFilters({ sites: selectedSites, links: [...selectedLinks, linkId], labels: selectedLabels });
+    }
+  };
+
+  const onSelectLabel = (label: string) => {
+    if (selectedLabels.includes(label)) {
+      onApplyFilters({
+        sites: selectedSites,
+        links: selectedLinks,
+        labels: selectedLabels.filter((l) => l !== label),
+      });
+    } else {
+      onApplyFilters({ sites: selectedSites, links: selectedLinks, labels: [...selectedLabels, label] });
     }
   };
 
   const clearSites = () => {
-    onApplyFilters({ sites: [], links: selectedLinks });
+    onApplyFilters({ sites: [], links: selectedLinks, labels: selectedLabels });
   };
   const clearLinks = () => {
-    onApplyFilters({ sites: selectedSites, links: [] });
+    onApplyFilters({ sites: selectedSites, links: [], labels: selectedLabels });
+  };
+  const clearLabels = () => {
+    onApplyFilters({ sites: selectedSites, links: selectedLinks, labels: [] });
   };
   const clearAll = () => {
-    onApplyFilters({ sites: [], links: [] });
+    onApplyFilters({ sites: [], links: [], labels: [] });
   };
 
-  const activeFilterCount = selectedSites.length + selectedLinks.length;
+  const activeFilterCount = selectedSites.length + selectedLinks.length + selectedLabels.length;
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={(opened) => setIsOpen(opened)}>
@@ -165,6 +196,48 @@ export function JobFiltersMenu({
           </DropdownMenuSub>
         </DropdownMenuGroup>
 
+        {/* Labels */}
+        <DropdownMenuGroup>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent sideOffset={8} alignOffset={-37}>
+                {ALL_LABELS.map((label) => {
+                  const colorClass = LABEL_COLOR_CLASSES[label];
+
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={label}
+                      checked={selectedLabels.includes(label)}
+                      onSelect={(evt) => {
+                        evt.preventDefault();
+                        onSelectLabel(label);
+                      }}
+                      className="pr-8"
+                    >
+                      <div className={`h-4 w-4 rounded-full ${colorClass}`}></div>
+                      <p className="ml-2">{label}</p>
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+
+                <DropdownMenuSeparator />
+                {/* Reset filter button */}
+                <DropdownMenuItem
+                  onSelect={(evt) => {
+                    evt.preventDefault();
+                    clearLabels();
+                  }}
+                  disabled={selectedLabels.length === 0}
+                  className="px-8 text-destructive"
+                >
+                  Reset Labels
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+        </DropdownMenuGroup>
+
         <DropdownMenuSeparator />
 
         {/* Reset all filters button */}
@@ -172,7 +245,7 @@ export function JobFiltersMenu({
           onSelect={() => {
             clearAll();
           }}
-          disabled={selectedSites.length === 0 && selectedLinks.length === 0}
+          disabled={selectedSites.length === 0 && selectedLinks.length === 0 && selectedLabels.length === 0}
           className="text-destructive"
         >
           Remove Filters

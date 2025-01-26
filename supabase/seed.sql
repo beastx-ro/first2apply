@@ -192,7 +192,8 @@ create or replace function list_jobs(
     jobs_page_size integer, 
     jobs_search text default null,
     jobs_site_ids integer[] default null,
-    jobs_link_ids integer[] default null
+    jobs_link_ids integer[] default null,
+    jobs_labels text[] default null
 )
 returns setof jobs as $$
 declare
@@ -211,6 +212,7 @@ begin
     and (jobs_after is null or (updated_at, id) < (after_updated_at, after_id))
     and (array_length(jobs_site_ids, 1) is null or "siteId" = any(jobs_site_ids))
     and (array_length(jobs_link_ids, 1) is null or link_id = any(jobs_link_ids))
+    and (array_length(jobs_labels, 1) is null or labels && jobs_labels)
     and (jobs_search is null or job_search_vector @@ plainto_tsquery('english', jobs_search))
   order by updated_at desc, id desc
   limit jobs_page_size;
@@ -389,7 +391,8 @@ create or replace function count_jobs(
     jobs_status "Job Status" default null, 
     jobs_search text default null,
     jobs_site_ids integer[] default null,
-    jobs_link_ids integer[] default null
+    jobs_link_ids integer[] default null,
+    jobs_labels text[] default null
 )
 returns table(status "Job Status", job_count bigint) as $$
 begin
@@ -399,6 +402,7 @@ begin
   where (jobs_status is null or j.status = jobs_status)
     and (array_length(jobs_site_ids, 1) is null or j."siteId" = any(jobs_site_ids))
     and (array_length(jobs_link_ids, 1) is null or j.link_id = any(jobs_link_ids))
+    and (array_length(jobs_labels, 1) is null or labels && jobs_labels)
     and (jobs_search is null or j.job_search_vector @@ plainto_tsquery('english', jobs_search))
   group by j.status
   order by j.status;

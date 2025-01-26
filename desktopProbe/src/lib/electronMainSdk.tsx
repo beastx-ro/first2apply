@@ -117,6 +117,7 @@ export async function listJobs({
   search,
   siteIds,
   linkIds,
+  labels,
   limit,
   after,
 }: {
@@ -124,10 +125,10 @@ export async function listJobs({
   search?: string;
   siteIds?: number[];
   linkIds?: number[];
+  labels?: string[];
   limit?: number;
   after?: string;
 }) {
-  console.log('listJobs', { status, search, siteIds, linkIds, limit, after });
   const result = await _mainProcessApiCall<{
     jobs: Job[];
     new: number;
@@ -140,6 +141,7 @@ export async function listJobs({
     search,
     siteIds,
     linkIds,
+    labels,
     limit,
     after,
   });

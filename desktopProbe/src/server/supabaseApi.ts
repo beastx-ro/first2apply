@@ -165,6 +165,7 @@ export class F2aSupabaseApi {
     search,
     siteIds,
     linkIds,
+    labels,
     limit = 50,
     after,
   }: {
@@ -172,12 +173,14 @@ export class F2aSupabaseApi {
     search?: string;
     siteIds?: number[];
     linkIds?: number[];
+    labels?: string[];
     limit?: number;
     after?: string;
   }) {
     const jobs_search = search || undefined;
     const jobs_site_ids = siteIds?.length > 0 ? siteIds : undefined;
     const jobs_link_ids = linkIds?.length > 0 ? linkIds : undefined;
+    const jobs_labels = labels?.length > 0 ? labels : undefined;
     const [jobs, counters] = await Promise.all([
       this._supabaseApiCall<Job[], PostgrestError>(async () => {
         const res = await this._supabase.rpc('list_jobs', {
@@ -187,6 +190,7 @@ export class F2aSupabaseApi {
           jobs_search,
           jobs_site_ids,
           jobs_link_ids,
+          jobs_labels,
         });
 
         return res;
@@ -202,6 +206,7 @@ export class F2aSupabaseApi {
           jobs_search,
           jobs_site_ids,
           jobs_link_ids,
+          jobs_labels,
         });
 
         return res;

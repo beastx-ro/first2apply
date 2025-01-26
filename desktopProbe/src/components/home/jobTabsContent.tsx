@@ -38,6 +38,7 @@ export function JobTabsContent({
   search,
   siteIds,
   linkIds,
+  labels,
 }: {
   status: JobStatus;
   listing: JobListing;
@@ -45,6 +46,7 @@ export function JobTabsContent({
   search: string;
   siteIds: number[];
   linkIds: number[];
+  labels: string[];
 }) {
   const { handleError } = useError();
 
@@ -82,7 +84,7 @@ export function JobTabsContent({
         console.log(location.search);
         setListing((listing) => ({ ...listing, isLoading: true }));
 
-        const result = await listJobs({ status, search, siteIds, linkIds, limit: JOB_BATCH_SIZE });
+        const result = await listJobs({ status, search, siteIds, linkIds, labels, limit: JOB_BATCH_SIZE });
         console.log('found jobs', result.jobs.length);
 
         setListing({
@@ -121,6 +123,7 @@ export function JobTabsContent({
             after: listing.nextPageToken,
             search,
             siteIds,
+            labels,
             linkIds,
           });
           setListing((l) => ({
@@ -233,6 +236,7 @@ export function JobTabsContent({
         after: listing.nextPageToken,
         search,
         siteIds,
+        labels,
         linkIds,
       });
 
@@ -293,7 +297,7 @@ export function JobTabsContent({
   // Update the query params when the search input changes
   const onSearchJobs = ({ search, filters }: { search: string; filters: JobFiltersType }) => {
     navigate(
-      `?status=${status}&search=${search}&site_ids=${filters.sites.join(',')}&link_ids=${filters.links.join(',')}`,
+      `?status=${status}&search=${search}&site_ids=${filters.sites.join(',')}&link_ids=${filters.links.join(',')}&labels=${filters.labels.join(',')}`,
     );
   };
 
@@ -309,7 +313,13 @@ export function JobTabsContent({
                 className="no-scrollbar h-[calc(100vh-100px)] w-1/2 space-y-3 overflow-y-scroll lg:w-2/5"
               >
                 <div className="sticky top-0 z-50 bg-background pb-2">
-                  <JobFilters search={search} siteIds={siteIds} linkIds={linkIds} onSearchJobs={onSearchJobs} />
+                  <JobFilters
+                    search={search}
+                    siteIds={siteIds}
+                    linkIds={linkIds}
+                    labels={labels}
+                    onSearchJobs={onSearchJobs}
+                  />
                 </div>
 
                 {listing.isLoading || statusItem !== status ? (

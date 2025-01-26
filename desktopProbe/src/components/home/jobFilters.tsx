@@ -11,17 +11,20 @@ export function JobFilters({
   search,
   siteIds,
   linkIds,
+  labels,
   onSearchJobs,
 }: {
   search: string;
   siteIds: number[];
   linkIds: number[];
+  labels: string[];
   onSearchJobs: (_: { search: string; filters: JobFiltersType }) => void;
 }) {
   const [inputValue, setInputValue] = useState(search);
   const [filters, setFilters] = useState<JobFiltersType>({
     sites: [],
     links: [],
+    labels: [],
   });
 
   // Debounced search for input value
@@ -49,6 +52,7 @@ export function JobFilters({
       <JobFiltersMenu
         selectedSites={siteIds || []}
         selectedLinks={linkIds || []}
+        selectedLabels={labels || []}
         onApplyFilters={(newFilters) => {
           setFilters(newFilters);
         }}
