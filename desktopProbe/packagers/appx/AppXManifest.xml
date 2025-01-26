@@ -6,7 +6,7 @@
   <Identity Name="BeastXIndustries.First2Apply"
     ProcessorArchitecture="x64"
     Publisher="CN=A2CA7EBA-28F4-4422-B08E-763EC4EEEACE"
-    Version="1.8.1.0" />
+    Version="1.9.0.0" />
   <Properties>
     <DisplayName>First 2 Apply</DisplayName>
     <PublisherDisplayName>BeastX Industries</PublisherDisplayName>

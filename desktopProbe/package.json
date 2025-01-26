@@ -1,7 +1,7 @@
 {
   "name": "@first2apply/desktop-probe",
   "productName": "First 2 Apply",
-  "version": "1.8.1",
+  "version": "1.9.0",
   "description": "First 2 Apply - Job Alert App | Instant Notifications for New Job Listings",
   "main": ".webpack/main",
   "scripts": {
