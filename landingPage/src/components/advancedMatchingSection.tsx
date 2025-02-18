@@ -10,12 +10,24 @@ export function AdvancedMatchingSection() {
     >
       <div className="w-full md:w-1/2">
         <h2 className="text-2xl sm:text-4xl font-semibold text-balance md:text-right">
-          Advanced matching cuts through the noise
+          Advanced Matching using AI
         </h2>
         <p className="mt-2 sm:mt-4 text-balance md:text-right sm:text-lg">
-          Fed up with irrelevant listings? Set your preferences to exclude
-          specific tech stacks or companies. First 2 Apply&apos;s refined
-          filtering means you only see the jobs that truly match your criteria.
+          <b>Tired of sifting through irrelevant job listings?</b> First 2 Apply
+          goes beyond basic keyword filtering. With AI-powered search, you can
+          set smart, natural language rules like:
+        </p>
+        <ul className="text-balance mx-auto list-disc">
+          <li>
+            Exclude jobs that require office visits (even if they're labeled
+            remote)
+          </li>
+          <li>Hide roles requiring Python when searching for Fullstack jobs</li>
+          <li>Only show positions with less than 2 years of experience</li>
+          <li>Filter out specific companies</li>
+        </ul>
+        <p className="mt-2 sm:mt-4 text-balance md:text-right sm:text-lg">
+          No more manual filtering—just the jobs that truly match your criteria.
         </p>
       </div>
 

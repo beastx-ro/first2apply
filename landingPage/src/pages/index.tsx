@@ -95,9 +95,9 @@ export default function Home() {
         <ProductSection />
         <ExplainerSection />
         <BenefitsSection />
+        <AdvancedMatchingSection />
         <AlertsSection />
         <OrganizationSection />
-        <AdvancedMatchingSection />
         <BottomCta />
         <FeedbackSection />
         <PricingSection />

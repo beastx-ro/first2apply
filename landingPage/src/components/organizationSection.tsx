@@ -8,6 +8,17 @@ export function OrganizationSection() {
       id="organization"
       className="max-w-7xl mx-auto px-6 sm:px-10 mt-[10vh] md:mt-[20vh] flex flex-col md:flex-row items-center gap-4"
     >
+      <Image
+        src={organizationLight}
+        alt="organization light"
+        className="dark:hidden w-full md:w-1/2 h-auto"
+      />
+      <Image
+        src={organizationDark}
+        alt="organization dark"
+        className="hidden dark:block w-full md:w-1/2 h-auto"
+      />
+
       <div className="w-full md:w-1/2">
         <h2 className="text-2xl sm:text-4xl font-semibold text-balance">
           Manage applications like a pro
@@ -19,17 +30,6 @@ export function OrganizationSection() {
           application stage, right within the app.
         </p>
       </div>
-
-      <Image
-        src={organizationLight}
-        alt="organization light"
-        className="dark:hidden w-full md:w-1/2 h-auto"
-      />
-      <Image
-        src={organizationDark}
-        alt="organization dark"
-        className="hidden dark:block w-full md:w-1/2 h-auto"
-      />
     </section>
   );
 }
