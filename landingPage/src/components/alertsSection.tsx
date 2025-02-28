@@ -1,23 +1,24 @@
-import Image from "next/image";
-import alert from "../../public/assets/alert.png";
+import Image from 'next/image';
+
+import alert from '../../public/assets/alert.png';
 
 export function AlertsSection() {
   return (
     <section
       id="alerts"
-      className="flex flex-col items-center gap-4 mt-[10vh] md:mt-[20vh] md:flex-row-reverse max-w-7xl mx-auto px-6 sm:px-10"
+      className="mx-auto mt-[10vh] flex max-w-7xl flex-col items-center gap-4 px-6 sm:px-10 md:mt-[20vh] md:flex-row"
     >
-      <Image src={alert} alt="alert" className="w-full h-auto md:w-1/2" />
       <div className="w-full md:w-1/2">
-        <h2 className="text-2xl sm:text-4xl font-semibold text-balance md:text-left">
+        <h2 className="text-balance text-2xl font-semibold sm:text-4xl md:text-left">
           Get ahead with real-time job notifications
         </h2>
-        <p className="mt-2 sm:mt-4 text-balance md:text-left sm:text-lg">
-          Set alerts your way - from as often as every 30 minutes to as spaced
-          out as weekly. With First 2 Apply you can ensure your application is
-          top of the pile, where recruiters look first.
+        <p className="mt-2 text-balance sm:mt-4 sm:text-lg md:text-left">
+          Set alerts your way - from as often as every 30 minutes to as spaced out as weekly. With First 2 Apply you can
+          ensure your application is top of the pile, where recruiters look first.
         </p>
       </div>
+
+      <Image src={alert} alt="alert" className="mt-2 h-auto w-full px-3 xs:mt-4 xs:px-5 md:w-1/2" />
     </section>
   );
 }
