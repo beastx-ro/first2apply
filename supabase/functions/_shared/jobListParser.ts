@@ -7,6 +7,9 @@ import { encodeHex } from "jsr:@std/encoding/hex";
 
 import { Job, JobType, Link, SiteProvider } from "./types.ts";
 import { JobSite } from "./types.ts";
+import { parseCustomJobs } from "./customJobsParser.ts";
+import { ILogger } from "./logger.ts";
+import { throwError } from "./errorUtils.ts";
 
 const turndownService = new turndown({
   bulletListMarker: "-",
@@ -45,10 +48,12 @@ function parseLocation({
 export function getJobSite({
   allJobSites,
   url,
+  hasCustomJobsParsing,
 }: {
   allJobSites: JobSite[];
   url: string;
-}): JobSite | undefined {
+  hasCustomJobsParsing: boolean;
+}): JobSite {
   const getUrlDomain = (url: string) => {
     const hostname = new URL(url).hostname.replace("emplois.", "");
     const parts = hostname.split(".").reverse();
@@ -58,7 +63,7 @@ export function getJobSite({
   };
 
   const urlDomain = getUrlDomain(url);
-  const site = allJobSites.find((site) => {
+  let site = allJobSites.find((site) => {
     return site.urls.some((siteUrl) => {
       const knownSiteDomain = getUrlDomain(siteUrl);
       return knownSiteDomain === urlDomain;
@@ -77,6 +82,19 @@ export function getJobSite({
     }
   });
 
+  // if no site is found, use the custom site if enabled
+  // it's enabled if the user is on the PRO plan
+  if (!site && !hasCustomJobsParsing) {
+    const parsedUrl = new URL(url);
+    throw new Error(
+      `We currently don't support scanning for jobs on ${parsedUrl.hostname}. Contact our support to request it.`
+    );
+  } else {
+    site =
+      allJobSites.find((s) => s.provider === SiteProvider.custom) ??
+      throwError("No custom site found");
+  }
+
   return site;
 }
 
@@ -86,17 +104,13 @@ export function getJobSite({
 export function cleanJobUrl({
   allJobSites,
   url,
+  hasCustomJobsParsing,
 }: {
   allJobSites: JobSite[];
   url: string;
+  hasCustomJobsParsing: boolean;
 }) {
-  const site = getJobSite({ allJobSites, url });
-  if (!site) {
-    const parsedUrl = new URL(url);
-    throw new Error(
-      `We do not yet support scanning for jobs on ${parsedUrl.hostname}. Contact our support to request it.`
-    );
-  }
+  const site = getJobSite({ allJobSites, url, hasCustomJobsParsing });
   let cleanUrl = url;
 
   if (site.queryParamsToRemove) {
@@ -124,38 +138,46 @@ export async function parseJobsListUrl({
   allJobSites,
   link,
   html,
+  hasCustomJobsParsing,
+  ...context
 }: {
   allJobSites: JobSite[];
   link: Link;
   html: string;
+  hasCustomJobsParsing: boolean;
+  // dependencies
+  logger: ILogger;
+  openAiApiKey: string;
 }) {
   const { url } = link;
-  const site = getJobSite({ allJobSites, url });
-  if (!site) {
-    const parsedUrl = new URL(url);
-    throw new Error(
-      `We currently don't support scanning for jobs on ${parsedUrl.hostname}. Contact our support to request it.`
-    );
-  }
+  const site = getJobSite({ allJobSites, url, hasCustomJobsParsing });
 
-  const { jobs, listFound, elementsCount } = await parseSiteJobsList({
-    site,
-    html,
-  });
+  const { jobs, listFound, elementsCount, llmApiCallCost } =
+    await parseSiteJobsList({
+      site,
+      html,
+      url,
+      ...context,
+    });
 
   const parseFailed = !listFound || (elementsCount > 0 && jobs.length === 0);
 
-  return { jobs, site, parseFailed };
+  return { jobs, site, parseFailed, llmApiCallCost };
 }
 
 type ParsedJob = Omit<
   Job,
   "id" | "user_id" | "visible" | "status" | "created_at" | "updated_at"
 >;
-type JobSiteParseResult = {
+export type JobSiteParseResult = {
   jobs: ParsedJob[];
   listFound: boolean;
   elementsCount: number;
+  llmApiCallCost?: {
+    cost: number;
+    inputTokensUsed: number;
+    outputTokensUsed: number;
+  };
 };
 
 /**
@@ -164,9 +186,15 @@ type JobSiteParseResult = {
 async function parseSiteJobsList({
   site,
   html,
+  url,
+  ...context
 }: {
   site: JobSite;
   html: string;
+  url: string;
+
+  logger: ILogger;
+  openAiApiKey: string;
 }): Promise<JobSiteParseResult> {
   switch (site.provider) {
     case SiteProvider.linkedin:
@@ -203,6 +231,8 @@ async function parseSiteJobsList({
       return parseUSAJobsJobs({ siteId: site.id, html });
     case SiteProvider.talent:
       return parseTalentJobs({ siteId: site.id, html });
+    case SiteProvider.custom:
+      return parseCustomJobs({ siteId: site.id, html, url, ...context });
   }
 }
 

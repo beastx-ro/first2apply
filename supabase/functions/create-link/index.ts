@@ -1,9 +1,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.48.1";
 import { CORS_HEADERS } from "../_shared/cors.ts";
-import { DbSchema, Job } from "../_shared/types.ts";
+import { DbSchema, Job, Link } from "../_shared/types.ts";
 import { getExceptionMessage } from "../_shared/errorUtils.ts";
 import { cleanJobUrl, parseJobsListUrl } from "../_shared/jobListParser.ts";
 import { createLoggerWithMeta } from "../_shared/logger.ts";
+import { checkUserSubscription } from "../_shared/subscription.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -13,6 +14,7 @@ Deno.serve(async (req) => {
   const logger = createLoggerWithMeta({
     function: "create-link",
   });
+  let inFlightLink: Link | null = null;
   try {
     const requestId = crypto.randomUUID();
     logger.addMeta("request_id", requestId);
@@ -26,6 +28,7 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       { global: { headers: { Authorization: authHeader } } }
     );
+    const openAiApiKey = Deno.env.get("OPENAI_API_KEY") ?? "";
 
     const { data: userData, error: getUserError } =
       await supabaseClient.auth.getUser();
@@ -43,6 +46,11 @@ Deno.serve(async (req) => {
     };
     logger.info(`Creating link: ${title} - ${url}`);
 
+    const { hasCustomJobsParsing } = await checkUserSubscription({
+      supabaseClient,
+      userId: user?.id ?? "",
+    });
+
     // list all job sites from db
     const { data, error: selectError } = await supabaseClient
       .from("sites")
@@ -51,7 +59,11 @@ Deno.serve(async (req) => {
     const allJobSites = data ?? [];
 
     // insert a new link in the db
-    const { cleanUrl, site } = cleanJobUrl({ url, allJobSites });
+    const { cleanUrl, site } = cleanJobUrl({
+      url,
+      allJobSites,
+      hasCustomJobsParsing,
+    });
     // check if the site is deprecated
     if (site.deprecated) {
       throw new Error(
@@ -67,8 +79,10 @@ Deno.serve(async (req) => {
       })
       .select("*");
     if (error) throw error;
+    logger.info(`created link for site ${site.name} (${site.id})`);
 
     const [link] = createdLinks ?? [];
+    inFlightLink = link;
 
     // legacy, we don't parse the jobs list when creating a new link anymore
     // but need to still return an empty array for compatibility
@@ -80,27 +94,19 @@ Deno.serve(async (req) => {
         allJobSites,
         link,
         html,
+        hasCustomJobsParsing,
+        logger,
+        openAiApiKey,
       });
 
       if (parseFailed) {
-        // remove the link from the db
-        const { error: deleteError } = await supabaseClient
-          .from("links")
-          .delete()
-          .eq("id", link.id);
-        if (deleteError) {
-          logger.error(
-            `failed to delete link ${link.id}: ${deleteError.message}`
-          );
-        }
-
         // save the html dump for debugging
         const { error: htmlDumpError } = await supabaseClient
           .from("html_dumps")
           .insert([{ url: link.url, html }]);
         if (htmlDumpError) {
           logger.error(
-            `failed to save html dump for link ${link.id}: ${htmlDumpError.message}`
+            `failed to save html dump for link ${inFlightLink.id}: ${htmlDumpError.message}`
           );
         }
 
@@ -138,6 +144,25 @@ Deno.serve(async (req) => {
     });
   } catch (error) {
     logger.error(getExceptionMessage(error));
+
+    // if we have created a link but something else failed, delete the link
+    // this will also cascade and delete all jobs associated with the link
+    if (inFlightLink) {
+      const supabaseClient = createClient<DbSchema>(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      );
+      const { error: deleteError } = await supabaseClient
+        .from("links")
+        .delete()
+        .eq("id", inFlightLink.id);
+      if (deleteError) {
+        logger.error(
+          `failed to delete link ${inFlightLink.id}: ${deleteError.message}`
+        );
+      }
+    }
+
     return new Response(
       JSON.stringify({ errorMessage: getExceptionMessage(error, true) }),
       {

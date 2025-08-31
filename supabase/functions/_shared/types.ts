@@ -16,6 +16,9 @@ export enum SiteProvider {
   zipRecruiter = "zipRecruiter",
   usaJobs = "usaJobs",
   talent = "talent",
+
+  // generic provider for sites not in the list above
+  custom = "custom",
 }
 
 export const JOB_LABELS = {

@@ -168,12 +168,13 @@ async function promptOpenAI({
 }) {
   const openai = new AzureOpenAI({
     apiKey: openAiApiKey,
-    endpoint: "https://first2apply.openai.azure.com/",
+    endpoint:
+      "https://dragossebestin-2025-09--resource.cognitiveservices.azure.com/",
     apiVersion: "2024-10-21",
   });
 
   const llmConfig = {
-    model: "gpt-4o",
+    model: "gpt-5-mini",
     costPerMillionInputTokens: 2.5,
     costPerMillionOutputTokens: 10,
   };
@@ -193,11 +194,7 @@ async function promptOpenAI({
         }),
       },
     ],
-    temperature: 0,
-    max_tokens: 1000,
-    top_p: 0,
-    frequency_penalty: 0,
-    presence_penalty: 0,
+    max_completion_tokens: 1000,
     response_format: zodResponseFormat(JobExclusionFormat, "JobExclusion"),
   });
 

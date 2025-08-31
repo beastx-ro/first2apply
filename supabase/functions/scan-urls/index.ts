@@ -9,6 +9,7 @@ import { getExceptionMessage } from "../_shared/errorUtils.ts";
 import { checkUserSubscription } from "../_shared/subscription.ts";
 import { createLoggerWithMeta } from "../_shared/logger.ts";
 import { ILogger } from "../_shared/logger.ts";
+import { countChatGptUsage } from "../_shared/openAI.ts";
 
 type HtmlParseRequest = {
   linkId: number;
@@ -38,6 +39,7 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       { global: { headers: { Authorization: authHeader } } }
     );
+    const openAiApiKey = Deno.env.get("OPENAI_API_KEY") ?? "";
     const { data: userData, error: getUserError } =
       await supabaseClient.auth.getUser();
     if (getUserError) {
@@ -66,10 +68,11 @@ Deno.serve(async (req) => {
     logger.info(`found ${links.length} links`);
 
     const userId = links?.[0]?.user_id;
-    const { subscriptionHasExpired } = await checkUserSubscription({
-      supabaseClient,
-      userId,
-    });
+    const { subscriptionHasExpired, hasCustomJobsParsing } =
+      await checkUserSubscription({
+        supabaseClient,
+        userId,
+      });
     if (subscriptionHasExpired) {
       logger.info(`subscription has expired for user ${userId}`);
       return new Response(JSON.stringify({ newJobs: [], parseFailed: false }), {
@@ -108,11 +111,24 @@ Deno.serve(async (req) => {
           jobs,
           site,
           parseFailed: currentUrlParseFailed,
+          llmApiCallCost,
         } = await parseJobsListUrl({
           allJobSites,
           link,
           html: html.content,
+          hasCustomJobsParsing,
+          logger,
+          openAiApiKey,
         });
+
+        if (llmApiCallCost) {
+          await countChatGptUsage({
+            logger,
+            supabaseClient,
+            forUserId: user?.id ?? "",
+            ...llmApiCallCost,
+          });
+        }
 
         logger.info(
           `[${site.provider}] found ${jobs.length} jobs from link ${link.id}`

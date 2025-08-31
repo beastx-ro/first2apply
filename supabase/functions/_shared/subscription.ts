@@ -14,6 +14,7 @@ export async function checkUserSubscription({
   profile: Profile;
   subscriptionHasExpired: boolean;
   hasAdvancedMatching: boolean;
+  hasCustomJobsParsing: boolean;
 }> {
   const { data: profile, error } = await supabaseClient
     .from("profiles")
@@ -38,5 +39,6 @@ export async function checkUserSubscription({
     profile,
     subscriptionHasExpired,
     hasAdvancedMatching: hasRequiredTier && !subscriptionHasExpired,
+    hasCustomJobsParsing: hasRequiredTier && !subscriptionHasExpired,
   };
 }

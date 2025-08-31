@@ -3,10 +3,11 @@ import { CORS_HEADERS } from "../_shared/cors.ts";
 
 import { DbSchema } from "../_shared/types.ts";
 import { getExceptionMessage, throwError } from "../_shared/errorUtils.ts";
-import { parseJobDescription } from "../_shared/jobDescriptionParser.ts";
+import { parseJobDescriptionUpdates } from "../_shared/jobDescriptionParser.ts";
 import { applyAdvancedMatchingFilters } from "../_shared/advancedMatching.ts";
 import { Job } from "../_shared/types.ts";
 import { createLoggerWithMeta } from "../_shared/logger.ts";
+import { countChatGptUsage } from "../_shared/openAI.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -29,6 +30,7 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       { global: { headers: { Authorization: authHeader } } }
     );
+    const openAiApiKey = Deno.env.get("OPENAI_API_KEY") ?? "";
 
     const { data: userData, error: getUserError } =
       await supabaseClient.auth.getUser();
@@ -78,13 +80,20 @@ Deno.serve(async (req) => {
       );
 
       // update the job with the description
-      const jd = parseJobDescription({ site, job, html });
+      const updates = await parseJobDescriptionUpdates({
+        site,
+        job,
+        html,
+        openAiApiKey,
+        logger,
+      });
       const isLastRetry = retryCount === maxRetries;
       updatedJob = {
         ...updatedJob,
-        description: jd.content ?? updatedJob.description,
+        ...updates,
+        description: updates.description ?? job.description, // keep old description if no new one
       };
-      if (!jd.content && isLastRetry) {
+      if (!updates.description && isLastRetry) {
         logger.error(
           `[${site.provider}] no JD details extracted from the html of job ${jobId}, this could be a problem with the parser`,
           {
@@ -98,13 +107,22 @@ Deno.serve(async (req) => {
           .insert([{ url: job.externalUrl, html }]);
       }
 
-      if (jd.content) {
+      if (updates.description) {
         logger.info(
           `[${site.provider}] finished parsing job description for ${job.title}`,
           {
             site: site.provider,
           }
         );
+      }
+
+      if (updates.llmApiCallCost) {
+        await countChatGptUsage({
+          logger,
+          supabaseClient,
+          forUserId: user?.id ?? "",
+          ...updates.llmApiCallCost,
+        });
       }
 
       const { newStatus, excludeReason } = await applyAdvancedMatchingFilters({
