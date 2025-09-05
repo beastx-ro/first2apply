@@ -6,7 +6,7 @@ import { getExceptionMessage } from "./errorUtils.ts";
 const COST_PER_MODEL: Record<string, { input: number; output: number }> = {
   "gpt-4o": { input: 2.5, output: 10 },
   "gpt-4o-mini": { input: 0.15, output: 0.6 },
-  "gpt-5": { input: 1.25, output: 10 },
+  "gpt-5-chat": { input: 1.25, output: 10 },
   "gpt-5-mini": { input: 0.25, output: 2 },
   "gpt-5-nano": { input: 0.05, output: 0.4 },
 };
@@ -80,15 +80,12 @@ export async function countChatGptUsage({
   outputTokensUsed: number;
 }) {
   // persist the cost of the OpenAI API call
-  const { error: countUsageError } = await supabaseClient.rpc(
-    "count_chatgpt_usage",
-    {
-      for_user_id: forUserId,
-      cost_increment: cost,
-      input_tokens_increment: inputTokensUsed,
-      output_tokens_increment: outputTokensUsed,
-    }
-  );
+  const { error: countUsageError } = await supabaseClient.rpc("log_ai_usage", {
+    for_user_id: forUserId,
+    cost_increment: cost,
+    input_tokens_increment: inputTokensUsed,
+    output_tokens_increment: outputTokensUsed,
+  });
   if (countUsageError) {
     logger.error(getExceptionMessage(countUsageError));
   }

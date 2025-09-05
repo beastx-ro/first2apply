@@ -87,7 +87,7 @@ export function getJobSite({
   if (!site && !hasCustomJobsParsing) {
     const parsedUrl = new URL(url);
     throw new Error(
-      `We currently don't support scanning for jobs on ${parsedUrl.hostname}. Contact our support to request it.`
+      `Scanning for jobs on ${parsedUrl.hostname} is only available on the PRO plan. Please contact support if you think this is a mistake.`
     );
   } else {
     site =
@@ -165,7 +165,7 @@ export async function parseJobsListUrl({
   return { jobs, site, parseFailed, llmApiCallCost };
 }
 
-type ParsedJob = Omit<
+export type ParsedJob = Omit<
   Job,
   "id" | "user_id" | "visible" | "status" | "created_at" | "updated_at"
 >;

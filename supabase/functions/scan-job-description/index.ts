@@ -9,6 +9,11 @@ import { Job } from "../_shared/types.ts";
 import { createLoggerWithMeta } from "../_shared/logger.ts";
 import { countChatGptUsage } from "../_shared/openAI.ts";
 
+const supabaseAdminClient = createClient<DbSchema>(
+  Deno.env.get("SUPABASE_URL") ?? "",
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+);
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: CORS_HEADERS });
@@ -72,96 +77,122 @@ Deno.serve(async (req) => {
       throw findSiteErr;
     }
 
-    let updatedJob: Job = { ...job, status: "new" };
-    if (!job.description) {
-      // parse the job description
-      logger.info(
-        `[${site.provider}] parsing job description for ${jobId} ...`
-      );
-
-      // update the job with the description
-      const updates = await parseJobDescriptionUpdates({
-        site,
-        job,
-        html,
-        openAiApiKey,
-        logger,
-      });
-      const isLastRetry = retryCount === maxRetries;
-      updatedJob = {
-        ...updatedJob,
-        ...updates,
-        description: updates.description ?? job.description, // keep old description if no new one
-      };
-      if (!updates.description && isLastRetry) {
-        logger.error(
-          `[${site.provider}] no JD details extracted from the html of job ${jobId}, this could be a problem with the parser`,
-          {
-            url: job.externalUrl,
-            site: site.provider,
-          }
-        );
-
-        await supabaseClient
-          .from("html_dumps")
-          .insert([{ url: job.externalUrl, html }]);
-      }
-
-      if (updates.description) {
+    const parseDescriptionAndSaveUpdates = async () => {
+      let updatedJob: Job = { ...job, status: "new" };
+      if (!job.description) {
+        // parse the job description
         logger.info(
-          `[${site.provider}] finished parsing job description for ${job.title}`,
+          `[${site.provider}] parsing job description for ${jobId} ...`
+        );
+
+        // update the job with the description
+        const updates = await parseJobDescriptionUpdates({
+          site,
+          job,
+          html,
+          openAiApiKey,
+          logger,
+        });
+        const isLastRetry = retryCount === maxRetries;
+        updatedJob = {
+          ...updatedJob,
+          ...updates,
+          description: updates.description ?? job.description, // keep old description if no new one
+        };
+        if (!updates.description && isLastRetry) {
+          logger.error(
+            `[${site.provider}] no JD details extracted from the html of job ${jobId}, this could be a problem with the parser`,
+            {
+              url: job.externalUrl,
+              site: site.provider,
+            }
+          );
+
+          await supabaseClient
+            .from("html_dumps")
+            .insert([{ url: job.externalUrl, html }]);
+        }
+
+        if (updates.description) {
+          logger.info(
+            `[${site.provider}] finished parsing job description for ${job.title}`,
+            {
+              site: site.provider,
+            }
+          );
+        }
+
+        if (updates.llmApiCallCost) {
+          await countChatGptUsage({
+            logger,
+            supabaseClient: supabaseAdminClient,
+            forUserId: user?.id ?? "",
+            ...updates.llmApiCallCost,
+          });
+        }
+
+        const { newStatus, excludeReason } = await applyAdvancedMatchingFilters(
           {
-            site: site.provider,
+            logger,
+            job: updatedJob,
+            supabaseClient,
+            supabaseAdminClient,
+            openAiApiKey:
+              Deno.env.get("OPENAI_API_KEY") ??
+              throwError("missing OPENAI_API_KEY"),
           }
         );
+
+        updatedJob = {
+          ...updatedJob,
+          status: newStatus,
+          exclude_reason: excludeReason,
+        };
       }
 
-      if (updates.llmApiCallCost) {
-        await countChatGptUsage({
-          logger,
-          supabaseClient,
-          forUserId: user?.id ?? "",
-          ...updates.llmApiCallCost,
+      logger.info(`[${site.provider}] ${updatedJob.status} ${job.title}`);
+
+      const { error: updateJobErr } = await supabaseClient
+        .from("jobs")
+        .update({
+          description: updatedJob.description,
+          status: updatedJob.status,
+          updated_at: new Date(),
+          exclude_reason: updatedJob.exclude_reason,
+        })
+        .eq("id", jobId)
+
+        // I think this is causing jobs to be put back on new from deleted
+        // if the app fails to process an entire batch in one cron interval
+        // then the same job will be processed twice (since it's status is processing still)
+        .eq("status", "processing");
+      if (updateJobErr) {
+        throw updateJobErr;
+      }
+
+      const parseFailed = !updatedJob.description;
+
+      return { updatedJob, parseFailed };
+    };
+
+    // Let's add a timeout of 20 seconds on the parsing operation, but without failing it
+    // This means it will still work in the background, but the client will not wait for it.
+    const timeoutPromise = new Promise<{
+      updatedJob: Job;
+      parseFailed: boolean;
+    }>((resolve) => {
+      setTimeout(() => {
+        resolve({
+          updatedJob: job,
+          parseFailed: false,
         });
-      }
+      }, 20_000);
+    });
 
-      const { newStatus, excludeReason } = await applyAdvancedMatchingFilters({
-        logger,
-        job: updatedJob,
-        supabaseClient,
-        openAiApiKey:
-          Deno.env.get("OPENAI_API_KEY") ??
-          throwError("missing OPENAI_API_KEY"),
-      });
-
-      updatedJob = {
-        ...updatedJob,
-        status: newStatus,
-        exclude_reason: excludeReason,
-      };
-    }
-
-    logger.info(`[${site.provider}] ${updatedJob.status} ${job.title}`);
-
-    const { error: updateJobErr } = await supabaseClient
-      .from("jobs")
-      .update({
-        description: updatedJob.description,
-        status: updatedJob.status,
-        updated_at: new Date(),
-        exclude_reason: updatedJob.exclude_reason,
-      })
-      .eq("id", jobId)
-
-      // I think this is causing jobs to be put back on new from deleted
-      // if the app fails to process an entire batch in one cron interval
-      // then the same job will be processed twice (since it's status is processing still)
-      .eq("status", "processing");
-    if (updateJobErr) {
-      throw updateJobErr;
-    }
-
-    const parseFailed = !updatedJob.description;
+    const { updatedJob, parseFailed } = await Promise.race([
+      parseDescriptionAndSaveUpdates(),
+      timeoutPromise,
+    ]);
 
     return new Response(JSON.stringify({ job: updatedJob, parseFailed }), {
       headers: { "Content-Type": "application/json", ...CORS_HEADERS },

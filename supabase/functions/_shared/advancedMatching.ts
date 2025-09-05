@@ -7,6 +7,7 @@ import { getExceptionMessage, throwError } from "./errorUtils.ts";
 import { ILogger } from "./logger.ts";
 import { zodResponseFormat } from "npm:openai@4.86.2/helpers/zod";
 import { z } from "npm:zod";
+import { buildOpenAiClient, countChatGptUsage } from "./openAI.ts";
 
 /**
  * Apply all the advanced matching rules to the given job and
@@ -15,11 +16,13 @@ import { z } from "npm:zod";
 export async function applyAdvancedMatchingFilters({
   logger,
   supabaseClient,
+  supabaseAdminClient,
   job,
   openAiApiKey,
 }: {
   logger: ILogger;
   supabaseClient: SupabaseClient<DbSchema, "public">;
+  supabaseAdminClient: SupabaseClient<DbSchema, "public">;
   job: Job;
   openAiApiKey: string;
 }): Promise<{ newStatus: JobStatus; excludeReason?: string }> {
@@ -72,18 +75,14 @@ export async function applyAdvancedMatchingFilters({
       });
 
     // persist the cost of the OpenAI API call
-    const { error: countUsageError } = await supabaseClient.rpc(
-      "count_chatgpt_usage",
-      {
-        for_user_id: job.user_id,
-        cost_increment: cost,
-        input_tokens_increment: inputTokensUsed,
-        output_tokens_increment: outputTokensUsed,
-      }
-    );
-    if (countUsageError) {
-      console.error(getExceptionMessage(countUsageError));
-    }
+    await countChatGptUsage({
+      logger,
+      supabaseClient: supabaseAdminClient,
+      forUserId: job.user_id,
+      cost,
+      inputTokensUsed,
+      outputTokensUsed,
+    });
 
     if (exclusionDecision.excluded) {
       logger.info(`job excluded by OpenAI: ${exclusionDecision.reason}`);
@@ -166,20 +165,12 @@ async function promptOpenAI({
   job: Job;
   openAiApiKey: string;
 }) {
-  const openai = new AzureOpenAI({
+  const { llmConfig, openAi } = buildOpenAiClient({
     apiKey: openAiApiKey,
-    endpoint:
-      "https://dragossebestin-2025-09--resource.cognitiveservices.azure.com/",
-    apiVersion: "2024-10-21",
+    modelName: "gpt-5-mini",
   });
 
-  const llmConfig = {
-    model: "gpt-5-mini",
-    costPerMillionInputTokens: 2.5,
-    costPerMillionOutputTokens: 10,
-  };
-
-  const response = await openai.chat.completions.create({
+  const response = await openAi.chat.completions.create({
     model: llmConfig.model,
     messages: [
       {

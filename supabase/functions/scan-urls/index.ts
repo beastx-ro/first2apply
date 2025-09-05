@@ -3,7 +3,7 @@ import {
   createClient,
 } from "https://esm.sh/@supabase/supabase-js@2.48.1";
 import { CORS_HEADERS } from "../_shared/cors.ts";
-import { parseJobsListUrl } from "../_shared/jobListParser.ts";
+import { ParsedJob, parseJobsListUrl } from "../_shared/jobListParser.ts";
 import { DbSchema, JobSite, Link, SiteProvider } from "../_shared/types.ts";
 import { getExceptionMessage } from "../_shared/errorUtils.ts";
 import { checkUserSubscription } from "../_shared/subscription.ts";
@@ -17,6 +17,11 @@ type HtmlParseRequest = {
   maxRetries?: number;
   retryCount?: number;
 };
+
+const supabaseAdminClient = createClient<DbSchema>(
+  Deno.env.get("SUPABASE_URL") ?? "",
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+);
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -70,7 +75,7 @@ Deno.serve(async (req) => {
     const userId = links?.[0]?.user_id;
     const { subscriptionHasExpired, hasCustomJobsParsing } =
       await checkUserSubscription({
-        supabaseClient,
+        supabaseClient: supabaseAdminClient,
         userId,
       });
     if (subscriptionHasExpired) {
@@ -88,93 +93,51 @@ Deno.serve(async (req) => {
     const allJobSites = jobSitesData ?? [];
 
     // parse htmls and match them with links
-    let parseFailed = false;
-    const isLastRetry = htmls.every(
-      (html) => html.retryCount === html.maxRetries
-    );
-    const parsedJobs = await Promise.all(
-      htmls.map(async (html) => {
-        const link = links?.find((link) => link.id === html.linkId);
-        // ignore links that are not in the db
-        if (!link) {
-          logger.error(`link not found: ${html.linkId}`);
-          return [];
-        }
-        // ignore links for sites that are deprecated
-        const targetSite = allJobSites.find((site) => site.id === link.site_id);
-        if (targetSite?.deprecated) {
-          logger.info(`skip parsing for deprecated site ${targetSite.name}`);
-          return [];
-        }
-
-        const {
-          jobs,
-          site,
-          parseFailed: currentUrlParseFailed,
-          llmApiCallCost,
-        } = await parseJobsListUrl({
-          allJobSites,
-          link,
-          html: html.content,
-          hasCustomJobsParsing,
-          logger,
-          openAiApiKey,
-        });
-
-        if (llmApiCallCost) {
-          await countChatGptUsage({
-            logger,
-            supabaseClient,
-            forUserId: user?.id ?? "",
-            ...llmApiCallCost,
-          });
-        }
-
-        logger.info(
-          `[${site.provider}] found ${jobs.length} jobs from link ${link.id}`
-        );
-
-        // if the parsing failed, save the html dump for debugging
-        parseFailed = currentUrlParseFailed;
-        if (currentUrlParseFailed) {
-          await handleParsingFailureForLink({
-            logger,
-            supabaseClient,
-            link,
+    const parseAndSaveJobs = async () => {
+      let parseFailed = false;
+      const isLastRetry = htmls.every(
+        (html) => html.retryCount === html.maxRetries
+      );
+      const parsedJobs = await Promise.all(
+        htmls.map(async (html) => {
+          const { jobs, currentUrlParseFailed } = await parseHtmlToJobsList({
             html,
-            site,
+            allJobSites,
+            user,
+            hasCustomJobsParsing,
+            openAiApiKey,
             isLastRetry,
-          });
-        } else {
-          await handlePasringSuccessForLink({
+            links,
+            // dependencies
             logger,
             supabaseClient,
-            link,
-            site,
+            supabaseAdminClient,
           });
-        }
+          if (currentUrlParseFailed) {
+            parseFailed = true;
+          }
 
-        // add the link id to the jobs
-        jobs.forEach((job) => {
-          job.link_id = link.id;
-        });
+          return jobs;
+        })
+      ).then((r) => r.flat());
 
-        return jobs;
-      })
-    ).then((r) => r.flat());
+      const { data: upsertedJobs, error: insertError } = await supabaseClient
+        .from("jobs")
+        .upsert(
+          parsedJobs.map((job) => ({ ...job, status: "processing" as const })),
+          { onConflict: "user_id, externalId", ignoreDuplicates: true }
+        )
+        .select("*");
+      if (insertError) throw new Error(insertError.message);
 
-    const { data: upsertedJobs, error: insertError } = await supabaseClient
-      .from("jobs")
-      .upsert(
-        parsedJobs.map((job) => ({ ...job, status: "processing" as const })),
-        { onConflict: "user_id, externalId", ignoreDuplicates: true }
-      )
-      .select("*");
-    if (insertError) throw new Error(insertError.message);
+      const newJobs =
+        upsertedJobs?.filter((job) => job.status === "processing") ?? [];
+      logger.info(`found ${newJobs.length} new jobs`);
 
-    const newJobs =
-      upsertedJobs?.filter((job) => job.status === "processing") ?? [];
-    logger.info(`found ${newJobs.length} new jobs`);
+      return { newJobs, parseFailed };
+    };
+
+    const { newJobs, parseFailed } = await parseAndSaveJobs();
 
     return new Response(JSON.stringify({ newJobs, parseFailed }), {
       headers: { "Content-Type": "application/json", ...CORS_HEADERS },
@@ -192,6 +155,96 @@ Deno.serve(async (req) => {
     );
   }
 });
+
+async function parseHtmlToJobsList({
+  html,
+  allJobSites,
+  user,
+  hasCustomJobsParsing,
+  openAiApiKey,
+  isLastRetry,
+  links,
+  ...context
+}: {
+  html: HtmlParseRequest;
+  allJobSites: JobSite[];
+  user: { id: string } | null;
+  hasCustomJobsParsing: boolean;
+  openAiApiKey: string;
+  isLastRetry: boolean;
+  links: Link[];
+  // dependencies
+  logger: ILogger;
+  supabaseClient: SupabaseClient<DbSchema, "public", DbSchema["public"]>;
+  supabaseAdminClient: SupabaseClient<DbSchema>;
+}) {
+  const { logger, supabaseClient, supabaseAdminClient } = context;
+  const link = links.find((link) => link.id === html.linkId);
+  // ignore links that are not in the db
+  if (!link) {
+    logger.error(`link not found: ${html.linkId}`);
+    return { jobs: [], currentUrlParseFailed: false };
+  }
+  // ignore links for sites that are deprecated
+  const targetSite = allJobSites.find((site) => site.id === link.site_id);
+  if (targetSite?.deprecated) {
+    logger.info(`skip parsing for deprecated site ${targetSite.name}`);
+    return { jobs: [], currentUrlParseFailed: false };
+  }
+
+  const {
+    jobs,
+    site,
+    parseFailed: currentUrlParseFailed,
+    llmApiCallCost,
+  } = await parseJobsListUrl({
+    allJobSites,
+    link,
+    html: html.content,
+    hasCustomJobsParsing,
+    logger,
+    openAiApiKey,
+  });
+
+  if (llmApiCallCost) {
+    await countChatGptUsage({
+      logger,
+      supabaseClient: supabaseAdminClient,
+      forUserId: user?.id ?? "",
+      ...llmApiCallCost,
+    });
+  }
+
+  logger.info(
+    `[${site.provider}] found ${jobs.length} jobs from link ${link.id}`
+  );
+
+  // if the parsing failed, save the html dump for debugging
+  if (currentUrlParseFailed) {
+    await handleParsingFailureForLink({
+      logger,
+      supabaseClient,
+      link,
+      html,
+      site,
+      isLastRetry,
+    });
+  } else {
+    await handlePasringSuccessForLink({
+      logger,
+      supabaseClient,
+      link,
+      site,
+    });
+  }
+
+  // add the link id to the jobs
+  jobs.forEach((job) => {
+    job.link_id = link.id;
+  });
+
+  return { jobs, currentUrlParseFailed };
+}
 
 async function handleParsingFailureForLink({
   logger,

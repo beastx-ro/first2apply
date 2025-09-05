@@ -178,7 +178,7 @@ export class JobScanner {
 
           return newJobs;
         }),
-      ).then((r) => r.flat());
+      );
       this._logger.info(`downloaded html for ${links.length} links`);
 
       // scan job descriptions for all pending jobs

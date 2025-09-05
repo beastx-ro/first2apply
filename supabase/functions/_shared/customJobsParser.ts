@@ -14,7 +14,7 @@ import { zodResponseFormat } from "npm:openai@4.86.2/helpers/zod";
 import { throwError } from "./errorUtils.ts";
 import { ILogger } from "./logger.ts";
 
-const OPEN_AI_MODEL_NAME = "gpt-5-nano";
+const OPEN_AI_MODEL_NAME = "gpt-5-mini";
 // const OPEN_AI_MODEL_NAME = "gpt-4o-mini";
 
 /**
@@ -37,7 +37,8 @@ export async function parseCustomJobs({
 }): Promise<JobSiteParseResult> {
   const { openAi, llmConfig } = buildOpenAiClient({
     apiKey: openAiApiKey,
-    modelName: OPEN_AI_MODEL_NAME,
+    // modelName: OPEN_AI_MODEL_NAME,
+    modelName: "gpt-4o",
   });
 
   // helper methods
@@ -45,6 +46,12 @@ export async function parseCustomJobs({
     const document = new DOMParser().parseFromString(html, "text/html");
     if (!document || !document.documentElement)
       throw new Error("Could not parse html");
+
+    // save some info before stripping
+    const headerInfo = extractHeaderInfo(document.documentElement);
+    logger.info(
+      `page title: ${headerInfo.title}, description: ${headerInfo.metaDescription}, favicon: ${headerInfo.faviconUrl}`
+    );
 
     // strip away nodes that are not relevant to the LLM
     const nodesToRemove = [
@@ -55,6 +62,7 @@ export async function parseCustomJobs({
       "header",
       "footer",
       "aside",
+      "iframe",
     ];
     stripNodes(document.documentElement, nodesToRemove);
     stripAttributes(document.documentElement, /^(class|style|aria-.*|role)$/);
@@ -66,7 +74,9 @@ Here are some rules for the required output:
 - The externalUrl field should be the direct URL to the job listing. It should be a fully qualified URL. If only a relative URL is available, prepend the domain name from the page URL: ${url}. Should never be an email address.
 - The title field should be the job title.
 - The companyName field should be the name of the company offering the job.
-- The companyLogo field should be a URL to the company's logo, if available.
+- The companyLogo field should be a URL to the company's logo, if available. If not available, try to use the site favicon URL: ${
+      headerInfo.faviconUrl
+    }. If the logo URL is relative, prepend the domain name from the page URL: ${url}.
 - The jobType field should indicate if the job is remote, hybrid, or onsite. If not specified, leave it empty.
 - The location field should specify the job's location, if available.
 - The salary field should specify the offered salary or salary range, if available. Always try to extract it if present.
@@ -74,6 +84,9 @@ Here are some rules for the required output:
 
 Limit the number of jobs extracted to a maximum of 20. If more jobs are present, prioritize the most recent ones.
 Try to extract all or as many jobs from the page as possible. And preserve the orther of the jobs as they appear on the page.
+
+Here is the page header info:
+${JSON.stringify(headerInfo)}
 
 Here is the HTML page:
 """
@@ -161,6 +174,16 @@ const PARSE_JOBS_PAGE_SCHEMA = z.object({
 const SYSTEM_PROMPT = `You are an expert web scraper specialized in extracting job listings from HTML pages. 
 Your task is to analyze the provided HTML content and identify job listings, extracting relevant details for each job.
 If you cannot extract the information due to the HTML being a login page, CAPTCHA, or any other access restriction, respond with an empty result and an appropriate errorMessage.
+
+The job externalId and externalUrl should be unique for each job.
+The externalUrl ideally should point to a dedicated page, not the same listing page.
+Here are some common examples of externalUrls from different popular job sites:
+- talent.com: https://www.talent.com/view?id=1234567890abcdef
+- linkedin.com: https://www.linkedin.com/jobs/view/1234567890/
+- indeed.com: https://www.indeed.com/viewjob?jk=abcdef1234567890
+- glassdoor.com: https://www.glassdoor.com/job-listing/software-engineer-google-JV_IC1234567_KO0,17_KE18,24.htm?jl=1234567890
+- monster.com: https://www.monster.com/jobs/search/?q=Software-Engineer&where=Remote&jobid=1234567890
+- google.com: https://www.google.com/about/careers/applications/jobs/results/132525933222339270-software-engineer-iii-aiml
 `;
 
 /**
@@ -315,4 +338,35 @@ function stripAttributes(root: Element, dropAttrs: RegExp) {
       if (dropAttrs.test(attr.name)) el.removeAttribute(attr.name);
     });
   });
+}
+
+function extractHeaderInfo(document: Element) {
+  const title = document.querySelector("title")?.textContent ?? "";
+  const metaDescription =
+    document
+      .querySelector("meta[name='description']")
+      ?.getAttribute("content") ?? "";
+
+  // try to grab the favicon with the highest resolution
+  const favicons = Array.from(
+    document.querySelectorAll(
+      "link[rel~='icon'], link[rel~='shortcut icon']"
+    ) as unknown as Element[]
+  )
+    .map((el) => ({
+      href: el.getAttribute("href") ?? "",
+      sizes: el.getAttribute("sizes") ?? "",
+    }))
+    .filter((el) => el.href);
+  let faviconUrl;
+  if (favicons.length > 0) {
+    favicons.sort((a, b) => {
+      const sizeA = parseInt(a.sizes.split("x")[0]) || 0;
+      const sizeB = parseInt(b.sizes.split("x")[0]) || 0;
+      return sizeB - sizeA;
+    });
+    faviconUrl = favicons[0].href;
+  }
+
+  return { title, metaDescription, faviconUrl };
 }
