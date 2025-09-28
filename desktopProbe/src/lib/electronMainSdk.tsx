@@ -12,7 +12,7 @@ import {
   Review,
   StripeConfig,
 } from '../../../supabase/functions/_shared/types';
-import { JobBoardModalResponse, JobScannerSettings, NewAppVersion } from './types';
+import { JobScannerSettings, NewAppVersion, OverlayBrowserViewResult } from './types';
 
 async function _mainProcessApiCall<T>(channel: string, params?: object): Promise<T> {
   // @ts-ignore
@@ -386,10 +386,10 @@ export async function updateAdvancedMatchingConfig(
 }
 
 /**
- * Start debugging a link.
+ * Scan a link to fetch new jobs.
  */
-export async function debugLink(linkId: number): Promise<void> {
-  await _mainProcessApiCall('debug-link', { linkId });
+export async function scanLink(linkId: number): Promise<void> {
+  await _mainProcessApiCall('scan-link', { linkId });
 }
 
 /**
@@ -410,23 +410,44 @@ export async function applyAppUpdate(): Promise<void> {
 }
 
 /**
- * Open the job board modal.
+ * Open browser window overlay.
  */
-export async function openJobBoardModal(jobSite: JobSite): Promise<void> {
-  await _mainProcessApiCall('open-job-board-modal', { jobSite });
+export async function openOverlayBrowserView(url: string): Promise<void> {
+  await _mainProcessApiCall('open-overlay-browser-view', { url });
 }
 
 /**
- * Finish the job board modal and get the html content.
+ * Finish the overlay browser view and get the html content.
  */
-export async function finishJobBoardModal(): Promise<JobBoardModalResponse> {
-  const jobSearchInfo = await _mainProcessApiCall<JobBoardModalResponse>('finish-job-board-modal', {});
-  return jobSearchInfo;
+export async function finishOverlayBrowserView(): Promise<OverlayBrowserViewResult> {
+  const result = await _mainProcessApiCall<OverlayBrowserViewResult>('finish-overlay-browser-view', {});
+  return result;
 }
 
 /**
- * Close the job board modal and get the html content.
+ * Close the overlay browser view.
  */
-export async function closeJobBoardModal() {
-  await _mainProcessApiCall<JobBoardModalResponse>('close-job-board-modal', {});
+export async function closeOverlayBrowserView() {
+  await _mainProcessApiCall('close-overlay-browser-view', {});
+}
+
+/**
+ * Navigate back in the overlay browser view.
+ */
+export async function overlayBrowserViewGoBack(): Promise<void> {
+  await _mainProcessApiCall('overlay-browser-view-go-back', {});
+}
+
+/**
+ * Navigate forward in the overlay browser view.
+ */
+export async function overlayBrowserViewGoForward(): Promise<void> {
+  await _mainProcessApiCall('overlay-browser-view-go-forward', {});
+}
+
+/**
+ * Navigate to a specific URL in the overlay browser view.
+ */
+export async function overlayBrowserViewNavigate(url: string): Promise<void> {
+  await _mainProcessApiCall('overlay-browser-view-navigate', { url });
 }

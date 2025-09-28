@@ -11,15 +11,15 @@ import { useToast } from '@/components/ui/use-toast';
 import { useError } from '@/hooks/error';
 import { useLinks } from '@/hooks/links';
 import { useSites } from '@/hooks/sites';
-import { closeJobBoardModal, finishJobBoardModal, openJobBoardModal } from '@/lib/electronMainSdk';
-import { JobBoardModalResponse } from '@/lib/types';
+import { OverlayBrowserViewResult } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { InfoCircledIcon } from '@radix-ui/react-icons/dist';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { JobSite, Link } from '../../../supabase/functions/_shared/types';
+import { BrowserWindow, BrowserWindowHandle } from './browserWindow';
 import { Icons } from './icons';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { Badge } from './ui/badge';
@@ -28,9 +28,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from './ui/form';
 import { Input } from './ui/input';
 
 export function CreateLink() {
-  const [jobBoardModalResponse, setJobBoardModalResponse] = useState<JobBoardModalResponse>();
-  const [isJobBoardModalOpen, setIsJobBoardModalOpen] = useState(false);
+  const [jobBoardModalResponse, setJobBoardModalResponse] = useState<OverlayBrowserViewResult>();
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState(false);
+  const browserWindowRef = useRef<BrowserWindowHandle>(null);
 
   const { handleError } = useError();
   const { createLink } = useLinks();
@@ -49,8 +49,7 @@ export function CreateLink() {
   const onOpenSite = async (site: JobSite) => {
     try {
       setIsOpen(false);
-      setIsJobBoardModalOpen(true);
-      await openJobBoardModal(site);
+      await browserWindowRef.current?.open(site.urls[0]);
     } catch (error) {
       handleError({ error, title: 'Error opening job board' });
     }
@@ -58,24 +57,20 @@ export function CreateLink() {
   const onCancelBrowsing = async () => {
     try {
       setJobBoardModalResponse(undefined);
-      await closeJobBoardModal();
+      // await closeJobBoardModal();
     } catch (error) {
       handleError({ error, title: 'Error closing job board' });
-    } finally {
-      setIsJobBoardModalOpen(false);
     }
   };
 
   /**
    * Handler for closing the job browser.
    */
-  const onCloseJobBoardModal = async () => {
+  const onSaveCurrentNavigation = async () => {
     try {
-      const jobSearchInfo = await finishJobBoardModal();
+      const jobSearchInfo = await browserWindowRef.current?.finish();
       setJobBoardModalResponse(jobSearchInfo);
-      setIsJobBoardModalOpen(false);
       setIsConfirmationDialogOpen(true);
-      return jobSearchInfo;
     } catch (error) {
       handleError({ error, title: 'Error closing job board' });
     }
@@ -93,14 +88,15 @@ export function CreateLink() {
     }
   };
 
-  const onSaveSearch = async (data: { title: string }) => {
+  const onSaveSearch = async () => {
     if (!jobBoardModalResponse) {
-      throw new Error('Job board modal response is not set');
+      handleError({ error: new Error('No job search data'), title: 'Error saving job search' });
+      return;
     }
 
     const createdLink = await createLink({
       url: jobBoardModalResponse.url,
-      title: data.title,
+      title: jobBoardModalResponse.title,
       html: jobBoardModalResponse.html,
     });
     toast({
@@ -110,7 +106,6 @@ export function CreateLink() {
 
     setIsConfirmationDialogOpen(false);
     setJobBoardModalResponse(undefined);
-    setIsJobBoardModalOpen(false);
     setIsOpen(false);
 
     return createdLink;
@@ -165,7 +160,15 @@ export function CreateLink() {
       </Dialog>
 
       {/* render a top level action bar overlay */}
-      <JobBrowserOverlay isOpen={isJobBoardModalOpen} onCancel={onCancelBrowsing} onSave={onCloseJobBoardModal} />
+      <BrowserWindow
+        ref={browserWindowRef}
+        onClose={onCancelBrowsing}
+        customActionButton={{
+          text: 'Save',
+          onClick: onSaveCurrentNavigation,
+          tooltip: 'Click when you are done browsing and want to save this search',
+        }}
+      ></BrowserWindow>
 
       {/* render the confirmation dialog */}
       <JobSearchSubmitDialog
@@ -178,42 +181,6 @@ export function CreateLink() {
     </>
   );
 }
-
-/**
- * Helper component used to render a top level overlay on top of the main window.
- * It sits fixed on top and has a height of 50px and a width of 100%.
- * Render a cancel and a save button.
- */
-const JobBrowserOverlay = ({
-  isOpen,
-  onCancel,
-  onSave,
-}: {
-  isOpen: boolean;
-  onCancel: () => void;
-  onSave: () => void;
-}) => {
-  if (!isOpen) {
-    return null;
-  }
-
-  return (
-    <div
-      className={`fixed left-0 top-0 z-50 flex h-[50px] w-full items-center justify-between border-b border-primary-foreground/50 bg-background px-5`}
-    >
-      <Button variant="outline" onClick={onCancel}>
-        Cancel
-      </Button>
-      <p className="text-sm font-medium">
-        Search for the jobs you want to apply to. Once you are done, click on save and we will create a job search for
-        you.
-      </p>
-      <Button variant="default" onClick={onSave}>
-        Save
-      </Button>
-    </div>
-  );
-};
 
 const JobSearchSubmitDialog = ({
   title,

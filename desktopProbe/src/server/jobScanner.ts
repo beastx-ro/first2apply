@@ -388,22 +388,18 @@ export class JobScanner {
   }
 
   /**
-   * Start a debug window for a link.
+   * Scan a link to fetch new jobs.
    */
-  async startDebugWindow({ linkId }: { linkId: number }) {
+  async scanLink({ linkId }: { linkId: number }) {
     const link = await this._supabaseApi.listLinks().then((links) => links.find((l) => l.id === linkId));
     if (!link) {
       throw new Error(`link not found: ${linkId}`);
     }
 
-    const debugWindow = new ScannerDebugWindow(this._logger, () => {
-      // scan the link after the debug window is closed
-      this.scanLinks({ links: [link] }).catch((error) => {
-        this._logger.error(getExceptionMessage(error));
-      });
+    // scan the link after the debug window is closed
+    this.scanLinks({ links: [link] }).catch((error) => {
+      this._logger.error(getExceptionMessage(error));
     });
-
-    await debugWindow.loadUrl(link.url);
   }
 
   /**
@@ -446,44 +442,5 @@ export class JobScanner {
 
     this._settings = settings;
     this._logger.info(`settings applied successfully`);
-  }
-}
-
-/**
- * Class used to open a debug window for manual user intervention to a link.
- */
-class ScannerDebugWindow {
-  private _window: BrowserWindow | undefined;
-
-  /**
-   * Class constructor.
-   */
-  constructor(
-    private _logger: ILogger,
-    private _onClose: () => void = () => {},
-  ) {
-    this._window = new BrowserWindow({
-      show: true,
-      width: 1600,
-      height: 1200,
-      webPreferences: {
-        webSecurity: true,
-        partition: `persist:scraper`,
-      },
-    });
-
-    // destroy the window when closed
-    this._window.on('close', (event) => {
-      this._logger.info('debug window closed');
-      this._window = undefined;
-      this._onClose();
-    });
-  }
-
-  /**
-   * Load a url into the debug window.
-   */
-  loadUrl(url: string) {
-    this._window?.loadURL(url);
   }
 }

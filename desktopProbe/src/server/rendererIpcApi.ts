@@ -6,8 +6,8 @@ import os from 'os';
 import { Job } from '../../../supabase/functions/_shared/types';
 import { getExceptionMessage } from '../lib/error';
 import { F2aAutoUpdater } from './autoUpdater';
-import { JobBoardModal } from './jobBoardModal';
 import { JobScanner } from './jobScanner';
+import { OverlayBrowserView } from './overlayBrowserView';
 import { getStripeConfig } from './stripeConfig';
 import { F2aSupabaseApi } from './supabaseApi';
 
@@ -32,13 +32,13 @@ export function initRendererIpcApi({
   supabaseApi,
   jobScanner,
   autoUpdater,
-  jobBoardModal,
+  overlayBrowserView,
   nodeEnv,
 }: {
   supabaseApi: F2aSupabaseApi;
   jobScanner: JobScanner;
   autoUpdater: F2aAutoUpdater;
-  jobBoardModal: JobBoardModal;
+  overlayBrowserView: OverlayBrowserView;
   nodeEnv: string;
 }) {
   ipcMain.handle('get-os-type', (event) =>
@@ -236,15 +236,24 @@ export function initRendererIpcApi({
     _apiCall(() => supabaseApi.updateAdvancedMatchingConfig(config)),
   );
 
-  ipcMain.handle('debug-link', async (event, { linkId }) => _apiCall(() => jobScanner.startDebugWindow({ linkId })));
+  ipcMain.handle('scan-link', async (event, { linkId }) => _apiCall(() => jobScanner.scanLink({ linkId })));
 
-  ipcMain.handle('open-job-board-modal', async (event, { jobSite }) => {
-    return _apiCall(async () => jobBoardModal.open(jobSite));
+  ipcMain.handle('open-overlay-browser-view', async (event, { url }) => {
+    return _apiCall(async () => overlayBrowserView.open(url));
   });
-  ipcMain.handle('finish-job-board-modal', async (event) => {
-    return _apiCall(() => jobBoardModal.finish());
+  ipcMain.handle('close-overlay-browser-view', async () => {
+    return _apiCall(async () => overlayBrowserView.close());
   });
-  ipcMain.handle('close-job-board-modal', async (event) => {
-    return _apiCall(async () => jobBoardModal.close());
+  ipcMain.handle('overlay-browser-view-go-back', async () => {
+    return _apiCall(async () => overlayBrowserView.goBack());
+  });
+  ipcMain.handle('overlay-browser-view-go-forward', async () => {
+    return _apiCall(async () => overlayBrowserView.goForward());
+  });
+  ipcMain.handle('finish-overlay-browser-view', async () => {
+    return _apiCall(async () => overlayBrowserView.finish());
+  });
+  ipcMain.handle('overlay-browser-view-navigate', async (event, { url }) => {
+    return _apiCall(async () => overlayBrowserView.navigate(url));
   });
 }

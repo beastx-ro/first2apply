@@ -11,9 +11,9 @@ import { AmplitudeAnalyticsClient } from './server/amplitude';
 import { F2aAutoUpdater } from './server/autoUpdater';
 import { promiseAllSequence } from './server/helpers';
 import { HtmlDownloader } from './server/htmlDownloader';
-import { JobBoardModal } from './server/jobBoardModal';
 import { JobScanner } from './server/jobScanner';
 import { logger } from './server/logger';
+import { OverlayBrowserView } from './server/overlayBrowserView';
 import { initRendererIpcApi } from './server/rendererIpcApi';
 import { F2aSupabaseApi } from './server/supabaseApi';
 import { TrayMenu } from './server/trayMenu';
@@ -176,7 +176,7 @@ const htmlDownloaders = [
 ];
 let jobScanner: JobScanner | undefined;
 let trayMenu: TrayMenu | undefined;
-const jobBoardModal = new JobBoardModal();
+const overlayBrowserView = new OverlayBrowserView();
 
 function navigate({ path }: { path: string }) {
   logger.info(`sending nav event to ${path}`);
@@ -247,7 +247,7 @@ async function bootstrap() {
     });
 
     // init the renderer IPC API
-    initRendererIpcApi({ supabaseApi, jobScanner, autoUpdater, jobBoardModal, nodeEnv: ENV.nodeEnv });
+    initRendererIpcApi({ supabaseApi, jobScanner, autoUpdater, overlayBrowserView, nodeEnv: ENV.nodeEnv });
 
     // init the tray menu
     trayMenu = new TrayMenu({ logger, onQuit: quit, onNavigate: navigate });
@@ -309,7 +309,7 @@ async function bootstrap() {
 
   // create the main window after everything is setup
   const mainWindow = createMainWindow();
-  jobBoardModal.setMainWindow(mainWindow);
+  overlayBrowserView.setMainWindow(mainWindow);
 
   // handle deep links on macOS and linux
   app.on('open-url', (event, url) => {

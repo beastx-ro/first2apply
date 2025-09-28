@@ -1,17 +1,15 @@
-import { JobBoardModalResponse } from '@/lib/types';
+import { OverlayBrowserViewResult } from '@/lib/types';
 import { BrowserWindow, WebContentsView } from 'electron';
-
-import { JobSite } from '../../../supabase/functions/_shared/types';
 
 /**
  * Class used to render a WebContentsView on top of the main window
- * to navigate to a job board and get back it's html content.
+ * to be used as a browser window. The UI (back/forward buttons, URL bar, etc)
+ * should be implemented in React.
  */
-export class JobBoardModal {
+export class OverlayBrowserView {
   private _mainWindow?: BrowserWindow;
   private _searchView?: WebContentsView;
   private _resizeListener?: () => void;
-  private _jobSite?: JobSite;
 
   /**
    * Set the parent main window.
@@ -21,9 +19,9 @@ export class JobBoardModal {
   }
 
   /**
-   * Open the job board modal.
+   * Open the browser view.
    */
-  open(jobSite: JobSite) {
+  open(url: string) {
     if (!this._mainWindow) {
       throw new Error('Main window is not set');
     }
@@ -32,8 +30,7 @@ export class JobBoardModal {
     }
 
     this._searchView = new WebContentsView();
-    this._searchView.webContents.loadURL(jobSite.urls[0]);
-
+    this.navigate(url);
     // set the bounds of the view to be the same as the main window
     this._updateSearchViewBounds();
 
@@ -41,10 +38,60 @@ export class JobBoardModal {
     this._resizeListener = this._updateSearchViewBounds.bind(this);
     this._mainWindow.on('resize', this._resizeListener);
 
-    this._mainWindow.contentView.addChildView(this._searchView);
+    // Listen for navigation events and send the new URL to the renderer
+    const sendUrlUpdate = (_event: Event, newUrl: string) => {
+      this._mainWindow?.webContents.send('browser-view-url-changed', newUrl);
+    };
+    this._searchView.webContents.on('did-navigate', sendUrlUpdate);
+    this._searchView.webContents.on('did-navigate-in-page', sendUrlUpdate);
 
-    // Set the job site
-    this._jobSite = jobSite;
+    this._mainWindow.contentView.addChildView(this._searchView);
+  }
+
+  /**
+   * Navigate to a URL.
+   */
+  navigate(url: string) {
+    if (!this._searchView) {
+      throw new Error('Search view is not ready');
+    }
+
+    // if the url contains spaces, replace them go a google search
+    if (url.split(' ').length > 1) {
+      url = 'https://www.google.com/search?q=' + encodeURIComponent(url);
+    }
+    // make sure the string starts with http or https
+    else if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = 'https://' + url;
+    }
+
+    this._searchView.webContents.loadURL(url);
+  }
+
+  /**
+   * Go back in the browser view history.
+   */
+  goBack() {
+    if (!this._searchView) {
+      throw new Error('Search view is not ready');
+    }
+
+    if (this._searchView.webContents.navigationHistory.canGoBack()) {
+      this._searchView.webContents.navigationHistory.goBack();
+    }
+  }
+
+  /**
+   * Go forward in the browser view history.
+   */
+  goForward() {
+    if (!this._searchView) {
+      throw new Error('Search view is not ready');
+    }
+
+    if (this._searchView.webContents.navigationHistory.canGoForward()) {
+      this._searchView.webContents.navigationHistory.goForward();
+    }
   }
 
   /**
@@ -64,14 +111,11 @@ export class JobBoardModal {
   }
 
   /**
-   * Get the html content and current url of the job board modal and close it.
+   * Get the html content, title, and URL of the current page and close the modal.
    */
-  async finish(): Promise<JobBoardModalResponse> {
+  async finish(): Promise<OverlayBrowserViewResult> {
     if (!this._searchView) {
       throw new Error('Search view is not set');
-    }
-    if (!this._jobSite) {
-      throw new Error('Job site is not set');
     }
 
     const html = await this._searchView.webContents.executeJavaScript('document.documentElement.outerHTML');
@@ -84,7 +128,6 @@ export class JobBoardModal {
       url,
       title,
       html,
-      site: this._jobSite,
     };
   }
 
