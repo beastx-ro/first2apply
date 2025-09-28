@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "supabase": "1.226.4"
+    "supabase": "^2.40.7"
   }
 }
