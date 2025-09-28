@@ -70,7 +70,9 @@ export async function parseCustomJobs({
 
     return `Extract the jobs listing from the HTML page below. Return the result as a JSON object matching the provided schema. If no jobs are found, return an empty array for the jobs field.
 Here are some rules for the required output:
-- The externalId field should be a unique identifier for the job, preferably from the job site. If not available, create one based on the job title and company name.
+- The externalId field should be a unique identifier for the job, preferably from the job site.
+  Try to extract it from the job URL or any data attributes. 
+  If not available, create one based on the job title and company name.
 - The externalUrl field should be the direct URL to the job listing. It should be a fully qualified URL. If only a relative URL is available, prepend the domain name from the page URL: ${url}. Should never be an email address.
 - The title field should be the job title.
 - The companyName field should be the name of the company offering the job.
@@ -78,12 +80,13 @@ Here are some rules for the required output:
       headerInfo.faviconUrl
     }. If the logo URL is relative, prepend the domain name from the page URL: ${url}.
 - The jobType field should indicate if the job is remote, hybrid, or onsite. If not specified, leave it empty.
-- The location field should specify the job's location, if available.
+- The location field should specify the job's location, if available. 
+    Add the full location as provided including street, city, state, country if available. If only "remote" is mentioned, leave the location empty and set jobType to "remote".
 - The salary field should specify the offered salary or salary range, if available. Always try to extract it if present.
 - The tags field should include relevant tags or keywords associated with the job, if available. If you see "easy apply" on a job add it as a tab. Or if the job is sponsored.
 
 Limit the number of jobs extracted to a maximum of 20. If more jobs are present, prioritize the most recent ones.
-Try to extract all or as many jobs from the page as possible. And preserve the orther of the jobs as they appear on the page.
+Try to extract all or as many jobs from the page as possible. And preserve the order of the jobs as they appear on the page.
 
 Here is the page header info:
 ${JSON.stringify(headerInfo)}
@@ -106,7 +109,7 @@ ${htmlContent}
         content: generateUserPrompt(),
       },
     ],
-    max_completion_tokens: 50_000,
+    max_completion_tokens: 16384,
     response_format: zodResponseFormat(
       PARSE_JOBS_PAGE_SCHEMA,
       "ParseJobsPageResponse"

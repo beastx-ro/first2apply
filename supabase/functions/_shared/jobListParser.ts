@@ -84,15 +84,15 @@ export function getJobSite({
 
   // if no site is found, use the custom site if enabled
   // it's enabled if the user is on the PRO plan
-  if (!site && !hasCustomJobsParsing) {
+  if (!site && hasCustomJobsParsing) {
+    site =
+      allJobSites.find((s) => s.provider === SiteProvider.custom) ??
+      throwError("No custom site found");
+  } else if (!site) {
     const parsedUrl = new URL(url);
     throw new Error(
       `Scanning for jobs on ${parsedUrl.hostname} is only available on the PRO plan. Please contact support if you think this is a mistake.`
     );
-  } else {
-    site =
-      allJobSites.find((s) => s.provider === SiteProvider.custom) ??
-      throwError("No custom site found");
   }
 
   return site;
