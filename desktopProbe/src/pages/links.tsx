@@ -2,6 +2,7 @@ import { BrowserWindow, BrowserWindowHandle } from '@/components/browserWindow';
 import { CreateLink } from '@/components/createLink';
 import { LinksList } from '@/components/linksList';
 import { LinksListSkeleton } from '@/components/skeletons/linksListSkeleton';
+import { toast } from '@/components/ui/use-toast';
 import { useAppState } from '@/hooks/appState';
 import { useError } from '@/hooks/error';
 import { useLinks } from '@/hooks/links';
@@ -54,6 +55,12 @@ export function LinksPage() {
       const linkId = currentDebugLinkId ?? throwError('No link is being debugged');
       await scanLink(linkId);
       setCurrentDebugLinkId(null);
+      await browserWindowRef.current?.finish();
+
+      toast({
+        title: 'Scanning URL in background ...',
+        description: 'The link will be scanned in the background. You will be notified if there are new jobs.',
+      });
     } catch (error) {
       handleError({ error });
     }

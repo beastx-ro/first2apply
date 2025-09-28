@@ -55,10 +55,13 @@ export const BrowserWindow = forwardRef<BrowserWindowHandle, BrowserWindowProps>
         }
       });
 
-      closeOverlayBrowserView();
-
       return () => {
-        removeListener();
+        // close the overlay browser view when the component unmounts
+        closeOverlayBrowserView().catch((error) => {
+          console.error('Error closing browser view on unmount:', error);
+        });
+
+        if (removeListener) return removeListener();
       };
     }, []);
 
