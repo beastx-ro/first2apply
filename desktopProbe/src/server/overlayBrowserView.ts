@@ -30,7 +30,7 @@ export class OverlayBrowserView {
     }
 
     this._searchView = new WebContentsView();
-    this.navigate(url);
+
     // set the bounds of the view to be the same as the main window
     this._updateSearchViewBounds();
 
@@ -46,6 +46,8 @@ export class OverlayBrowserView {
     this._searchView.webContents.on('did-navigate-in-page', sendUrlUpdate);
 
     this._mainWindow.contentView.addChildView(this._searchView);
+
+    this.navigate(url);
   }
 
   /**
