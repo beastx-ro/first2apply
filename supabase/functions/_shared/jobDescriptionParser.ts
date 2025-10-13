@@ -74,7 +74,7 @@ const SITE_PROVIDER_QUERY_SELECTORS: Record<
     ],
   },
   [SiteProvider.usaJobs]: {
-    description: ["#requirements"],
+    description: [".apply-joa-defaults"],
   },
   [SiteProvider.talent]: {
     description: [

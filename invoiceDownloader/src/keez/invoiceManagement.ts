@@ -312,8 +312,8 @@ async function createKeezInvoiceFromStripeInvoice({
     vatPercent = taxRate.percentage;
   }
 
-  const invoiceDetails = stripeInvoice.lines.data.map(
-    (item): KeezInvoiceDetail => {
+  const invoiceDetails = stripeInvoice.lines.data
+    .map((item): KeezInvoiceDetail => {
       const price =
         stripePriceMap.get(item.pricing?.price_details?.price ?? "") ??
         throwError("Missing price details");
@@ -367,7 +367,10 @@ async function createKeezInvoiceFromStripeInvoice({
         itemName: keezItem.name,
         itemDescription: item.description ?? throwError("Missing description"),
         measureUnitId: keezItem.measureUnitId ?? throwError("Missing measure"),
-        quantity: multiplier * quantity,
+        // if the price is negative make sure the quantity is negative too
+        quantity:
+          originalNetAmountCurrency < 0 ? -quantity : quantity * multiplier,
+        // quantity: multiplier * quantity,
 
         unitPriceCurrency: fromCents(unitPriceCurrency),
         unitPrice: fromCents(
@@ -377,6 +380,16 @@ async function createKeezInvoiceFromStripeInvoice({
             decimals: 4,
           })
         ),
+        // unitPriceCurrency: Math.abs(fromCents(netAmountCurrency)),
+        // unitPrice: Math.abs(
+        //   fromCents(
+        //     convertCurrency({
+        //       value: netAmountCurrency,
+        //       exchangeRate,
+        //       decimals: 4,
+        //     })
+        //   )
+        // ),
 
         netAmountCurrency: multiplier * fromCents(netAmountCurrency),
         netAmount:
@@ -479,8 +492,9 @@ async function createKeezInvoiceFromStripeInvoice({
         exciseAmountCurrency: 0,
         exciseAmount: 0,
       };
-    }
-  );
+    })
+    // filter out items with price 0 because keez does not like them
+    .filter((detail) => detail.originalNetAmount !== 0);
 
   if (stripeInvoice.discounts.length > 0) {
     stripeInvoice.discounts.forEach((d) => {
