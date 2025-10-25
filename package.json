@@ -2,6 +2,7 @@
   "name": "@beastx/first2apply",
   "version": "2.0.0",
   "description": "",
+  "packageManager": "pnpm@10.19.0",
   "scripts": {
     "debug:edge": "npx supabase functions serve --inspect-mode run",
     "gitPreCommit": "npx lint-staged --relative",
@@ -39,6 +40,7 @@
     "@release-it/conventional-changelog": "^8.0.1",
     "@slack/webhook": "^7.0.2",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "@types/node": "^20.19.23",
     "@types/url-join": "^4",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
@@ -62,5 +64,8 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "yarn-audit-fix": "^10.1.1"
+  },
+  "dependencies": {
+    "javascript-time-ago": "^2.5.12"
   }
 }

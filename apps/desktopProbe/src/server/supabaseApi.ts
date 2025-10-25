@@ -1,8 +1,6 @@
 import { FunctionsHttpError, PostgrestError, SupabaseClient, User } from '@supabase/supabase-js';
 import { backOff } from 'exponential-backoff';
-import * as fs from 'fs';
 import * as luxon from 'luxon';
-import * as path from 'path';
 
 import {
   AdvancedMatchingConfig,
@@ -63,7 +61,7 @@ export class F2aSupabaseApi {
    */
   getUser(): Promise<{ user: User | null }> {
     return this._supabaseApiCall(async () => await this._supabase.auth.getUser()).catch(() => ({
-      user: null,
+      user: null as User | null,
     }));
   }
 
@@ -111,7 +109,7 @@ export class F2aSupabaseApi {
   /**
    * Delete a link.
    */
-  deleteLink(linkId: string) {
+  deleteLink(linkId: number) {
     return this._supabaseApiCall(async () => this._supabase.from('links').delete().eq('id', linkId));
   }
 
@@ -252,7 +250,7 @@ export class F2aSupabaseApi {
   /**
    * Update the status of a job.
    */
-  updateJobStatus({ jobId, status }: { jobId: string; status: JobStatus }) {
+  updateJobStatus({ jobId, status }: { jobId: number; status: JobStatus }) {
     return this._supabaseApiCall(
       async () =>
         await this._supabase
@@ -269,7 +267,7 @@ export class F2aSupabaseApi {
    * Update the labels of a job.
    * @returns the updated job
    */
-  async updateJobLabels({ jobId, labels }: { jobId: string; labels: JobLabel[] }) {
+  async updateJobLabels({ jobId, labels }: { jobId: number; labels: JobLabel[] }) {
     const [updatedJob] = await this._supabaseApiCall(
       async () =>
         await this._supabase

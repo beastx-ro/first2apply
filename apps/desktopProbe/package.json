@@ -54,7 +54,8 @@
     "tailwindcss": "^3.4.1",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
-    "typescript": "~4.5.4"
+    "typescript": "~4.5.4",
+    "webpack": "^5.102.1"
   },
   "dependencies": {
     "@amplitude/analytics-node": "^1.3.5",
