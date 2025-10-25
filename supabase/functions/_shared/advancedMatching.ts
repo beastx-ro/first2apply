@@ -2,7 +2,7 @@ import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.48.1";
 import { AdvancedMatchingConfig, Job, JobStatus } from "./types.ts";
 import { DbSchema } from "./types.ts";
 import { ILogger } from "./logger.ts";
-import { zodResponseFormat } from "npm:openai@4.86.2/helpers/zod";
+import { zodResponseFormat } from "npm:openai@6.7.0/helpers/zod";
 import { z } from "npm:zod";
 import { buildOpenAiClient, logAiUsage } from "./openAI.ts";
 import { throwError } from "./errorUtils.ts";
