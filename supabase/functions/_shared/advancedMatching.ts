@@ -1,13 +1,12 @@
-import { AzureOpenAI } from "npm:openai@4.86.2";
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.48.1";
 import { AdvancedMatchingConfig, Job, JobStatus } from "./types.ts";
 import { DbSchema } from "./types.ts";
-import { Profile } from "./types.ts";
-import { getExceptionMessage, throwError } from "./errorUtils.ts";
 import { ILogger } from "./logger.ts";
 import { zodResponseFormat } from "npm:openai@4.86.2/helpers/zod";
 import { z } from "npm:zod";
-import { buildOpenAiClient, countChatGptUsage } from "./openAI.ts";
+import { buildOpenAiClient, logAiUsage } from "./openAI.ts";
+import { throwError } from "./errorUtils.ts";
+import { checkUserSubscription } from "./subscription.ts";
 
 /**
  * Apply all the advanced matching rules to the given job and
@@ -18,18 +17,16 @@ export async function applyAdvancedMatchingFilters({
   supabaseClient,
   supabaseAdminClient,
   job,
-  openAiApiKey,
 }: {
   logger: ILogger;
   supabaseClient: SupabaseClient<DbSchema, "public">;
   supabaseAdminClient: SupabaseClient<DbSchema, "public">;
   job: Job;
-  openAiApiKey: string;
 }): Promise<{ newStatus: JobStatus; excludeReason?: string }> {
   logger.info(`applying advanced matching filters to job ${job.id} ...`);
   // check if the user has advanced matching enabled
   const { hasAdvancedMatching } = await checkUserSubscription({
-    supabaseClient,
+    supabaseAdminClient,
     userId: job.user_id,
   });
   if (!hasAdvancedMatching) {
@@ -67,21 +64,11 @@ export async function applyAdvancedMatchingFilters({
       "prompting OpenAI to determine if the job should be excluded ..."
     );
 
-    const { exclusionDecision, inputTokensUsed, outputTokensUsed, cost } =
-      await promptOpenAI({
-        prompt: advancedMatching.chatgpt_prompt,
-        job,
-        openAiApiKey,
-      });
-
-    // persist the cost of the OpenAI API call
-    await countChatGptUsage({
+    const { exclusionDecision } = await promptOpenAI({
+      prompt: advancedMatching.chatgpt_prompt,
+      job,
       logger,
-      supabaseClient: supabaseAdminClient,
-      forUserId: job.user_id,
-      cost,
-      inputTokensUsed,
-      outputTokensUsed,
+      supabaseAdminClient,
     });
 
     if (exclusionDecision.excluded) {
@@ -95,44 +82,6 @@ export async function applyAdvancedMatchingFilters({
 
   logger.info("job passed all advanced matching filters");
   return { newStatus: "new" };
-}
-
-/**
- * Retrieve the user profile and check if his subscription allows advanced matching.
- */
-export async function checkUserSubscription({
-  supabaseClient,
-  userId,
-}: {
-  supabaseClient: SupabaseClient<DbSchema, "public">;
-  userId: string;
-}): Promise<{
-  profile: Profile;
-  hasAdvancedMatching: boolean;
-}> {
-  const { data: profile, error } = await supabaseClient
-    .from("profiles")
-    .select("*")
-    .eq("user_id", userId)
-    .single();
-
-  if (error) {
-    throw error;
-  }
-
-  if (!profile) {
-    throw new Error("Profile not found");
-  }
-
-  // check if the user's subscription has expired
-  const subscriptionHasExpired =
-    new Date(profile.subscription_end_date) < new Date();
-  const hasRequiredTier = profile.subscription_tier === "pro";
-
-  return {
-    profile,
-    hasAdvancedMatching: hasRequiredTier && !subscriptionHasExpired,
-  };
 }
 
 /**
@@ -159,14 +108,16 @@ export function isExcludedCompany({
 async function promptOpenAI({
   prompt,
   job,
-  openAiApiKey,
+
+  logger,
+  supabaseAdminClient,
 }: {
-  prompt: string;
   job: Job;
-  openAiApiKey: string;
+  prompt: string;
+  logger: ILogger;
+  supabaseAdminClient: SupabaseClient<DbSchema, "public">;
 }) {
   const { llmConfig, openAi } = buildOpenAiClient({
-    apiKey: openAiApiKey,
     modelName: "gpt-5-mini",
   });
 
@@ -197,17 +148,17 @@ async function promptOpenAI({
     JSON.parse(choice.message.content ?? throwError("missing content"))
   );
 
-  const inputTokensUsed = response.usage?.prompt_tokens ?? 0;
-  const outputTokensUsed = response.usage?.completion_tokens ?? 0;
-  const cost =
-    (llmConfig.costPerMillionInputTokens / 1_000_000) * inputTokensUsed +
-    (llmConfig.costPerMillionOutputTokens / 1_000_000) * outputTokensUsed;
+  // persist the cost of the OpenAI API call
+  await logAiUsage({
+    logger,
+    supabaseAdminClient,
+    forUserId: job.user_id,
+    llmConfig,
+    response,
+  });
 
   return {
     exclusionDecision,
-    inputTokensUsed,
-    outputTokensUsed,
-    cost,
   };
 }
 

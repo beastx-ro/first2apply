@@ -2,23 +2,16 @@
  * This function is always triggered by the app after it finishes scanning all job links
  * and the descriptions for each processing jobs.
  */
-import {
-  SupabaseClient,
-  createClient,
-} from "https://esm.sh/@supabase/supabase-js@2.48.1";
 import { CORS_HEADERS } from "../_shared/cors.ts";
-import { DbSchema, JobSite } from "../_shared/types.ts";
+import { JobSite } from "../_shared/types.ts";
 import { getExceptionMessage, throwError } from "../_shared/errorUtils.ts";
-import { ILogger, createLoggerWithMeta } from "../_shared/logger.ts";
-import { MailersendMailer } from "../_shared/emails/mailer.ts";
+import { createLoggerWithMeta } from "../_shared/logger.ts";
+import { MailersendMailer, IMailer } from "../_shared/emails/mailer.ts";
 import { EmailTemplateType } from "../_shared/emails/emailTemplates.ts";
-
-const mailer = new MailersendMailer(
-  Deno.env.get("MAILERSEND_API_KEY") ??
-    throwError("Missing MAILERSEND_API_KEY"),
-  "contact@first2apply.com",
-  "First 2 Apply"
-);
+import {
+  EdgeFunctionAuthorizedContext,
+  getEdgeFunctionContext,
+} from "../_shared/edgeFunctions.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -29,29 +22,12 @@ Deno.serve(async (req) => {
     function: "post-scan-hook",
   });
   try {
-    const requestId = crypto.randomUUID();
-    logger.addMeta("request_id", requestId);
-
-    // build the supabase client
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing Authorization header");
-    }
-    const supabaseClient = createClient<DbSchema>(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    // load current user
-    const { data: userData, error: getUserError } =
-      await supabaseClient.auth.getUser();
-    if (getUserError) {
-      throw new Error(getUserError.message);
-    }
-    const user = userData?.user;
-    logger.addMeta("user_id", user?.id ?? "");
-    logger.addMeta("user_email", user?.email ?? "");
+    const context = await getEdgeFunctionContext({
+      logger,
+      req,
+      checkAuthorization: true,
+    });
+    const { env } = context;
 
     // load body payload
     const body: {
@@ -59,28 +35,24 @@ Deno.serve(async (req) => {
       areEmailAlertsEnabled: boolean;
     } = await req.json();
 
-    logger.info(`running post scan hook ${JSON.stringify(body)}  ...`);
+    const mailer = new MailersendMailer(
+      env.mailerSendApiKey ?? throwError("Mailersend API key is missing"),
+      "contact@first2apply.com",
+      "First 2 Apply"
+    );
 
-    // load all existing sites
-    const { data: sitesData, error: sitesError } = await supabaseClient
-      .from("sites")
-      .select("*");
-    const jobSites: JobSite[] = sitesData ?? [];
-    if (sitesError) {
-      throw new Error(sitesError.message);
-    }
+    logger.info(`running post scan hook ${JSON.stringify(body)}  ...`);
 
     // check for broken links and send out emails
     const { areEmailAlertsEnabled, newJobIds } = body;
-    await checkBrokenLinks({ logger, supabaseClient, user, jobSites });
+    await checkBrokenLinks({ context, mailer });
 
     // send out email for new job links
     await sendNewJobLinksEmail({
-      logger,
-      supabaseClient,
       newJobIds,
       areEmailAlertsEnabled,
-      user,
+      context,
+      mailer,
     });
 
     logger.info("finished running post scan hook");
@@ -106,19 +78,26 @@ Deno.serve(async (req) => {
  * and send out an email to the user if they are.
  */
 async function checkBrokenLinks({
-  logger,
-  supabaseClient,
-  user,
-  jobSites,
+  context,
+  mailer,
 }: {
-  logger: ILogger;
-  supabaseClient: SupabaseClient<DbSchema, "public", DbSchema["public"]>;
-  user: { email?: string };
-  jobSites: JobSite[];
+  context: EdgeFunctionAuthorizedContext;
+  mailer: IMailer;
 }) {
+  const { logger, supabaseClient, user } = context;
+
   if (!user.email) {
     logger.info("user email not found");
     return;
+  }
+
+  // load all existing sites
+  const { data: sitesData, error: sitesError } = await supabaseClient
+    .from("sites")
+    .select("*");
+  const jobSites: JobSite[] = sitesData ?? [];
+  if (sitesError) {
+    throw new Error(sitesError.message);
   }
 
   const failureThreshold = 3;
@@ -175,18 +154,17 @@ async function checkBrokenLinks({
  * Method used to send an email with new job links to the user.
  */
 async function sendNewJobLinksEmail({
-  logger,
-  supabaseClient,
   newJobIds,
   areEmailAlertsEnabled,
-  user,
+  context,
+  mailer,
 }: {
-  logger: ILogger;
-  supabaseClient: SupabaseClient<DbSchema, "public", DbSchema["public"]>;
   newJobIds: number[];
   areEmailAlertsEnabled: boolean;
-  user: { email?: string };
+  context: EdgeFunctionAuthorizedContext;
+  mailer: IMailer;
 }) {
+  const { logger, supabaseClient, user } = context;
   logger.info(`sending email for new job links ...`);
   if (!areEmailAlertsEnabled) {
     logger.info(`email alerts are disabled`);

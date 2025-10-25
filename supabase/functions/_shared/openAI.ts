@@ -2,6 +2,9 @@ import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.48.1/dist
 import { AzureOpenAI } from "npm:openai@4.86.2";
 import { ILogger } from "./logger.ts";
 import { getExceptionMessage } from "./errorUtils.ts";
+import { parseEnv } from "./env.ts";
+
+const env = parseEnv();
 
 const COST_PER_MODEL: Record<string, { input: number; output: number }> = {
   "gpt-4o": { input: 2.5, output: 10 },
@@ -9,22 +12,21 @@ const COST_PER_MODEL: Record<string, { input: number; output: number }> = {
   "gpt-5-chat": { input: 1.25, output: 10 },
   "gpt-5-mini": { input: 0.25, output: 2 },
   "gpt-5-nano": { input: 0.05, output: 0.4 },
+  "o3-mini": { input: 0.4, output: 0.4 },
+};
+
+export type AzureFoundryConfig = {
+  apiEndpoint: string;
+  apiKey: string;
 };
 
 /**
  * Build a new Azure OpenAI client.
  */
-export function buildOpenAiClient({
-  apiKey,
-  modelName,
-}: {
-  apiKey: string;
-  modelName?: string;
-}) {
+export function buildOpenAiClient({ modelName }: { modelName?: string }) {
   const openAi = new AzureOpenAI({
-    apiKey,
-    endpoint:
-      "https://dragossebestin-2025-09--resource.cognitiveservices.azure.com/",
+    apiKey: env.azureFoundryConfig.apiKey,
+    endpoint: env.azureFoundryConfig.apiEndpoint,
     apiVersion: "2024-10-21",
   });
 
@@ -48,7 +50,7 @@ export type LLMConfig = {
   costPerMillionOutputTokens: number;
 };
 
-export function computeLlmApiCallCost({
+function computeLlmApiCallCost({
   llmConfig,
   response,
 }: {
@@ -64,28 +66,34 @@ export function computeLlmApiCallCost({
   return { cost, inputTokensUsed, outputTokensUsed };
 }
 
-export async function countChatGptUsage({
+export async function logAiUsage({
   logger,
-  supabaseClient,
+  supabaseAdminClient,
   forUserId,
-  cost,
-  inputTokensUsed,
-  outputTokensUsed,
+  llmConfig,
+  response,
 }: {
   logger: ILogger;
-  supabaseClient: SupabaseClient;
+  supabaseAdminClient: SupabaseClient;
   forUserId: string;
-  cost: number;
-  inputTokensUsed: number;
-  outputTokensUsed: number;
+  llmConfig: LLMConfig;
+  response: any;
 }) {
-  // persist the cost of the OpenAI API call
-  const { error: countUsageError } = await supabaseClient.rpc("log_ai_usage", {
-    for_user_id: forUserId,
-    cost_increment: cost,
-    input_tokens_increment: inputTokensUsed,
-    output_tokens_increment: outputTokensUsed,
+  const { cost, inputTokensUsed, outputTokensUsed } = computeLlmApiCallCost({
+    llmConfig,
+    response,
   });
+
+  // persist the cost of the OpenAI API call
+  const { error: countUsageError } = await supabaseAdminClient.rpc(
+    "log_ai_usage",
+    {
+      for_user_id: forUserId,
+      cost_increment: cost,
+      input_tokens_increment: inputTokensUsed,
+      output_tokens_increment: outputTokensUsed,
+    }
+  );
   if (countUsageError) {
     logger.error(getExceptionMessage(countUsageError));
   }

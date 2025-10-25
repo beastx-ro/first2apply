@@ -1,13 +1,11 @@
 import { CORS_HEADERS } from "../_shared/cors.ts";
 
-import { getExceptionMessage } from "../_shared/errorUtils.ts";
-import {
-  SupabaseClient,
-  createClient,
-} from "https://esm.sh/@supabase/supabase-js@2.48.1";
+import { getExceptionMessage, throwError } from "../_shared/errorUtils.ts";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.48.1";
 import { DbSchema, Profile } from "../_shared/types.ts";
 import { createLoggerWithMeta } from "../_shared/logger.ts";
 import { MailerLiteApi } from "../_shared/mailerLiteApi.ts";
+import { getEdgeFunctionContext } from "../_shared/edgeFunctions.ts";
 
 type InsertPayload = {
   type: "INSERT";
@@ -33,8 +31,8 @@ type DeletePayload = {
 
 type WebhookPayload = InsertPayload | UpdatePayload | DeletePayload;
 
-const trialGroupId = "129230534205245257";
-const payingCustomersGroupId = "148205894191024107";
+const TRIAL_GROUP_ID = "129230534205245257";
+const PAYING_CUSTOMERS_GROUP_ID = "148205894191024107";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -45,33 +43,26 @@ Deno.serve(async (req) => {
     function: "handle-profile-change-webhook",
   });
   try {
-    const requestId = crypto.randomUUID();
-    logger.addMeta("request_id", requestId);
+    const context = await getEdgeFunctionContext({
+      logger,
+      req,
+      checkAuthorization: false,
+    });
+    const { supabaseClient, env } = context;
 
     logger.info("Processing user profile change webhook ...");
 
-    // init supabase client
-    const supabaseClient = createClient<DbSchema>(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
-
     // check webhook signature
-    const webhookSecret = Deno.env.get("F2A_WEBHOOK_SECRET");
-    if (!webhookSecret) {
-      throw new Error("Missing F2A_WEBHOOK_SECRET environment variable");
-    }
+    const webhookSecret = env.f2aWebhookSecret;
     const signature = req.headers.get("x-f2a-webhook-secret");
     if (signature !== webhookSecret) {
       throw new Error("Invalid webhook signature");
     }
 
     // init mailersend client
-    const mailerLiteApiKey = Deno.env.get("MAILERLITE_API_KEY");
-    if (!mailerLiteApiKey) {
-      throw new Error("Missing MAILERLITE_API_KEY environment variable");
-    }
-    const mailerLiteApi = new MailerLiteApi(mailerLiteApiKey);
+    const mailerLiteApi = new MailerLiteApi(
+      env.mailerLiteApiKey ?? throwError("MailerLite API key is missing")
+    );
 
     // load body payload
     const body: WebhookPayload = await req.json();
@@ -88,7 +79,7 @@ Deno.serve(async (req) => {
           subscription_expire_date: record.subscription_end_date,
           subscription_trial: 1,
         },
-        groups: [trialGroupId],
+        groups: [TRIAL_GROUP_ID],
       });
       logger.info(`User ${email} added to MailerLite`);
     } else if (body.type === "UPDATE") {
@@ -110,13 +101,13 @@ Deno.serve(async (req) => {
         // if the user is no longer on trial, remove from trial group and add to paying customers group
         await mailerLiteApi.removeSubscriberFromGroup({
           subscriberId: subscriber.id,
-          groupId: trialGroupId,
+          groupId: TRIAL_GROUP_ID,
         });
         logger.info(`User ${email} removed from trial group in MailerLite`);
 
         await mailerLiteApi.addSubscriberToGroup({
           subscriberId: subscriber.id,
-          groupId: payingCustomersGroupId,
+          groupId: PAYING_CUSTOMERS_GROUP_ID,
         });
         logger.info(
           `User ${email} added to paying customers group in MailerLite`

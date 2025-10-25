@@ -1,18 +1,11 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.48.1";
 import { CORS_HEADERS } from "../_shared/cors.ts";
 
-import { DbSchema } from "../_shared/types.ts";
-import { getExceptionMessage, throwError } from "../_shared/errorUtils.ts";
+import { getExceptionMessage } from "../_shared/errorUtils.ts";
 import { parseJobDescriptionUpdates } from "../_shared/jobDescriptionParser.ts";
 import { applyAdvancedMatchingFilters } from "../_shared/advancedMatching.ts";
 import { Job } from "../_shared/types.ts";
 import { createLoggerWithMeta } from "../_shared/logger.ts";
-import { countChatGptUsage } from "../_shared/openAI.ts";
-
-const supabaseAdminClient = createClient<DbSchema>(
-  Deno.env.get("SUPABASE_URL") ?? "",
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-);
+import { getEdgeFunctionContext } from "../_shared/edgeFunctions.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -23,28 +16,12 @@ Deno.serve(async (req) => {
     function: "scan-job-description",
   });
   try {
-    const requestId = crypto.randomUUID();
-    logger.addMeta("request_id", requestId);
-
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing Authorization header");
-    }
-    const supabaseClient = createClient<DbSchema>(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
-    const openAiApiKey = Deno.env.get("OPENAI_API_KEY") ?? "";
-
-    const { data: userData, error: getUserError } =
-      await supabaseClient.auth.getUser();
-    if (getUserError) {
-      throw new Error(getUserError.message);
-    }
-    const user = userData?.user;
-    logger.addMeta("user_id", user?.id ?? "");
-    logger.addMeta("user_email", user?.email ?? "");
+    const context = await getEdgeFunctionContext({
+      logger,
+      req,
+      checkAuthorization: true,
+    });
+    const { supabaseClient, supabaseAdminClient } = context;
 
     const body: {
       jobId: number;
@@ -90,8 +67,7 @@ Deno.serve(async (req) => {
           site,
           job,
           html,
-          openAiApiKey,
-          logger,
+          ...context,
         });
         const isLastRetry = retryCount === maxRetries;
         updatedJob = {
@@ -122,24 +98,12 @@ Deno.serve(async (req) => {
           );
         }
 
-        if (updates.llmApiCallCost) {
-          await countChatGptUsage({
-            logger,
-            supabaseClient: supabaseAdminClient,
-            forUserId: user?.id ?? "",
-            ...updates.llmApiCallCost,
-          });
-        }
-
         const { newStatus, excludeReason } = await applyAdvancedMatchingFilters(
           {
             logger,
             job: updatedJob,
             supabaseClient,
             supabaseAdminClient,
-            openAiApiKey:
-              Deno.env.get("OPENAI_API_KEY") ??
-              throwError("missing OPENAI_API_KEY"),
           }
         );
 
@@ -165,7 +129,7 @@ Deno.serve(async (req) => {
         // I think this is causing jobs to be put back on new from deleted
         // if the app fails to process an entire batch in one cron interval
         // then the same job will be processed twice (since it's status is processing still)
-        .eq("status", "processing");
+        .in("status", ["processing", "new"]);
       if (updateJobErr) {
         throw updateJobErr;
       }

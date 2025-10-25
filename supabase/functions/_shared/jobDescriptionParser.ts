@@ -3,9 +3,11 @@ import {
   Element,
 } from "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts";
 import turndown from "npm:turndown@7.1.2";
-import { Job, JobSite, SiteProvider } from "./types.ts";
+import { DbSchema, Job, JobSite, SiteProvider, User } from "./types.ts";
 import { parseCustomJobDescription } from "./customJobsParser.ts";
 import { ILogger } from "./logger.ts";
+import { AzureFoundryConfig } from "./openAI.ts";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.48.1/dist/module/index.js";
 
 type SiteProviderQuerySelectors = {
   description: string[];
@@ -107,14 +109,17 @@ const turndownService = new turndown({
 export async function parseJobDescriptionUpdates({
   site,
   html,
-  openAiApiKey,
-  logger,
+  user,
+  ...context
 }: {
   site: JobSite;
   job: Job;
   html: string;
-  openAiApiKey: string;
+  user: User;
+
+  // dependencies
   logger: ILogger;
+  supabaseAdminClient: SupabaseClient<DbSchema, "public">;
 }): Promise<JobDescriptionUpdates> {
   switch (site.provider) {
     case SiteProvider.linkedin:
@@ -152,7 +157,7 @@ export async function parseJobDescriptionUpdates({
     case SiteProvider.talent:
       return parseTalentJobDescription({ html });
     case SiteProvider.custom:
-      return await parseCustomJobDescription({ html, openAiApiKey, logger });
+      return await parseCustomJobDescription({ html, user, ...context });
   }
 }
 

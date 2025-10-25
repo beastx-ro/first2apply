@@ -5,6 +5,7 @@ import { getExceptionMessage } from "../_shared/errorUtils.ts";
 import { cleanJobUrl, parseJobsListUrl } from "../_shared/jobListParser.ts";
 import { createLoggerWithMeta } from "../_shared/logger.ts";
 import { checkUserSubscription } from "../_shared/subscription.ts";
+import { getEdgeFunctionContext } from "../_shared/edgeFunctions.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -16,28 +17,12 @@ Deno.serve(async (req) => {
   });
   let inFlightLink: Link | null = null;
   try {
-    const requestId = crypto.randomUUID();
-    logger.addMeta("request_id", requestId);
-
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing Authorization header");
-    }
-    const supabaseClient = createClient<DbSchema>(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
-    const openAiApiKey = Deno.env.get("OPENAI_API_KEY") ?? "";
-
-    const { data: userData, error: getUserError } =
-      await supabaseClient.auth.getUser();
-    if (getUserError) {
-      throw new Error(getUserError.message);
-    }
-    const user = userData?.user;
-    logger.addMeta("user_id", user?.id ?? "");
-    logger.addMeta("user_email", user?.email ?? "");
+    const context = await getEdgeFunctionContext({
+      logger,
+      req,
+      checkAuthorization: true,
+    });
+    const { user, supabaseClient } = context;
 
     const { title, url, html } = (await req.json()) as {
       title: string;
@@ -46,17 +31,17 @@ Deno.serve(async (req) => {
     };
     logger.info(`Creating link: ${title} - ${url}`);
 
-    const { hasCustomJobsParsing } = await checkUserSubscription({
-      supabaseClient,
-      userId: user?.id ?? "",
-    });
-
     // list all job sites from db
     const { data, error: selectError } = await supabaseClient
       .from("sites")
       .select("*");
     if (selectError) throw new Error(selectError.message);
     const allJobSites = data ?? [];
+
+    const { hasCustomJobsParsing } = await checkUserSubscription({
+      userId: user.id,
+      ...context,
+    });
 
     // insert a new link in the db
     const { cleanUrl, site } = cleanJobUrl({
@@ -94,9 +79,7 @@ Deno.serve(async (req) => {
         allJobSites,
         link,
         html,
-        hasCustomJobsParsing,
-        logger,
-        openAiApiKey,
+        context,
       });
 
       if (parseFailed) {

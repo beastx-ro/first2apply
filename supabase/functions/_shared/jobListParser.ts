@@ -5,11 +5,14 @@ import {
 import turndown from "npm:turndown@7.1.2";
 import { encodeHex } from "jsr:@std/encoding/hex";
 
-import { Job, JobType, Link, SiteProvider } from "./types.ts";
+import { DbSchema, Job, JobType, Link, SiteProvider, User } from "./types.ts";
 import { JobSite } from "./types.ts";
 import { parseCustomJobs } from "./customJobsParser.ts";
 import { ILogger } from "./logger.ts";
 import { throwError } from "./errorUtils.ts";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.48.1/dist/module/index.js";
+import { checkUserSubscription } from "./subscription.ts";
+import { EdgeFunctionAuthorizedContext } from "./edgeFunctions.ts";
 
 const turndownService = new turndown({
   bulletListMarker: "-",
@@ -138,17 +141,19 @@ export async function parseJobsListUrl({
   allJobSites,
   link,
   html,
-  hasCustomJobsParsing,
-  ...context
+  context,
 }: {
   allJobSites: JobSite[];
   link: Link;
   html: string;
-  hasCustomJobsParsing: boolean;
   // dependencies
-  logger: ILogger;
-  openAiApiKey: string;
+  context: EdgeFunctionAuthorizedContext;
 }) {
+  const { hasCustomJobsParsing } = await checkUserSubscription({
+    userId: context.user.id,
+    ...context,
+  });
+
   const { url } = link;
   const site = getJobSite({ allJobSites, url, hasCustomJobsParsing });
 
@@ -194,7 +199,8 @@ async function parseSiteJobsList({
   url: string;
 
   logger: ILogger;
-  openAiApiKey: string;
+  supabaseAdminClient: SupabaseClient<DbSchema, "public">;
+  user: User;
 }): Promise<JobSiteParseResult> {
   switch (site.provider) {
     case SiteProvider.linkedin:

@@ -8,14 +8,13 @@ import turndown from "npm:turndown@7.1.2";
 
 import { JobSiteParseResult } from "./jobListParser.ts";
 import { JobDescriptionUpdates } from "./jobDescriptionParser.ts";
-import { buildOpenAiClient, computeLlmApiCallCost } from "./openAI.ts";
+import { buildOpenAiClient, logAiUsage } from "./openAI.ts";
 import { zodResponseFormat } from "npm:openai@4.86.2/helpers/zod";
 
 import { throwError } from "./errorUtils.ts";
 import { ILogger } from "./logger.ts";
-
-const OPEN_AI_MODEL_NAME = "gpt-5-mini";
-// const OPEN_AI_MODEL_NAME = "gpt-4o-mini";
+import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.48.1/dist/module/index.js";
+import { DbSchema, User } from "./types.ts";
 
 /**
  * Method used to parse jobs from custom pages.
@@ -25,20 +24,23 @@ export async function parseCustomJobs({
   siteId,
   html,
   url,
-  openAiApiKey,
-  logger,
+  user,
+  ...context
 }: {
   siteId: number;
   html: string;
   url: string;
-  openAiApiKey: string;
+  user: User;
 
+  // dependencies
   logger: ILogger;
+  supabaseAdminClient: SupabaseClient<DbSchema, "public">;
 }): Promise<JobSiteParseResult> {
+  const { logger } = context;
+
   const { openAi, llmConfig } = buildOpenAiClient({
-    apiKey: openAiApiKey,
-    // modelName: OPEN_AI_MODEL_NAME,
     modelName: "gpt-4o",
+    ...context,
   });
 
   // helper methods
@@ -125,9 +127,11 @@ ${htmlContent}
     JSON.parse(choice.message.content ?? throwError("missing content"))
   );
 
-  const { cost, inputTokensUsed, outputTokensUsed } = computeLlmApiCallCost({
+  await logAiUsage({
+    forUserId: user.id,
     llmConfig,
     response,
+    ...context,
   });
 
   const listFound = !parseResult.errorMessage && parseResult.jobs.length > 0;
@@ -148,11 +152,6 @@ ${htmlContent}
     jobs,
     listFound,
     elementsCount: jobs.length,
-    llmApiCallCost: {
-      inputTokensUsed,
-      outputTokensUsed,
-      cost,
-    },
   };
 }
 const JOB_SCHEMA = z.object({
@@ -195,13 +194,18 @@ Here are some common examples of externalUrls from different popular job sites:
  */
 export async function parseCustomJobDescription({
   html,
-  openAiApiKey,
-  logger,
+  user,
+  ...context
 }: {
   html: string;
-  openAiApiKey: string;
+  user: User;
+
+  // dependencies
   logger: ILogger;
+  supabaseAdminClient: SupabaseClient<DbSchema, "public">;
 }): Promise<JobDescriptionUpdates> {
+  const { logger } = context;
+
   const document = new DOMParser().parseFromString(html, "text/html");
   if (!document) throw new Error("Could not parse html");
 
@@ -244,8 +248,8 @@ ${htmlContent}
   };
 
   const { openAi, llmConfig } = buildOpenAiClient({
-    apiKey: openAiApiKey,
-    modelName: OPEN_AI_MODEL_NAME,
+    modelName: "gpt-5-mini",
+    ...context,
   });
 
   const response = await openAi.chat.completions.create({
@@ -276,9 +280,11 @@ ${htmlContent}
     JSON.parse(choice.message.content ?? throwError("missing content"))
   );
 
-  const { cost, inputTokensUsed, outputTokensUsed } = computeLlmApiCallCost({
+  await logAiUsage({
+    forUserId: user.id,
     llmConfig,
     response,
+    ...context,
   });
 
   const parsingFailed = !!parseResult.errorMessage;
@@ -286,22 +292,11 @@ ${htmlContent}
     logger.error(`OpenAI reported an error: ${parseResult.errorMessage}`);
   }
 
-  logger.info(
-    `Job description parsed, LLM cost: $${cost.toFixed(
-      6
-    )} (input tokens: ${inputTokensUsed}, output tokens: ${outputTokensUsed})`
-  );
-
   return {
     description: parsingFailed
       ? parseResult.errorMessage
       : parseResult.description,
     tags: parsingFailed ? undefined : parseResult.tags,
-    llmApiCallCost: {
-      cost,
-      inputTokensUsed,
-      outputTokensUsed,
-    },
   };
 }
 const PARSE_JOB_DESCRIPTION_SCHEMA = z.object({
