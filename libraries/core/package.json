@@ -1,0 +1,14 @@
+{
+  "name": "@first2apply/core",
+  "version": "0.0.0",
+  "type": "commonjs",
+  "main": "build/index.js",
+  "typings": "build/index.d.ts",
+  "scripts": {
+    "dev": "npx tsc -p tsconfig.json -w",
+    "build": "npx tsc -p tsconfig.json",
+    "test": "npx jest --config ./jest.config.ts --verbose",
+    "lint": "npx eslint src/",
+    "prettier": "npx prettier --check \"src/**/*.ts\""
+  }
+}
