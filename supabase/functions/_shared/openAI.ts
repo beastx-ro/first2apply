@@ -1,18 +1,34 @@
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.48.1/dist/module/index.js";
-import { AzureOpenAI } from "npm:openai@4.86.2";
+import { AzureOpenAI } from "npm:openai@6.7.0";
 import { ILogger } from "./logger.ts";
 import { getExceptionMessage } from "./errorUtils.ts";
 import { parseEnv } from "./env.ts";
 
 const env = parseEnv();
 
-const COST_PER_MODEL: Record<string, { input: number; output: number }> = {
-  "gpt-4o": { input: 2.5, output: 10 },
-  "gpt-4o-mini": { input: 0.15, output: 0.6 },
-  "gpt-5-chat": { input: 1.25, output: 10 },
+const SUPPORTED_MODELS = [
+  "gpt-5-mini",
+  "gpt-5-nano",
+  "gpt-4o",
+  "gpt-4o-mini",
+  "o4-mini",
+  "o3-mini",
+  "DeepSeek-R1-0528",
+] as const;
+type SupportedModel = (typeof SUPPORTED_MODELS)[number];
+
+const COST_PER_MODEL: Record<
+  SupportedModel,
+  { input: number; output: number }
+> = {
   "gpt-5-mini": { input: 0.25, output: 2 },
   "gpt-5-nano": { input: 0.05, output: 0.4 },
-  "o3-mini": { input: 0.4, output: 0.4 },
+  "gpt-4o": { input: 2.5, output: 10 },
+  "gpt-4o-mini": { input: 0.15, output: 0.6 },
+  "o4-mini": { input: 1.1, output: 4.4 },
+  // o3: { input: 2.0, output: 8.0 }, // we don't have access in Azure yet
+  "o3-mini": { input: 1.1, output: 4.4 },
+  "DeepSeek-R1-0528": { input: 1.35, output: 5.4 },
 };
 
 export type AzureFoundryConfig = {
@@ -23,20 +39,25 @@ export type AzureFoundryConfig = {
 /**
  * Build a new Azure OpenAI client.
  */
-export function buildOpenAiClient({ modelName }: { modelName?: string }) {
+export function buildOpenAiClient({
+  modelName,
+}: {
+  modelName?: SupportedModel;
+}) {
   const openAi = new AzureOpenAI({
     apiKey: env.azureFoundryConfig.apiKey,
     endpoint: env.azureFoundryConfig.apiEndpoint,
-    apiVersion: "2024-10-21",
+    apiVersion: "2024-12-01-preview",
   });
 
   const model = modelName ?? "gpt-4o";
   if (!(model in COST_PER_MODEL)) {
     throw new Error(`Unsupported model: ${model}`);
   }
+  console.log(`Using model ${model} for Azure OpenAI calls.`);
   const { input, output } = COST_PER_MODEL[model];
   const llmConfig = {
-    model: modelName ?? "gpt-4o",
+    model,
     costPerMillionInputTokens: input,
     costPerMillionOutputTokens: output,
   };

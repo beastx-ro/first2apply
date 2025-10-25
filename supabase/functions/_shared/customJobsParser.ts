@@ -6,10 +6,10 @@ import {
 import { z } from "npm:zod";
 import turndown from "npm:turndown@7.1.2";
 
-import { JobSiteParseResult } from "./jobListParser.ts";
+import { JobSiteParseResult, ParsedJob } from "./jobListParser.ts";
 import { JobDescriptionUpdates } from "./jobDescriptionParser.ts";
 import { buildOpenAiClient, logAiUsage } from "./openAI.ts";
-import { zodResponseFormat } from "npm:openai@4.86.2/helpers/zod";
+import { zodResponseFormat } from "npm:openai@6.7.0/helpers/zod";
 
 import { throwError } from "./errorUtils.ts";
 import { ILogger } from "./logger.ts";
@@ -39,7 +39,7 @@ export async function parseCustomJobs({
   const { logger } = context;
 
   const { openAi, llmConfig } = buildOpenAiClient({
-    modelName: "gpt-4o",
+    modelName: "o3-mini",
     ...context,
   });
 
@@ -85,7 +85,7 @@ Here are some rules for the required output:
 - The location field should specify the job's location, if available. 
     Add the full location as provided including street, city, state, country if available. If only "remote" is mentioned, leave the location empty and set jobType to "remote".
 - The salary field should specify the offered salary or salary range, if available. Always try to extract it if present.
-- The tags field should include relevant tags or keywords associated with the job, if available. If you see "easy apply" on a job add it as a tab. Or if the job is sponsored.
+- The tags field should include relevant tags or keywords associated with the job, if available. If you see "easy apply" on a job add it as a tag. Or if the job is sponsored.
 
 Limit the number of jobs extracted to a maximum of 20. If more jobs are present, prioritize the most recent ones.
 Try to extract all or as many jobs from the page as possible. And preserve the order of the jobs as they appear on the page.
@@ -141,12 +141,22 @@ ${htmlContent}
     );
   }
 
-  const jobs = parseResult.jobs.map((job) => ({
-    ...job,
-    // associate with the site
-    siteId,
-    labels: [],
-  }));
+  const jobs = parseResult.jobs.map(
+    (job): ParsedJob => ({
+      externalId: job.externalId,
+      externalUrl: job.externalUrl,
+      title: job.title,
+      companyName: job.companyName,
+      companyLogo: job.companyLogo || undefined,
+      jobType: job.jobType || undefined,
+      location: job.location || undefined,
+      salary: job.salary || undefined,
+      tags: job.tags || undefined,
+      // associate with the site
+      siteId,
+      labels: [],
+    })
+  );
 
   return {
     jobs,
@@ -160,18 +170,18 @@ const JOB_SCHEMA = z.object({
 
   title: z.string().min(3).max(200),
   companyName: z.string().min(2).max(100),
-  companyLogo: z.string().optional(),
+  companyLogo: z.string().optional().nullable(),
 
-  jobType: z.enum(["remote", "hybrid", "onsite"]).optional(),
-  location: z.string().max(100).optional(),
-  salary: z.string().max(100).optional(),
-  tags: z.array(z.string().max(50)).optional(),
+  jobType: z.enum(["remote", "hybrid", "onsite"]).optional().nullable(),
+  location: z.string().max(100).optional().nullable(),
+  salary: z.string().max(100).optional().nullable(),
+  tags: z.array(z.string().max(50)).optional().nullable(),
 
-  // description: z.string().min(20).optional(),
+  // description: z.string().min(20).optional().nullable(),
 });
 const PARSE_JOBS_PAGE_SCHEMA = z.object({
   jobs: z.array(JOB_SCHEMA).min(0).max(50),
-  errorMessage: z.string().max(500).optional(),
+  errorMessage: z.string().max(500).optional().nullable(),
 });
 const SYSTEM_PROMPT = `You are an expert web scraper specialized in extracting job listings from HTML pages. 
 Your task is to analyze the provided HTML content and identify job listings, extracting relevant details for each job.
@@ -179,6 +189,7 @@ If you cannot extract the information due to the HTML being a login page, CAPTCH
 
 The job externalId and externalUrl should be unique for each job.
 The externalUrl ideally should point to a dedicated page, not the same listing page.
+When composing the externalUrl or companyLogo with relative URLs, ensure to make it relative to the URL of the scraped page, not just the domain.
 Here are some common examples of externalUrls from different popular job sites:
 - talent.com: https://www.talent.com/view?id=1234567890abcdef
 - linkedin.com: https://www.linkedin.com/jobs/view/1234567890/
@@ -248,7 +259,7 @@ ${htmlContent}
   };
 
   const { openAi, llmConfig } = buildOpenAiClient({
-    modelName: "gpt-5-mini",
+    modelName: "gpt-4o-mini",
     ...context,
   });
 
@@ -292,17 +303,22 @@ ${htmlContent}
     logger.error(`OpenAI reported an error: ${parseResult.errorMessage}`);
   }
 
+  const description = parsingFailed
+    ? undefined
+    : parseResult.description?.trim() || "";
+  const tags = parsingFailed
+    ? undefined
+    : parseResult.tags?.map((tag) => tag.trim()) || undefined;
+
   return {
-    description: parsingFailed
-      ? parseResult.errorMessage
-      : parseResult.description,
-    tags: parsingFailed ? undefined : parseResult.tags,
+    description,
+    tags,
   };
 }
 const PARSE_JOB_DESCRIPTION_SCHEMA = z.object({
-  description: z.string().min(20).optional(),
-  tags: z.array(z.string().max(50)).optional(),
-  errorMessage: z.string().max(500).optional(),
+  description: z.string().min(20).optional().nullable(),
+  tags: z.array(z.string().max(50)).optional().nullable(),
+  errorMessage: z.string().max(500).optional().nullable(),
 });
 const JOB_DESCRIPTION_SYSTEM_PROMPT = `You are an expert web scraper specialized in extracting job description from HTML pages. 
 Your task is to analyze the provided HTML content and extract the job description.
@@ -313,14 +329,6 @@ const turndownService = new turndown({
   bulletListMarker: "-",
   codeBlockStyle: "fenced",
 });
-
-// function minifyHtml(html: string): string {
-//   return html
-//     .replace(/<!--[\s\S]*?-->/g, "") // comments
-//     .replace(/\s+/g, " ") // collapse whitespace
-//     .replace(/>\s+</g, "><") // trim between tags
-//     .trim();
-// }
 
 function stripNodes(root: Element, selectors: string[]) {
   selectors.forEach((selector) => {

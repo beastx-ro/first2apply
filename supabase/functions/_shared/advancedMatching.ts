@@ -75,7 +75,7 @@ export async function applyAdvancedMatchingFilters({
       logger.info(`job excluded by OpenAI: ${exclusionDecision.reason}`);
       return {
         newStatus: "excluded_by_advanced_matching",
-        excludeReason: exclusionDecision.reason,
+        excludeReason: exclusionDecision.reason ?? undefined,
       };
     }
   }
@@ -118,7 +118,7 @@ async function promptOpenAI({
   supabaseAdminClient: SupabaseClient<DbSchema, "public">;
 }) {
   const { llmConfig, openAi } = buildOpenAiClient({
-    modelName: "gpt-5-mini",
+    modelName: "o3-mini",
   });
 
   const response = await openAi.chat.completions.create({
@@ -208,5 +208,5 @@ Reply with a JSON object containing the following fields:
 
 const JobExclusionFormat = z.object({
   excluded: z.boolean(),
-  reason: z.string().optional(),
+  reason: z.string().optional().nullable().nullable(),
 });
