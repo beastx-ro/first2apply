@@ -1,9 +1,9 @@
 id,name,urls,created_at,queryParamsToRemove,logo_url,blacklisted_paths,provider,deprecated,incognito_support
-1,LinkedIn,"[""https://www.linkedin.com""]",2024-01-20 15:02:02.723394+00,"[""currentJobId""]",http://127.0.0.1:54321/storage/v1/object/public/first2apply-public/linkedin.png,"[""/"",""/jobs/"",""/feed/""]",linkedin,false,true
-2,Glassdoor,"[""https://www.glassdoor.com"",""https://www.glassdoor.it""]",2024-01-20 15:04:01.815691+00,,http://127.0.0.1:54321/storage/v1/object/public/first2apply-public/glassdoor.png,"[""/"",""/index.htm/"",""/job/index.htm/""]",glassdoor,false,false
-3,Indeed,"[""https://www.indeed.com""]",2024-01-20 15:04:34.53859+00,"[""vjk""]",http://127.0.0.1:54321/storage/v1/object/public/first2apply-public/indeed.png,"[""/""]",indeed,false,false
-4,Remote OK,"[""https://remoteok.com""]",2024-01-20 15:05:42.908282+00,,http://127.0.0.1:54321/storage/v1/object/public/first2apply-public/remoteok.png,"[""/""]",remoteok,false,false
-5,We Work Remotely,"[""https://weworkremotely.com""]",2024-01-20 15:06:51.637899+00,,http://127.0.0.1:54321/storage/v1/object/public/first2apply-public/weworkremotely.png,"[""/""]",weworkremotely,false,false
+1,LinkedIn,"[""https://www.linkedin.com""]",2024-01-20 15:02:02.723394+00,"[""currentJobId""]",https://vnawaforiamopaudfefi.supabase.co/storage/v1/object/public/first2apply-public/linkedin.png,"[""/"",""/jobs/"",""/feed/""]",linkedin,false,true
+2,Glassdoor,"[""https://www.glassdoor.com"",""https://www.glassdoor.it""]",2024-01-20 15:04:01.815691+00,,https://vnawaforiamopaudfefi.supabase.co/storage/v1/object/public/first2apply-public/glassdoor.png,"[""/"",""/index.htm/"",""/job/index.htm/""]",glassdoor,false,false
+3,Indeed,"[""https://www.indeed.com""]",2024-01-20 15:04:34.53859+00,"[""vjk""]",https://vnawaforiamopaudfefi.supabase.co/storage/v1/object/public/first2apply-public/indeed.png,"[""/""]",indeed,false,false
+4,Remote OK,"[""https://remoteok.com""]",2024-01-20 15:05:42.908282+00,,https://vnawaforiamopaudfefi.supabase.co/storage/v1/object/public/first2apply-public/remoteok.png,"[""/""]",remoteok,false,false
+5,We Work Remotely,"[""https://weworkremotely.com""]",2024-01-20 15:06:51.637899+00,,https://vnawaforiamopaudfefi.supabase.co/storage/v1/object/public/first2apply-public/weworkremotely.png,"[""/""]",weworkremotely,false,false
 6,Dice,"[""https://www.dice.com""]",2024-02-18 21:24:51.005635+00,,https://vnawaforiamopaudfefi.supabase.co/storage/v1/object/public/first2apply-public/dice.png,"[""/""]",dice,false,false
 7,Flexjobs,"[""https://www.flexjobs.com""]",2024-02-19 18:47:19.776765+00,,https://vnawaforiamopaudfefi.supabase.co/storage/v1/object/public/first2apply-public/flexjobs.png,"[""/""]",flexjobs,false,false
 8,Bestjobs,"[""https://www.bestjobs.eu""]",2024-02-20 20:11:05.704758+00,,https://vnawaforiamopaudfefi.supabase.co/storage/v1/object/public/first2apply-public/bestjobs.png,"[""/""]",bestjobs,true,false
