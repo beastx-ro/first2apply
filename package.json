@@ -1,14 +1,37 @@
 {
   "name": "first2apply",
   "version": "2.0.0",
-  "description": "## Init project `npx supabase init`",
-  "main": "index.js",
+  "description": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "debug": "npx supabase functions serve --inspect-mode run"
+    "debug:edge": "npx supabase functions serve --inspect-mode run",
+    "gitPreCommit": "npx lint-staged --relative",
+    "gitCommitMessage": "npx commitlint",
+    "gitPrePush": "npx nx affected --base=main --head=HEAD -t test,typecheck",
+    "dev": "npx nx run-many -t dev",
+    "typecheck": "npx nx run-many -t typecheck",
+    "build": "npx nx run-many -t build",
+    "test": "npx nx run-many -t test",
+    "lint": "npx nx run-many -t lint",
+    "prettier": "npx nx run-many -t prettier"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "BeastX Industries",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "libraries/*"
+  ],
+  "packageManager": "yarn@3.5.0",
+  "release-it": {
+    "git": {
+      "commitMessage": "chore(release): ${version}"
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": "conventionalcommits",
+        "infile": "CHANGELOG.md"
+      }
+    }
+  },
   "devDependencies": {
     "supabase": "^2.53.6"
   }
