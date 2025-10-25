@@ -6,7 +6,6 @@ import turndown from "npm:turndown@7.1.2";
 import { DbSchema, Job, JobSite, SiteProvider, User } from "./types.ts";
 import { parseCustomJobDescription } from "./customJobsParser.ts";
 import { ILogger } from "./logger.ts";
-import { AzureFoundryConfig } from "./openAI.ts";
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.48.1/dist/module/index.js";
 
 type SiteProviderQuerySelectors = {
@@ -89,14 +88,8 @@ const SITE_PROVIDER_QUERY_SELECTORS: Record<
 };
 
 export type JobDescriptionUpdates = Partial<
-  Pick<Job, "description" | "tags">
-> & {
-  llmApiCallCost?: {
-    cost: number;
-    inputTokensUsed: number;
-    outputTokensUsed: number;
-  };
-};
+  Pick<Job, "description" | "salary" | "tags">
+>;
 
 const turndownService = new turndown({
   bulletListMarker: "-",

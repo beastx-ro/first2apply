@@ -111,7 +111,7 @@ ${htmlContent}
         content: generateUserPrompt(),
       },
     ],
-    max_completion_tokens: 16384,
+    max_completion_tokens: 50_000,
     response_format: zodResponseFormat(
       PARSE_JOBS_PAGE_SCHEMA,
       "ParseJobsPageResponse"
@@ -141,22 +141,25 @@ ${htmlContent}
     );
   }
 
-  const jobs = parseResult.jobs.map(
-    (job): ParsedJob => ({
-      externalId: job.externalId,
-      externalUrl: job.externalUrl,
-      title: job.title,
-      companyName: job.companyName,
-      companyLogo: job.companyLogo || undefined,
-      jobType: job.jobType || undefined,
-      location: job.location || undefined,
-      salary: job.salary || undefined,
-      tags: job.tags || undefined,
-      // associate with the site
-      siteId,
-      labels: [],
-    })
-  );
+  const jobs = parseResult.jobs
+    .map(
+      (job): ParsedJob => ({
+        externalId: job.externalId,
+        externalUrl: job.externalUrl,
+        title: job.title,
+        companyName: job.companyName,
+        companyLogo: job.companyLogo || undefined,
+        jobType: job.jobType || undefined,
+        location: job.location || undefined,
+        salary: job.salary || undefined,
+        tags: job.tags || undefined,
+        // associate with the site
+        siteId,
+        labels: [],
+      })
+    )
+    // filter out invalid jobs
+    .filter((job) => !!job.externalId && !!job.externalUrl);
 
   return {
     jobs,
@@ -298,25 +301,23 @@ ${htmlContent}
     ...context,
   });
 
+  let updates: JobDescriptionUpdates = {};
   const parsingFailed = !!parseResult.errorMessage;
   if (parsingFailed) {
     logger.error(`OpenAI reported an error: ${parseResult.errorMessage}`);
+  } else {
+    updates = {
+      description: parseResult.description?.trim(),
+      salary: parseResult.salary?.trim(),
+      tags: parseResult.tags?.map((tag) => tag.trim()),
+    };
   }
 
-  const description = parsingFailed
-    ? undefined
-    : parseResult.description?.trim() || "";
-  const tags = parsingFailed
-    ? undefined
-    : parseResult.tags?.map((tag) => tag.trim()) || undefined;
-
-  return {
-    description,
-    tags,
-  };
+  return updates;
 }
 const PARSE_JOB_DESCRIPTION_SCHEMA = z.object({
   description: z.string().min(20).optional().nullable(),
+  salary: z.string().optional().nullable(),
   tags: z.array(z.string().max(50)).optional().nullable(),
   errorMessage: z.string().max(500).optional().nullable(),
 });

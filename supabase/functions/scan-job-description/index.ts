@@ -72,8 +72,9 @@ Deno.serve(async (req) => {
         const isLastRetry = retryCount === maxRetries;
         updatedJob = {
           ...updatedJob,
-          ...updates,
-          description: updates.description ?? job.description, // keep old description if no new one
+          description: updates.description ?? job.description,
+          salary: updates.salary ?? job.salary,
+          tags: updates.tags ?? job.tags,
         };
         if (!updates.description && isLastRetry) {
           logger.error(
@@ -120,6 +121,8 @@ Deno.serve(async (req) => {
         .from("jobs")
         .update({
           description: updatedJob.description,
+          salary: updatedJob.salary,
+          tags: updatedJob.tags,
           status: updatedJob.status,
           updated_at: new Date(),
           exclude_reason: updatedJob.exclude_reason,
@@ -150,7 +153,7 @@ Deno.serve(async (req) => {
           updatedJob: job,
           parseFailed: false,
         });
-      }, 20_000);
+      }, 30_000);
     });
 
     const { updatedJob, parseFailed } = await Promise.race([
