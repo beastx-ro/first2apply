@@ -3,14 +3,7 @@ import { toast } from '@/components/ui/use-toast';
 import { useAppState } from '@/hooks/appState';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
-import {
-  getJobById,
-  listJobs,
-  openExternalUrl,
-  scanJob,
-  updateJobLabels,
-  updateJobStatus,
-} from '@/lib/electronMainSdk';
+import { getJobById, listJobs, scanJob, updateJobLabels, updateJobStatus } from '@/lib/electronMainSdk';
 import { useEffect, useRef, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -57,6 +50,7 @@ export function JobTabsContent({
 
   const jobDescriptionRef = useRef<HTMLDivElement>(null);
   const browserWindowRef = useRef<BrowserWindowHandle>(null);
+  const browserWindowRefOther = useRef<BrowserWindowHandle>(null);
 
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
   const selectedJob = listing.jobs.find((job) => job.id === selectedJobId);
@@ -272,6 +266,9 @@ export function JobTabsContent({
   const onViewJob = (job: Job) => {
     browserWindowRef.current?.open(job.externalUrl);
   };
+  const onOpenUrl = (url: string) => {
+    browserWindowRefOther.current?.open(url);
+  };
 
   const markSelectedJobAsApplied = async () => {
     try {
@@ -366,6 +363,7 @@ export function JobTabsContent({
                         onView={onViewJob}
                         onUpdateJobStatus={onUpdateJobStatus}
                         onUpdateLabels={onUpdateJobLabels}
+                        onOpenUrl={onOpenUrl}
                       />
                       <JobDetails job={selectedJob} isScrapingDescription={!!selectedJob.isLoadingJD}></JobDetails>
                       <hr className="border-t border-muted" />
@@ -605,6 +603,17 @@ export function JobTabsContent({
           text: 'Applied',
           onClick: () => markSelectedJobAsApplied(),
           tooltip: 'Mark this job as applied',
+        }}
+      ></BrowserWindow>
+      <BrowserWindow
+        ref={browserWindowRefOther}
+        onClose={() => {}}
+        customActionButton={{
+          text: 'Done',
+          onClick: () => {
+            browserWindowRefOther.current?.finish();
+          },
+          tooltip: 'Done browsing',
         }}
       ></BrowserWindow>
     </>

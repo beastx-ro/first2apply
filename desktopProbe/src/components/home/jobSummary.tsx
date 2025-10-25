@@ -1,3 +1,5 @@
+import { useLinks } from '@/hooks/links';
+import { useSites } from '@/hooks/sites';
 import { LABEL_COLOR_CLASSES } from '@/lib/labels';
 import {
   ArchiveIcon,
@@ -10,7 +12,7 @@ import {
   ResetIcon,
   TrashIcon,
 } from '@radix-ui/react-icons';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { JOB_LABELS, Job, JobLabel, JobStatus } from '../../../../supabase/functions/_shared/types';
 import { Avatar, AvatarImage } from '../ui/avatar';
@@ -32,18 +34,46 @@ export function JobSummary({
   onView,
   onUpdateJobStatus,
   onUpdateLabels,
+  onOpenUrl,
 }: {
   job: Job;
   onView: (job: Job) => void;
   onUpdateJobStatus: (jobId: number, status: JobStatus) => void;
   onUpdateLabels: (jobId: number, labels: JobLabel[]) => void;
+  onOpenUrl: (url: string) => void;
 }) {
+  const { siteLogos } = useSites();
+  const { links } = useLinks();
+
+  const usedLink = useMemo(() => {
+    return links.find((l) => l.id === job.link_id);
+  }, [links, job.link_id]);
+
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
 
   return (
     <div className="rounded-lg border border-muted p-4 lg:p-6">
       <div className="flex items-start justify-between gap-4 lg:gap-6">
         <div>
+          {/* search site */}
+          {usedLink && (
+            <a
+              className="flex items-center gap-2 text-sm text-muted-foreground"
+              href="#"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                onOpenUrl(usedLink.url);
+              }}
+            >
+              <img src={siteLogos[usedLink.site_id]} alt={usedLink.title} className="h-5" />
+              <span>
+                {' via '}
+                {usedLink.title}
+              </span>
+            </a>
+          )}
+
           {/* Job title */}
           <h1 className="mt-3 text-xl font-medium lg:mt-4">{job.title}</h1>
 
@@ -84,10 +114,7 @@ export function JobSummary({
         {job.tags && (
           <div className="flex items-center gap-3 text-muted-foreground">
             <ListBulletIcon className="h-auto w-5" />
-            <p>
-              {'Skills: '}
-              {job.tags?.slice(0, 5).join(', ')}
-            </p>
+            <p>{job.tags?.slice(0, 5).join(', ')}</p>
           </div>
         )}
       </div>
