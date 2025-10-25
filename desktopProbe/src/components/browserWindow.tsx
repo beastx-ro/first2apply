@@ -2,6 +2,8 @@ import {
   closeOverlayBrowserView,
   finishOverlayBrowserView,
   openOverlayBrowserView,
+  overlayBrowserViewCanGoBack,
+  overlayBrowserViewCanGoForward,
   overlayBrowserViewGoBack,
   overlayBrowserViewGoForward,
   overlayBrowserViewNavigate,
@@ -45,6 +47,8 @@ export const BrowserWindow = forwardRef<BrowserWindowHandle, BrowserWindowProps>
   ({ onClose, customActionButton }, ref) => {
     const [isOpen, setIsOpen] = useState(false);
     const [currentUrl, setCurrentUrl] = useState('');
+    const [canGoBack, setCanGoBack] = useState(false);
+    const [canGoForward, setCanGoForward] = useState(false);
 
     useEffect(() => {
       // Listen for URL changes from the main process
@@ -64,6 +68,34 @@ export const BrowserWindow = forwardRef<BrowserWindowHandle, BrowserWindowProps>
         if (removeListener) return removeListener();
       };
     }, []);
+
+    // periodically check if we can go back/forward
+    useEffect(() => {
+      let intervalId: NodeJS.Timeout;
+
+      const checkNavigationState = async () => {
+        try {
+          const back = await overlayBrowserViewCanGoBack();
+          const forward = await overlayBrowserViewCanGoForward();
+          setCanGoBack(back);
+          setCanGoForward(forward);
+        } catch (error) {
+          console.error('Error checking navigation state:', error);
+        }
+      };
+
+      if (isOpen) {
+        // check immediately and then start interval
+        checkNavigationState();
+        intervalId = setInterval(checkNavigationState, 300);
+      }
+
+      return () => {
+        if (intervalId) {
+          clearInterval(intervalId);
+        }
+      };
+    }, [isOpen]);
 
     useImperativeHandle(ref, () => ({
       open: async (url: string) => {
@@ -94,59 +126,69 @@ export const BrowserWindow = forwardRef<BrowserWindowHandle, BrowserWindowProps>
     };
 
     return (
-      <div className="justify-left fixed left-0 top-0 z-50 flex h-[50px] w-full items-center border-b bg-background px-4">
-        <div className="flex gap-2" id="navigation-buttons">
-          <div id="back-button" className="rounded-full">
-            <Button variant="ghost" size="icon" onClick={() => overlayBrowserViewGoBack()}>
-              <ArrowLeftIcon className="h-7 w-7 rounded-full" />
+      <div className="justify-left fixed bottom-0 left-0 right-0 top-0 z-50">
+        <div className="flex h-[50px] w-full items-center border-b bg-background px-4">
+          <div className="flex gap-2" id="navigation-buttons">
+            <div id="back-button" className="rounded-full">
+              <Button variant="ghost" size="icon" disabled={!canGoBack} onClick={() => overlayBrowserViewGoBack()}>
+                <ArrowLeftIcon className="h-7 w-7 rounded-full" />
+              </Button>
+            </div>
+            <div id="fwd-button" className="rounded-full">
+              <Button
+                variant="ghost"
+                size="icon"
+                disabled={!canGoForward}
+                onClick={() => overlayBrowserViewGoForward()}
+              >
+                <ArrowRightIcon className="h-7 w-7 rounded-full" />
+              </Button>
+            </div>
+          </div>
+
+          <div id="url-input" className="ml-2 w-full">
+            <Input
+              type="text"
+              onClick={(e) => (e.target as HTMLInputElement).select()}
+              value={currentUrl}
+              onChange={(e) => setCurrentUrl(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  overlayBrowserViewNavigate(currentUrl);
+                }
+              }}
+            />
+          </div>
+
+          {/* close btn */}
+          <div className="ml-2">
+            <Button variant="ghost" size="icon" onClick={() => handleClose()}>
+              <Cross1Icon className="h-5 w-5 rounded-full" />
             </Button>
           </div>
-          <div id="fwd-button" className="rounded-full">
-            <Button variant="ghost" size="icon" onClick={() => overlayBrowserViewGoForward()}>
-              <ArrowRightIcon className="h-7 w-7 rounded-full" />
-            </Button>
+
+          {/* custom action button */}
+          <div className="ml-2">
+            <TooltipProvider delayDuration={500}>
+              <Tooltip>
+                <TooltipTrigger className="flex gap-3">
+                  <Button variant="default" onClick={() => customActionButton.onClick()}>
+                    {customActionButton.text}
+                  </Button>
+                </TooltipTrigger>
+
+                {customActionButton.tooltip && (
+                  <TooltipContent side="left" className="text-base 2xl:hidden">
+                    {customActionButton.tooltip}
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
 
-        <div id="url-input" className="ml-2 w-full">
-          <Input
-            type="text"
-            onClick={(e) => (e.target as HTMLInputElement).select()}
-            value={currentUrl}
-            onChange={(e) => setCurrentUrl(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                overlayBrowserViewNavigate(currentUrl);
-              }
-            }}
-          />
-        </div>
-
-        {/* close btn */}
-        <div className="ml-2">
-          <Button variant="ghost" size="icon" onClick={() => handleClose()}>
-            <Cross1Icon className="h-5 w-5 rounded-full" />
-          </Button>
-        </div>
-
-        {/* custom action button */}
-        <div className="ml-2">
-          <TooltipProvider delayDuration={500}>
-            <Tooltip>
-              <TooltipTrigger className="flex gap-3">
-                <Button variant="default" onClick={() => customActionButton.onClick()}>
-                  {customActionButton.text}
-                </Button>
-              </TooltipTrigger>
-
-              {customActionButton.tooltip && (
-                <TooltipContent side="left" className="text-base 2xl:hidden">
-                  {customActionButton.tooltip}
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        {/* whitespace container */}
+        <div className="h-full w-full bg-current"></div>
       </div>
     );
   },

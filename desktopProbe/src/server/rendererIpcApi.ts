@@ -244,8 +244,14 @@ export function initRendererIpcApi({
   ipcMain.handle('close-overlay-browser-view', async () => {
     return _apiCall(async () => overlayBrowserView.close());
   });
+  ipcMain.handle('overlay-browser-can-view-go-back', async (event, { url }) => {
+    return _apiCall(async () => overlayBrowserView.canGoBack());
+  });
   ipcMain.handle('overlay-browser-view-go-back', async () => {
     return _apiCall(async () => overlayBrowserView.goBack());
+  });
+  ipcMain.handle('overlay-browser-can-view-go-forward', async (event, { url }) => {
+    return _apiCall(async () => overlayBrowserView.canGoForward());
   });
   ipcMain.handle('overlay-browser-view-go-forward', async () => {
     return _apiCall(async () => overlayBrowserView.goForward());

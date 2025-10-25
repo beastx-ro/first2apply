@@ -432,10 +432,24 @@ export async function closeOverlayBrowserView() {
 }
 
 /**
+ * Check if the overlay browser view can go back.
+ */
+export async function overlayBrowserViewCanGoBack(): Promise<boolean> {
+  return await _mainProcessApiCall<boolean>('overlay-browser-can-view-go-back', {});
+}
+
+/**
  * Navigate back in the overlay browser view.
  */
 export async function overlayBrowserViewGoBack(): Promise<void> {
   await _mainProcessApiCall('overlay-browser-view-go-back', {});
+}
+
+/**
+ * Check if the overlay browser view can go forward.
+ */
+export async function overlayBrowserViewCanGoForward(): Promise<boolean> {
+  return await _mainProcessApiCall<boolean>('overlay-browser-can-view-go-forward', {});
 }
 
 /**

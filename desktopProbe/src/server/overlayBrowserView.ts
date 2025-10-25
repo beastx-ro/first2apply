@@ -73,6 +73,13 @@ export class OverlayBrowserView {
   /**
    * Go back in the browser view history.
    */
+  canGoBack(): boolean {
+    if (!this._searchView) {
+      throw new Error('Search view is not ready');
+    }
+
+    return this._searchView.webContents.navigationHistory.canGoBack();
+  }
   goBack() {
     if (!this._searchView) {
       throw new Error('Search view is not ready');
@@ -86,6 +93,13 @@ export class OverlayBrowserView {
   /**
    * Go forward in the browser view history.
    */
+  canGoForward(): boolean {
+    if (!this._searchView) {
+      throw new Error('Search view is not ready');
+    }
+
+    return this._searchView.webContents.navigationHistory.canGoForward();
+  }
   goForward() {
     if (!this._searchView) {
       throw new Error('Search view is not ready');
