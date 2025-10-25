@@ -15,6 +15,7 @@ import { throwError } from "./errorUtils.ts";
 import { ILogger } from "./logger.ts";
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.48.1/dist/module/index.js";
 import { DbSchema, User } from "./types.ts";
+import { denoHashString } from "./deno.ts";
 
 /**
  * Method used to parse jobs from custom pages.
@@ -141,10 +142,11 @@ ${htmlContent}
     );
   }
 
-  const jobs = parseResult.jobs
-    .map(
-      (job): ParsedJob => ({
-        externalId: job.externalId,
+  const jobs = await Promise.all(
+    parseResult.jobs.map(
+      async (job): Promise<ParsedJob> => ({
+        // hash the url to create a stable externalId if not provided
+        externalId: await denoHashString(job.externalUrl),
         externalUrl: job.externalUrl,
         title: job.title,
         companyName: job.companyName,
@@ -158,8 +160,10 @@ ${htmlContent}
         labels: [],
       })
     )
+  ).then((jobs) => {
     // filter out invalid jobs
-    .filter((job) => !!job.externalId && !!job.externalUrl);
+    return jobs.filter((job) => !!job.externalId && !!job.externalUrl);
+  });
 
   return {
     jobs,
@@ -168,7 +172,6 @@ ${htmlContent}
   };
 }
 const JOB_SCHEMA = z.object({
-  externalId: z.string(),
   externalUrl: z.string(),
 
   title: z.string().min(3).max(200),
@@ -190,8 +193,7 @@ const SYSTEM_PROMPT = `You are an expert web scraper specialized in extracting j
 Your task is to analyze the provided HTML content and identify job listings, extracting relevant details for each job.
 If you cannot extract the information due to the HTML being a login page, CAPTCHA, or any other access restriction, respond with an empty result and an appropriate errorMessage.
 
-The job externalId and externalUrl should be unique for each job.
-The externalUrl ideally should point to a dedicated page, not the same listing page.
+The externalUrl ideally should point to a dedicated page, not the same listing page and should be unique per job. It's the most important field to extract.
 When composing the externalUrl or companyLogo with relative URLs, ensure to make it relative to the URL of the scraped page, not just the domain.
 Here are some common examples of externalUrls from different popular job sites:
 - talent.com: https://www.talent.com/view?id=1234567890abcdef
