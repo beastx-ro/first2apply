@@ -73,8 +73,10 @@ Deno.serve(async (req) => {
         updatedJob = {
           ...updatedJob,
           description: updates.description ?? job.description,
-          salary: updates.salary ?? job.salary,
-          tags: updates.tags ?? job.tags,
+          salary: !job.salary ? updates.salary : job.salary,
+          tags: Array.from(
+            new Set((job.tags ?? []).concat(updates.tags ?? []))
+          ),
         };
         if (!updates.description && isLastRetry) {
           logger.error(

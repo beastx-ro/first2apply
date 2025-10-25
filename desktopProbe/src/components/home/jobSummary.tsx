@@ -111,7 +111,7 @@ export function JobSummary({
             {job.salary}
           </div>
         )}
-        {job.tags && (
+        {job.tags.length > 0 && (
           <div className="flex items-center gap-3 text-muted-foreground">
             <ListBulletIcon className="h-auto w-5" />
             <p>{job.tags?.slice(0, 5).join(', ')}</p>

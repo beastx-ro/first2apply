@@ -85,7 +85,7 @@ Here are some rules for the required output:
 - The jobType field should indicate if the job is remote, hybrid, or onsite. If not specified, leave it empty.
 - The location field should specify the job's location, if available. 
     Add the full location as provided including street, city, state, country if available. If only "remote" is mentioned, leave the location empty and set jobType to "remote".
-- The salary field should specify the offered salary or salary range, if available. Always try to extract it if present.
+- The salary field should specify the offered salary or salary range, if available. Always try to extract it if present. If there are other benefits mentioned (e.g. stock options, bonuses), do not include them in the salary field, but put them as tags.
 - The tags field should include relevant tags or keywords associated with the job, if available. If you see "easy apply" on a job add it as a tag. Or if the job is sponsored.
 
 Limit the number of jobs extracted to a maximum of 20. If more jobs are present, prioritize the most recent ones.
@@ -194,6 +194,8 @@ Your task is to analyze the provided HTML content and identify job listings, ext
 If you cannot extract the information due to the HTML being a login page, CAPTCHA, or any other access restriction, respond with an empty result and an appropriate errorMessage.
 
 The externalUrl ideally should point to a dedicated page, not the same listing page and should be unique per job. It's the most important field to extract.
+If the job description mentions a another URL where to apply, use that as externalUrl.
+
 When composing the externalUrl or companyLogo with relative URLs, ensure to make it relative to the URL of the scraped page, not just the domain.
 Here are some common examples of externalUrls from different popular job sites:
 - talent.com: https://www.talent.com/view?id=1234567890abcdef
@@ -250,13 +252,6 @@ export async function parseCustomJobDescription({
     );
 
     return `Extract the job description from the HTML page below. Return the result as a JSON object matching the provided schema.
-Here are some rules for the required output:
-- The description field should contain the full job description, including responsibilities, requirements, benefits, and any other relevant information.
-- If the job description cannot be found due to the HTML being a login page, CAPTCHA, or any other access restriction, return an empty result and provide an appropriate errorMessage.
-- The tags field should include relevant tags or keywords associated with the job, if available. Limit to maximum 10 tags.
-Don't include the location, salary or job type as tags.
-Try to add seniority level as tag if available (e.g. junior, mid-level, senior, lead, principal).
-
 Here is the HTML page turned into markdown:
 """
 ${htmlContent}
@@ -306,7 +301,12 @@ ${htmlContent}
   let updates: JobDescriptionUpdates = {};
   const parsingFailed = !!parseResult.errorMessage;
   if (parsingFailed) {
-    logger.error(`OpenAI reported an error: ${parseResult.errorMessage}`);
+    const errorMessage = parseResult.errorMessage ?? "Unknown error";
+    logger.error(`OpenAI reported an error: ${errorMessage}`);
+
+    updates = {
+      description: `Failed to parse job description: ${errorMessage}`,
+    };
   } else {
     updates = {
       description: parseResult.description?.trim(),
@@ -327,6 +327,14 @@ const JOB_DESCRIPTION_SYSTEM_PROMPT = `You are an expert web scraper specialized
 Your task is to analyze the provided HTML content and extract the job description.
 The output has to be markdown formatted text, suitable for display in a web application.
 If you cannot extract the information due to the HTML being a login page, CAPTCHA, or any other access restriction, respond with an empty result and an appropriate errorMessage.
+
+Here are some rules for the required output:
+- The description field should contain the full job description, including responsibilities, requirements, benefits, and any other relevant information.
+- If the job description cannot be found due to the HTML being a login page, CAPTCHA, or any other access restriction, return an empty result and provide an appropriate errorMessage.
+- The tags field should include relevant tags or keywords associated with the job, if available. Limit to maximum 10 tags.
+- If there are other benefits mentioned in the salary (e.g. stock options, bonuses), do not include them in the salary field, but put them as tags.
+Don't include the location, salary or job type as tags.
+Try to add seniority level as tag if available (e.g. junior, mid-level, senior, lead, principal).
 `;
 const turndownService = new turndown({
   bulletListMarker: "-",
