@@ -132,3 +132,6 @@ dist
 invoice-downloader/invoices
 test.html
 .DS_Store
+
+# compiled output
+build/

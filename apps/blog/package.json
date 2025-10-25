@@ -1,10 +1,10 @@
 {
-  "name": "tailwind-nextjs-starter-blog",
+  "name": "@first2apply/blog",
   "version": "2.1.0",
   "private": true,
   "scripts": {
     "start": "next dev",
-    "dev": "next dev",
+    "dev#": "next dev",
     "build": "next build && NODE_OPTIONS='--experimental-json-modules' node ./scripts/postbuild.mjs",
     "serve": "next start",
     "analyze": "cross-env ANALYZE=true next build",
