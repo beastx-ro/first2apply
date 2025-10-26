@@ -1,4 +1,4 @@
-import { Skeleton } from '../ui/skeleton';
+import { Skeleton } from '@first2apply/ui';
 
 /**
  * Skeleton for the JobsList component.

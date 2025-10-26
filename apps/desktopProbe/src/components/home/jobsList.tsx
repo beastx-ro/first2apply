@@ -9,9 +9,9 @@ import { createRef, useEffect, useMemo, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Button } from '../ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { Avatar, AvatarFallback, AvatarImage } from '@first2apply/ui';
+import { Button } from '@first2apply/ui';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';
 import { DeleteJobDialog } from './deleteJobDialog';
 
 /**

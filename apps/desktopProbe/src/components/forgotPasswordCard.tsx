@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import * as z from 'zod';
 
 import { Icons } from './icons';
-import { Form, FormControl, FormField, FormItem, FormLabel } from './ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@first2apply/ui';
 
 // Schema definition for form validation using Zod
 const schema = z.object({

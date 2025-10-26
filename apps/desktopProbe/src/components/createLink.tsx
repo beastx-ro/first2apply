@@ -21,11 +21,11 @@ import * as z from 'zod';
 
 import { BrowserWindow, BrowserWindowHandle } from './browserWindow';
 import { Icons } from './icons';
-import { Alert, AlertDescription, AlertTitle } from './ui/alert';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel } from './ui/form';
-import { Input } from './ui/input';
+import { Alert, AlertDescription, AlertTitle } from '@first2apply/ui';
+import { Badge } from '@first2apply/ui';
+import { Button } from '@first2apply/ui';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@first2apply/ui';
+import { Input } from '@first2apply/ui';
 
 export function CreateLink() {
   const [jobBoardModalResponse, setJobBoardModalResponse] = useState<OverlayBrowserViewResult>();

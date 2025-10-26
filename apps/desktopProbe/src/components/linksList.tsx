@@ -5,9 +5,9 @@ import { useMemo, useState } from 'react';
 import ReactTimeAgo from 'react-time-ago';
 
 import { EditLink } from './editLink';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Button } from './ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { Avatar, AvatarFallback, AvatarImage } from '@first2apply/ui';
+import { Button } from '@first2apply/ui';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';
 
 const scrapeFailureThreshold = 3;
 

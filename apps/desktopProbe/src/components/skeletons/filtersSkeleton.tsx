@@ -1,4 +1,4 @@
-import { Skeleton } from '../ui/skeleton';
+import { Skeleton } from '@first2apply/ui';
 
 export function FiltersSkeleton() {
   return (

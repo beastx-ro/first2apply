@@ -4,7 +4,7 @@ import { SubscriptionTier } from '@first2apply/core';
 import { CheckCircledIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 
-import { Button } from './ui/button';
+import { Button } from '@first2apply/ui';
 
 const tabs = ['Monthly', 'Quarterly', 'Biannually', 'Yearly'];
 

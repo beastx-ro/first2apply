@@ -17,10 +17,10 @@ import Markdown from 'react-markdown';
 import TextareaAutosize from 'react-textarea-autosize';
 import remarkGfm from 'remark-gfm';
 
-import { AlertDialogFooter, AlertDialogHeader } from '../ui/alert-dialog';
-import { Button } from '../ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '../ui/card';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { AlertDialogFooter, AlertDialogHeader } from '@first2apply/ui';
+import { Button } from '@first2apply/ui';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@first2apply/ui';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';
 
 /**
  * Job notes component.

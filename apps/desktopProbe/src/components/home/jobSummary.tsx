@@ -15,11 +15,11 @@ import {
 } from '@radix-ui/react-icons';
 import React, { useMemo } from 'react';
 
-import { Avatar, AvatarImage } from '../ui/avatar';
-import { Button } from '../ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
-import { toast } from '../ui/use-toast';
+import { Avatar, AvatarImage } from '@first2apply/ui';
+import { Button } from '@first2apply/ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@first2apply/ui';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';
+import { toast } from '@first2apply/ui';
 import { DeleteJobDialog } from './deleteJobDialog';
 
 function isJobLabel(value: any): value is JobLabel {

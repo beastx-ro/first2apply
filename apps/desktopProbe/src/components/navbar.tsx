@@ -14,7 +14,7 @@ import { RefreshCw } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Link, useLocation } from 'react-router-dom';
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';
 
 export function Navbar() {
   // Hook to get the current location

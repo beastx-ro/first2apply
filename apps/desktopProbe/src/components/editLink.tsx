@@ -6,11 +6,11 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { Icons } from './icons';
-import { Button } from './ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel } from './ui/form';
-import { Input } from './ui/input';
-import { useToast } from './ui/use-toast';
+import { Button } from '@first2apply/ui';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@first2apply/ui';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@first2apply/ui';
+import { Input } from '@first2apply/ui';
+import { useToast } from '@first2apply/ui';
 
 /**
  * Component used to edit a link.
