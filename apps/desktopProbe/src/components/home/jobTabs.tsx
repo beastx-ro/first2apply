@@ -1,3 +1,6 @@
+import { useError } from '@/hooks/error';
+import { changeAllJobsStatus, exportJobsToCsv } from '@/lib/electronMainSdk';
+import { Job, JobStatus } from '@first2apply/core';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,9 +20,6 @@ import {
 } from '@first2apply/ui';
 import { Tabs, TabsList, TabsTrigger } from '@first2apply/ui';
 import { toast } from '@first2apply/ui';
-import { useError } from '@/hooks/error';
-import { changeAllJobsStatus, exportJobsToCsv } from '@/lib/electronMainSdk';
-import { Job, JobStatus } from '@first2apply/core';
 import { ArchiveIcon, DotsVerticalIcon, DownloadIcon, TrashIcon, UpdateIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
