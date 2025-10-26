@@ -58,7 +58,6 @@ const router = createMemoryRouter(
 function App() {
   // subscribe to navigation events
   useEffect(() => {
-    // @ts-ignore
     window.electron?.on('navigate', (_, { path }) => {
       // add a cache buster to the path to force a reload
       let pathWithRefresh = path;
@@ -75,7 +74,6 @@ function App() {
         <SessionProvider>
           <ThemeProvider
             attribute="class"
-            // @ts-ignore
             defaultTheme={window.electron?.theme || 'light'}
             // defaultTheme={"light"}
             disableTransitionOnChange
@@ -99,3 +97,13 @@ function App() {
 // Render the app
 const root = createRoot(document.body.querySelector('#app')!);
 root.render(<App />);
+
+declare global {
+  interface Window {
+    electron: {
+      invoke: (channel: string, params?: object) => Promise<object>;
+      on: (channel: string, callback: (event: Electron.IpcRendererEvent, ...args: unknown[]) => void) => void;
+      theme: string;
+    };
+  }
+}
