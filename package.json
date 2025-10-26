@@ -12,7 +12,8 @@
     "build": "npx nx run-many -t build",
     "test": "npx nx run-many -t test",
     "lint": "npx nx run-many -t lint",
-    "prettier": "npx nx run-many -t prettier"
+    "prettier": "npx nx run-many -t prettier",
+    "prepare": "husky"
   },
   "author": "BeastX Industries",
   "license": "MIT",
