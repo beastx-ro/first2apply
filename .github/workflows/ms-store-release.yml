@@ -3,7 +3,9 @@ name: Microsoft Store Release
 on:
   push:
     tags:
-      - 'store-v*'
+      - 'v*'
+    branches:
+      - ci/monorepo
   workflow_dispatch:
 
 jobs:
@@ -14,16 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
+          cache: 'pnpm'
           
       - name: Install dependencies
         run: |
-          cd desktopProbe
-          npm ci
+          pnpm install --frozen-lockfile
           
       - name: Build APPX
         env:
@@ -34,7 +38,7 @@ jobs:
           AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
         run: |
           cd desktopProbe
-          npm run build:win -- --skip-signing
+          pnpm build:win
           
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
@@ -48,10 +52,10 @@ jobs:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
         run: |
           # Get the version from package.json
-          $VERSION = node -p "require('./desktopProbe/package.json').version"
+          $VERSION = node -p "require('./package.json').version"
           
           # Upload APPX file
-          aws s3 cp "desktopProbe\out\make\appx\x64\BeastXIndustries.First2Apply.appx" \
+          aws s3 cp "apps\desktopProbe\out\make\appx\x64\BeastXIndustries.First2Apply.appx" \
             "s3://$env:S3_BUCKET_NAME/releases/windows/x64/first2apply-$VERSION-x64.appx"
           
       - name: Update latest symlinks
