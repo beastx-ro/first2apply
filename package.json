@@ -68,6 +68,7 @@
     "yarn-audit-fix": "^10.1.1"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.76.1",
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
     "javascript-time-ago": "^2.5.12",
