@@ -173,7 +173,7 @@ export function initRendererIpcApi({
         });
         allJobs = allJobs.concat(jobs);
         after = nextPageToken;
-      } while (!!after);
+      } while (after);
 
       // cherry-pick the fields we want to export
       const sanitizedJobs = allJobs.map((job: Job) => ({
