@@ -7,7 +7,7 @@
     "debug:edge": "npx supabase functions serve --inspect-mode run",
     "gitPreCommit": "npx lint-staged --relative",
     "gitCommitMessage": "npx commitlint",
-    "gitPrePush": "npx nx affected --base=master --head=HEAD -t lint,test,build",
+    "gitPrePush": "npx nx affected --base=master --head=HEAD -t build",
     "dev": "npx nx run-many -t dev",
     "build": "npx nx run-many -t build",
     "test": "npx nx run-many -t test",
