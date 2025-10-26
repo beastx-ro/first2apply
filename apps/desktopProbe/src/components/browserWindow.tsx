@@ -9,12 +9,11 @@ import {
   overlayBrowserViewNavigate,
 } from '@/lib/electronMainSdk';
 import { OverlayBrowserViewResult } from '@/lib/types';
-import { ArrowLeftIcon, ArrowRightIcon, Cross1Icon } from '@radix-ui/react-icons';
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
-
 import { Button } from '@first2apply/ui';
 import { Input } from '@first2apply/ui';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';
+import { ArrowLeftIcon, ArrowRightIcon, Cross1Icon } from '@radix-ui/react-icons';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 
 export type BrowserWindowProps = {
   onClose: () => void;
@@ -52,7 +51,6 @@ export const BrowserWindow = forwardRef<BrowserWindowHandle, BrowserWindowProps>
 
     useEffect(() => {
       // Listen for URL changes from the main process
-      // @ts-ignore
       const removeListener = window.electron.on('browser-view-url-changed', (_, newUrl) => {
         if (typeof newUrl === 'string') {
           setCurrentUrl(newUrl);
@@ -65,6 +63,7 @@ export const BrowserWindow = forwardRef<BrowserWindowHandle, BrowserWindowProps>
           console.error('Error closing browser view on unmount:', error);
         });
 
+        // @ts-expect-error -- cleanup ---
         if (removeListener) return removeListener();
       };
     }, []);

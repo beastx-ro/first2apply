@@ -6,8 +6,8 @@ const theme = process.argv[process.argv.length - 1];
 
 contextBridge.exposeInMainWorld('electron', {
   invoke: ipcRenderer.invoke,
-  on: (channel: string, callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => {
-    ipcRenderer.on(channel, callback);
+  on: (channel: string, callback: (event: Electron.IpcRendererEvent, ...args: unknown[]) => void) => {
+    return ipcRenderer.on(channel, callback);
   },
   theme,
 });

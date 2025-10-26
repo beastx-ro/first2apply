@@ -102,7 +102,10 @@ declare global {
   interface Window {
     electron: {
       invoke: (channel: string, params?: object) => Promise<object>;
-      on: (channel: string, callback: (event: Electron.IpcRendererEvent, ...args: unknown[]) => void) => void;
+      on: (
+        channel: string,
+        callback: (event: Electron.IpcRendererEvent, ...args: unknown[]) => void,
+      ) => Electron.IpcRenderer;
       theme: string;
     };
   }

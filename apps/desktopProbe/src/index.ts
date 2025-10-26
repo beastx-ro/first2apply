@@ -197,7 +197,7 @@ async function handleDeepLink(url: string) {
       const params = new URLSearchParams(hash);
       const allHashParams = Object.fromEntries(params.entries());
 
-      // @ts-ignore
+      // @ts-expect-error -- supabase types ---
       const { error } = await supabase.auth.setSession(allHashParams);
       if (error) throw error;
     }
