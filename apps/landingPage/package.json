@@ -6,7 +6,8 @@
     "dev#": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prettier": "npx prettier --check \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
     "@next/third-parties": "14.2.0-canary.34",
