@@ -1,3 +1,5 @@
+import { config as loadEnvVars } from 'dotenv';
+
 import { MakerAppX } from '@electron-forge/maker-appx';
 import { MakerDeb } from '@electron-forge/maker-deb';
 import { MakerDMG } from '@electron-forge/maker-dmg';
@@ -5,8 +7,6 @@ import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
 import { WebpackPlugin } from '@electron-forge/plugin-webpack';
 import type { ForgeConfig } from '@electron-forge/shared-types';
-import { config as loadEnvVars } from 'dotenv';
-import fs from 'fs';
 import path from 'path';
 
 import { mainConfig } from './webpack.main.config';
@@ -56,7 +56,7 @@ const config: ForgeConfig = {
       packageName: 'BeastXIndustries.First2Apply',
       publisher: 'CN=A2CA7EBA-28F4-4422-B08E-763EC4EEEACE',
       makeVersionWinStoreCompatible: true,
-      // @ts-ignore
+      // @ts-expect-error - Property doesn't exist on type definition but is valid
       publisherDisplayName: 'BeastX Industries',
       assets: './packagers/appx/icons',
       manifest: './packagers/appx/AppXManifest.xml',
