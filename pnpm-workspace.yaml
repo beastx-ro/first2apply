@@ -4,9 +4,11 @@ packages:
 
 onlyBuiltDependencies:
   - '@parcel/watcher'
+  - aws-sdk
   - contentlayer
   - core-js
   - electron
+  - electron-forge
   - electron-winstaller
   - esbuild
   - fs-xattr
@@ -14,5 +16,6 @@ onlyBuiltDependencies:
   - nx
   - protobufjs
   - sharp
+  - spawn-sync
   - supabase
   - unrs-resolver
