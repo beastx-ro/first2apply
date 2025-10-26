@@ -43,7 +43,7 @@ jobs:
           AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
         run: |
           cd apps/desktopProbe
-          npm run build:linux
+          pnpm build:linux
           
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
