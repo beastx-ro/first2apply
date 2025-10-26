@@ -1,7 +1,9 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.48.1";
-import { ILogger } from "./logger.ts";
-import { DbSchema, User } from "./types.ts";
-import { First2ApplyBackendEnv, parseEnv } from "./env.ts";
+import { First2ApplyBackendEnv, parseEnv } from './env.ts';
+
+import { DbSchema, User } from '@first2apply/core';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.48.1';
+
+import { ILogger } from './logger.ts';
 
 // Function overloads for type safety based on checkAuthorization
 export type EdgeFunctionAnonymousContext = {
@@ -11,10 +13,7 @@ export type EdgeFunctionAnonymousContext = {
   supabaseAdminClient: ReturnType<typeof createClient<DbSchema>>;
   env: First2ApplyBackendEnv;
 };
-export type EdgeFunctionAuthorizedContext = Omit<
-  EdgeFunctionAnonymousContext,
-  "user"
-> & {
+export type EdgeFunctionAuthorizedContext = Omit<EdgeFunctionAnonymousContext, 'user'> & {
   user: User; // non-optional when checkAuthorization is true
 };
 
@@ -53,38 +52,32 @@ export async function getEdgeFunctionContext({
 }) {
   const env = parseEnv();
   const requestId = crypto.randomUUID();
-  logger.addMeta("request_id", requestId);
+  logger.addMeta('request_id', requestId);
 
-  const supabaseAdminClient = createClient<DbSchema>(
-    env.supabaseUrl,
-    env.supabaseServiceRoleKey
-  );
+  const supabaseAdminClient = createClient<DbSchema>(env.supabaseUrl, env.supabaseServiceRoleKey);
   let supabaseClient = supabaseAdminClient;
   let user: User | null = null;
   if (checkAuthorization) {
-    const authHeader = req.headers.get("Authorization");
+    const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error("Missing Authorization header");
+      throw new Error('Missing Authorization header');
     }
 
-    supabaseClient = createClient<DbSchema>(
-      env.supabaseUrl,
-      env.supabaseServiceRoleKey,
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    supabaseClient = createClient<DbSchema>(env.supabaseUrl, env.supabaseServiceRoleKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
 
-    const { data: userData, error: getUserError } =
-      await supabaseClient.auth.getUser();
+    const { data: userData, error: getUserError } = await supabaseClient.auth.getUser();
     if (getUserError) {
       throw new Error(getUserError.message);
     }
 
     user = {
-      id: userData?.user?.id ?? "",
-      email: userData?.user?.email ?? "",
+      id: userData?.user?.id ?? '',
+      email: userData?.user?.email ?? '',
     };
-    logger.addMeta("user_id", user?.id ?? "");
-    logger.addMeta("user_email", user?.email ?? "");
+    logger.addMeta('user_id', user?.id ?? '');
+    logger.addMeta('user_email', user?.email ?? '');
   }
 
   return {

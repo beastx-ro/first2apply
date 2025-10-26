@@ -1,8 +1,9 @@
-import { MailerSend, EmailParams, Sender, Recipient } from "npm:mailersend";
+import { getExceptionMessage } from '@first2apply/core';
+import { EmailParams, MailerSend, Recipient, Sender } from 'npm:mailersend';
 
-import { EmailTemplate } from "../emails/emailTemplates.ts";
-import { ILogger } from "../logger.ts";
-import { getExceptionMessage } from "../errorUtils.ts";
+import { EmailTemplate } from '../emails/emailTemplates.ts';
+import { ILogger } from '../logger.ts';
+
 /**
  * Interface for mailer services.
  */
@@ -10,12 +11,7 @@ export interface IMailer {
   /**
    * Send an email.
    */
-  sendEmail(_: {
-    logger: ILogger;
-    from?: string;
-    to: string;
-    template: EmailTemplate;
-  }): Promise<void>;
+  sendEmail(_: { logger: ILogger; from?: string; to: string; template: EmailTemplate }): Promise<void>;
 }
 
 /**
@@ -30,7 +26,7 @@ export class MailersendMailer implements IMailer {
   constructor(
     private _apiKey: string,
     private _defaultFromAddress: string,
-    private _defaultFromName: string
+    private _defaultFromName: string,
   ) {
     this._client = new MailerSend({
       apiKey: this._apiKey,
@@ -53,11 +49,8 @@ export class MailersendMailer implements IMailer {
   }): Promise<void> {
     try {
       logger.info(`Sending ${template.type} email to ${to} ...`);
-      const sentFrom = new Sender(
-        from ?? this._defaultFromAddress,
-        this._defaultFromName
-      );
-      const recipients = [new Recipient(to, "Recipient")];
+      const sentFrom = new Sender(from ?? this._defaultFromAddress, this._defaultFromName);
+      const recipients = [new Recipient(to, 'Recipient')];
 
       const personalization = [
         {

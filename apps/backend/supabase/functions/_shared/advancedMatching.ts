@@ -1,12 +1,11 @@
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.48.1";
-import { AdvancedMatchingConfig, Job, JobStatus } from "./types.ts";
-import { DbSchema } from "./types.ts";
-import { ILogger } from "./logger.ts";
-import { zodResponseFormat } from "npm:openai@6.7.0/helpers/zod";
-import { z } from "npm:zod";
-import { buildOpenAiClient, logAiUsage } from "./openAI.ts";
-import { throwError } from "./errorUtils.ts";
-import { checkUserSubscription } from "./subscription.ts";
+import { AdvancedMatchingConfig, DbSchema, Job, JobStatus, throwError } from '@first2apply/core';
+import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.48.1';
+import { zodResponseFormat } from 'npm:openai@6.7.0/helpers/zod';
+import { z } from 'npm:zod';
+
+import { ILogger } from './logger.ts';
+import { buildOpenAiClient, logAiUsage } from './openAI.ts';
+import { checkUserSubscription } from './subscription.ts';
 
 /**
  * Apply all the advanced matching rules to the given job and
@@ -19,8 +18,8 @@ export async function applyAdvancedMatchingFilters({
   job,
 }: {
   logger: ILogger;
-  supabaseClient: SupabaseClient<DbSchema, "public">;
-  supabaseAdminClient: SupabaseClient<DbSchema, "public">;
+  supabaseClient: SupabaseClient<DbSchema, 'public'>;
+  supabaseAdminClient: SupabaseClient<DbSchema, 'public'>;
   job: Job;
 }): Promise<{ newStatus: JobStatus; excludeReason?: string }> {
   logger.info(`applying advanced matching filters to job ${job.id} ...`);
@@ -30,39 +29,36 @@ export async function applyAdvancedMatchingFilters({
     userId: job.user_id,
   });
   if (!hasAdvancedMatching) {
-    logger.info("user does not have advanced matching enabled");
-    return { newStatus: "new" };
+    logger.info('user does not have advanced matching enabled');
+    return { newStatus: 'new' };
   }
 
   // load the advanced matching config for this user
-  const { data: advancedMatchingArr, error: getAdvancedMatchingErr } =
-    await supabaseClient
-      .from("advanced_matching")
-      .select("*")
-      .eq("user_id", job.user_id);
+  const { data: advancedMatchingArr, error: getAdvancedMatchingErr } = await supabaseClient
+    .from('advanced_matching')
+    .select('*')
+    .eq('user_id', job.user_id);
   if (getAdvancedMatchingErr) {
     throw getAdvancedMatchingErr;
   }
   const advancedMatching: AdvancedMatchingConfig = advancedMatchingArr?.[0];
   if (!advancedMatching) {
     logger.info(`advanced matching config not found for user ${job.user_id}`);
-    return { newStatus: "new" };
+    return { newStatus: 'new' };
   }
 
   // exclude jobs from specific companies if it fully matches the entire company name
   if (isExcludedCompany({ companyName: job.companyName, advancedMatching })) {
     logger.info(`job excluded due to company name: ${job.companyName}`);
     return {
-      newStatus: "excluded_by_advanced_matching",
+      newStatus: 'excluded_by_advanced_matching',
       excludeReason: `${job.companyName} is blacklisted.`,
     };
   }
 
   // prompt OpenAI to determine if the job should be excluded
   if (job.description && advancedMatching.chatgpt_prompt) {
-    logger.info(
-      "prompting OpenAI to determine if the job should be excluded ..."
-    );
+    logger.info('prompting OpenAI to determine if the job should be excluded ...');
 
     const { exclusionDecision } = await promptOpenAI({
       prompt: advancedMatching.chatgpt_prompt,
@@ -74,14 +70,14 @@ export async function applyAdvancedMatchingFilters({
     if (exclusionDecision.excluded) {
       logger.info(`job excluded by OpenAI: ${exclusionDecision.reason}`);
       return {
-        newStatus: "excluded_by_advanced_matching",
+        newStatus: 'excluded_by_advanced_matching',
         excludeReason: exclusionDecision.reason ?? undefined,
       };
     }
   }
 
-  logger.info("job passed all advanced matching filters");
-  return { newStatus: "new" };
+  logger.info('job passed all advanced matching filters');
+  return { newStatus: 'new' };
 }
 
 /**
@@ -94,9 +90,7 @@ export function isExcludedCompany({
   companyName: string;
   advancedMatching: AdvancedMatchingConfig;
 }): boolean {
-  const excludedCompanies = advancedMatching.blacklisted_companies.map((c) =>
-    c.toLowerCase()
-  );
+  const excludedCompanies = advancedMatching.blacklisted_companies.map((c) => c.toLowerCase());
   const lowerCaseCompanyName = companyName.toLowerCase();
   return excludedCompanies.some((c) => lowerCaseCompanyName === c);
 }
@@ -115,21 +109,21 @@ async function promptOpenAI({
   job: Job;
   prompt: string;
   logger: ILogger;
-  supabaseAdminClient: SupabaseClient<DbSchema, "public">;
+  supabaseAdminClient: SupabaseClient<DbSchema, 'public'>;
 }) {
   const { llmConfig, openAi } = buildOpenAiClient({
-    modelName: "o3-mini",
+    modelName: 'o3-mini',
   });
 
   const response = await openAi.chat.completions.create({
     model: llmConfig.model,
     messages: [
       {
-        role: "system",
+        role: 'system',
         content: SYSTEM_PROMPT,
       },
       {
-        role: "user",
+        role: 'user',
         content: generateUserPrompt({
           prompt,
           job,
@@ -137,15 +131,15 @@ async function promptOpenAI({
       },
     ],
     max_completion_tokens: 3000,
-    response_format: zodResponseFormat(JobExclusionFormat, "JobExclusion"),
+    response_format: zodResponseFormat(JobExclusionFormat, 'JobExclusion'),
   });
 
   const choice = response.choices[0];
-  if (choice.finish_reason !== "stop") {
+  if (choice.finish_reason !== 'stop') {
     throw new Error(`OpenAI response did not finish: ${choice.finish_reason}`);
   }
   const exclusionDecision = JobExclusionFormat.parse(
-    JSON.parse(choice.message.content ?? throwError("missing content"))
+    JSON.parse(choice.message.content ?? throwError('missing content')),
   );
 
   // persist the cost of the OpenAI API call
@@ -177,8 +171,8 @@ function generateUserPrompt({ prompt, job }: { prompt: string; job: Job }) {
 ${prompt}
 
 Job Title: ${job.title}
-Location: ${job.location ?? "Not specified"}
-Tags: ${job?.tags?.join(", ") ?? "None"}
+Location: ${job.location ?? 'Not specified'}
+Tags: ${job?.tags?.join(', ') ?? 'None'}
 Job Description:
 ${job.description}
 

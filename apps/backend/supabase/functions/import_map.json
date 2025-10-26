@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "@first2apply/core": "../../../../libraries/core/src/index.deno.ts"
+  }
+}

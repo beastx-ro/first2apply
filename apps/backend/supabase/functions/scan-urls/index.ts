@@ -1,14 +1,11 @@
-import { CORS_HEADERS } from "../_shared/cors.ts";
-import { parseJobsListUrl } from "../_shared/jobListParser.ts";
-import { JobSite, Link, SiteProvider } from "../_shared/types.ts";
-import { getExceptionMessage } from "../_shared/errorUtils.ts";
-import { checkUserSubscription } from "../_shared/subscription.ts";
-import { createLoggerWithMeta } from "../_shared/logger.ts";
+import { JobSite, Link, SiteProvider } from '@first2apply/core';
+import { getExceptionMessage } from '@first2apply/core';
 
-import {
-  EdgeFunctionAuthorizedContext,
-  getEdgeFunctionContext,
-} from "../_shared/edgeFunctions.ts";
+import { CORS_HEADERS } from '../_shared/cors.ts';
+import { EdgeFunctionAuthorizedContext, getEdgeFunctionContext } from '../_shared/edgeFunctions.ts';
+import { parseJobsListUrl } from '../_shared/jobListParser.ts';
+import { createLoggerWithMeta } from '../_shared/logger.ts';
+import { checkUserSubscription } from '../_shared/subscription.ts';
 
 type HtmlParseRequest = {
   linkId: number;
@@ -18,12 +15,12 @@ type HtmlParseRequest = {
 };
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: CORS_HEADERS });
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: CORS_HEADERS });
   }
 
   const logger = createLoggerWithMeta({
-    function: "scan-urls",
+    function: 'scan-urls',
   });
   try {
     const context = await getEdgeFunctionContext({
@@ -37,16 +34,13 @@ Deno.serve(async (req) => {
     const htmls: Array<HtmlParseRequest> = body.htmls;
     if (htmls.length === 0) {
       return new Response(JSON.stringify({ newJobs: [] }), {
-        headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
       });
     }
 
     // fetch links from db
     const linkIds = htmls.map((html) => html.linkId);
-    const { data: linksData, error: linksError } = await supabaseClient
-      .from("links")
-      .select("*")
-      .in("id", linkIds);
+    const { data: linksData, error: linksError } = await supabaseClient.from('links').select('*').in('id', linkIds);
     if (linksError) throw new Error(linksError.message);
     const links = linksData as Link[];
     logger.info(`found ${links.length} links`);
@@ -59,23 +53,19 @@ Deno.serve(async (req) => {
     if (subscriptionHasExpired) {
       logger.info(`subscription has expired for user ${userId}`);
       return new Response(JSON.stringify({ newJobs: [], parseFailed: false }), {
-        headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
       });
     }
 
     // list all job sites from db
-    const { data: jobSitesData, error: jobSitesError } = await supabaseClient
-      .from("sites")
-      .select("*");
+    const { data: jobSitesData, error: jobSitesError } = await supabaseClient.from('sites').select('*');
     if (jobSitesError) throw new Error(jobSitesError.message);
     const allJobSites = jobSitesData ?? [];
 
     // parse htmls and match them with links
     const parseAndSaveJobs = async () => {
       let parseFailed = false;
-      const isLastRetry = htmls.every(
-        (html) => html.retryCount === html.maxRetries
-      );
+      const isLastRetry = htmls.every((html) => html.retryCount === html.maxRetries);
       const parsedJobs = await Promise.all(
         htmls.map(async (html) => {
           const { jobs, currentUrlParseFailed } = await parseHtmlToJobsList({
@@ -90,20 +80,19 @@ Deno.serve(async (req) => {
           }
 
           return jobs;
-        })
+        }),
       ).then((r) => r.flat());
 
       const { data: upsertedJobs, error: insertError } = await supabaseClient
-        .from("jobs")
+        .from('jobs')
         .upsert(
-          parsedJobs.map((job) => ({ ...job, status: "processing" as const })),
-          { onConflict: "user_id, externalId", ignoreDuplicates: true }
+          parsedJobs.map((job) => ({ ...job, status: 'processing' as const })),
+          { onConflict: 'user_id, externalId', ignoreDuplicates: true },
         )
-        .select("*");
+        .select('*');
       if (insertError) throw new Error(insertError.message);
 
-      const newJobs =
-        upsertedJobs?.filter((job) => job.status === "processing") ?? [];
+      const newJobs = upsertedJobs?.filter((job) => job.status === 'processing') ?? [];
       logger.info(`found ${newJobs.length} new jobs`);
 
       return { newJobs, parseFailed };
@@ -112,19 +101,16 @@ Deno.serve(async (req) => {
     const { newJobs, parseFailed } = await parseAndSaveJobs();
 
     return new Response(JSON.stringify({ newJobs, parseFailed }), {
-      headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+      headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
     });
   } catch (error) {
     logger.error(getExceptionMessage(error));
-    return new Response(
-      JSON.stringify({ errorMessage: getExceptionMessage(error, true) }),
-      {
-        headers: { "Content-Type": "application/json", ...CORS_HEADERS },
-        // until this is fixed: https://github.com/supabase/functions-js/issues/45
-        // we have to return 200 and handle the error on the client side
-        // status: 500,
-      }
-    );
+    return new Response(JSON.stringify({ errorMessage: getExceptionMessage(error, true) }), {
+      headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+      // until this is fixed: https://github.com/supabase/functions-js/issues/45
+      // we have to return 200 and handle the error on the client side
+      // status: 500,
+    });
   }
 });
 
@@ -167,9 +153,7 @@ async function parseHtmlToJobsList({
     context,
   });
 
-  logger.info(
-    `[${site.provider}] found ${jobs.length} jobs from link ${link.id}`
-  );
+  logger.info(`[${site.provider}] found ${jobs.length} jobs from link ${link.id}`);
 
   // if the parsing failed, save the html dump for debugging
   if (currentUrlParseFailed) {
@@ -213,32 +197,23 @@ async function handleParsingFailureForLink({
 
   // increment the failure count
   const { error: linkUpdateError } = await supabaseClient
-    .from("links")
+    .from('links')
     .update({ scrape_failure_count: link.scrape_failure_count + 1 })
-    .eq("id", link.id);
+    .eq('id', link.id);
   if (linkUpdateError) {
     logger.error(linkUpdateError.message);
     return;
   }
 
   const isLinkInErrorMode = link.scrape_failure_count >= 5;
-  if (
-    isLastRetry &&
-    site.provider !== SiteProvider.echojobs &&
-    !isLinkInErrorMode
-  ) {
-    logger.error(
-      `[${site.provider}] no jobs found for ${link.id}, this might indicate a problem with the parser`,
-      {
-        url: link.url,
-        site: site.provider,
-      }
-    );
+  if (isLastRetry && site.provider !== SiteProvider.echojobs && !isLinkInErrorMode) {
+    logger.error(`[${site.provider}] no jobs found for ${link.id}, this might indicate a problem with the parser`, {
+      url: link.url,
+      site: site.provider,
+    });
 
     // save the html dump for debugging
-    await supabaseClient
-      .from("html_dumps")
-      .insert([{ url: link.url, html: html.content }]);
+    await supabaseClient.from('html_dumps').insert([{ url: link.url, html: html.content }]);
   }
 }
 
@@ -254,18 +229,15 @@ async function handleParsingSuccessForLink({
   const { logger, supabaseClient } = context;
   // when the parsing went ok, reset the failure count
   await supabaseClient
-    .from("links")
+    .from('links')
     .update({
       scrape_failure_count: 0,
       last_scraped_at: new Date(),
       scrape_failure_email_sent: false,
     })
-    .eq("id", link.id);
+    .eq('id', link.id);
 
-  logger.info(
-    `[${site.provider}] successfully parsed jobs list for link ${link.id}`,
-    {
-      site: site.provider,
-    }
-  );
+  logger.info(`[${site.provider}] successfully parsed jobs list for link ${link.id}`, {
+    site: site.provider,
+  });
 }

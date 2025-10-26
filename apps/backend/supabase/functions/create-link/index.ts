@@ -1,19 +1,20 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.48.1";
-import { CORS_HEADERS } from "../_shared/cors.ts";
-import { DbSchema, Job, Link } from "../_shared/types.ts";
-import { getExceptionMessage } from "../_shared/errorUtils.ts";
-import { cleanJobUrl, parseJobsListUrl } from "../_shared/jobListParser.ts";
-import { createLoggerWithMeta } from "../_shared/logger.ts";
-import { checkUserSubscription } from "../_shared/subscription.ts";
-import { getEdgeFunctionContext } from "../_shared/edgeFunctions.ts";
+import { DbSchema, Job, Link } from '@first2apply/core';
+import { getExceptionMessage } from '@first2apply/core';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.48.1';
+
+import { CORS_HEADERS } from '../_shared/cors.ts';
+import { getEdgeFunctionContext } from '../_shared/edgeFunctions.ts';
+import { cleanJobUrl, parseJobsListUrl } from '../_shared/jobListParser.ts';
+import { createLoggerWithMeta } from '../_shared/logger.ts';
+import { checkUserSubscription } from '../_shared/subscription.ts';
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: CORS_HEADERS });
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: CORS_HEADERS });
   }
 
   const logger = createLoggerWithMeta({
-    function: "create-link",
+    function: 'create-link',
   });
   let inFlightLink: Link | null = null;
   try {
@@ -32,9 +33,7 @@ Deno.serve(async (req) => {
     logger.info(`Creating link: ${title} - ${url}`);
 
     // list all job sites from db
-    const { data, error: selectError } = await supabaseClient
-      .from("sites")
-      .select("*");
+    const { data, error: selectError } = await supabaseClient.from('sites').select('*');
     if (selectError) throw new Error(selectError.message);
     const allJobSites = data ?? [];
 
@@ -45,16 +44,16 @@ Deno.serve(async (req) => {
 
     // check how many links the user has already created
     const { data: existingLinks, error: listLinksErr } = await supabaseClient
-      .from("links")
-      .select("*")
-      .eq("user_id", user.id);
+      .from('links')
+      .select('*')
+      .eq('user_id', user.id);
     if (listLinksErr) throw new Error(listLinksErr.message);
     const userLinkCount = existingLinks?.length ?? 0;
     const HARD_MAX_LINKS_PER_USER = 50;
 
     if (userLinkCount >= HARD_MAX_LINKS_PER_USER) {
       throw new Error(
-        `You have reached the maximum number of links (${HARD_MAX_LINKS_PER_USER}) allowed per user. Please delete some links before creating new ones. If you think this is a mistake, please contact our support team.`
+        `You have reached the maximum number of links (${HARD_MAX_LINKS_PER_USER}) allowed per user. Please delete some links before creating new ones. If you think this is a mistake, please contact our support team.`,
       );
     }
 
@@ -68,35 +67,29 @@ Deno.serve(async (req) => {
     // check if the site is deprecated
     if (site.deprecated) {
       throw new Error(
-        `Site ${site.name} is deprecated and no longer supported. Please contact our support team if you need help.`
+        `Site ${site.name} is deprecated and no longer supported. Please contact our support team if you need help.`,
       );
     }
     // for now we only allow a limited number of custom parsed links per user because the feature is still in beta
     const existingCustomParsedLinks = existingLinks?.filter(
-      (link) =>
-        allJobSites.find((site) => site.id === link.site_id)?.provider ===
-        "custom"
+      (link) => allJobSites.find((site) => site.id === link.site_id)?.provider === 'custom',
     );
-    const existingCustomParsedLinksCount =
-      existingCustomParsedLinks?.length ?? 0;
+    const existingCustomParsedLinksCount = existingCustomParsedLinks?.length ?? 0;
     const CUSTOM_PARSING_MAX_LINKS_PER_USER = 5;
-    if (
-      hasCustomJobsParsing &&
-      existingCustomParsedLinksCount >= CUSTOM_PARSING_MAX_LINKS_PER_USER
-    ) {
+    if (hasCustomJobsParsing && existingCustomParsedLinksCount >= CUSTOM_PARSING_MAX_LINKS_PER_USER) {
       throw new Error(
-        `You have reached the maximum number of links (${CUSTOM_PARSING_MAX_LINKS_PER_USER}) with custom jobs parsing allowed per user. Please delete some links before creating new ones with custom parsing. If you think this is a mistake, please contact our support team.`
+        `You have reached the maximum number of links (${CUSTOM_PARSING_MAX_LINKS_PER_USER}) with custom jobs parsing allowed per user. Please delete some links before creating new ones with custom parsing. If you think this is a mistake, please contact our support team.`,
       );
     }
 
     const { data: createdLinks, error } = await supabaseClient
-      .from("links")
+      .from('links')
       .insert({
         url: cleanUrl,
         title,
         site_id: site.id,
       })
-      .select("*");
+      .select('*');
     if (error) throw error;
     logger.info(`created link for site ${site.name} (${site.id})`);
 
@@ -118,17 +111,13 @@ Deno.serve(async (req) => {
 
       if (parseFailed) {
         // save the html dump for debugging
-        const { error: htmlDumpError } = await supabaseClient
-          .from("html_dumps")
-          .insert([{ url: link.url, html }]);
+        const { error: htmlDumpError } = await supabaseClient.from('html_dumps').insert([{ url: link.url, html }]);
         if (htmlDumpError) {
-          logger.error(
-            `failed to save html dump for link ${inFlightLink.id}: ${htmlDumpError.message}`
-          );
+          logger.error(`failed to save html dump for link ${inFlightLink.id}: ${htmlDumpError.message}`);
         }
 
         throw new Error(
-          `No jobs found on the ${site.name} page you are trying to save. Make sure the page you're on is a job list, not just the description of a single job. If you think this is a mistake, please contact our support team.`
+          `No jobs found on the ${site.name} page you are trying to save. Make sure the page you're on is a job list, not just the description of a single job. If you think this is a mistake, please contact our support team.`,
         );
       }
 
@@ -140,24 +129,23 @@ Deno.serve(async (req) => {
       });
 
       const { data: upsertedJobs, error: insertError } = await supabaseClient
-        .from("jobs")
+        .from('jobs')
         .upsert(
-          jobs.map((job) => ({ ...job, status: "processing" as const })),
-          { onConflict: "user_id, externalId", ignoreDuplicates: true }
+          jobs.map((job) => ({ ...job, status: 'processing' as const })),
+          { onConflict: 'user_id, externalId', ignoreDuplicates: true },
         )
-        .select("*");
+        .select('*');
       if (insertError) throw new Error(insertError.message);
 
       logger.info(`upserted ${upsertedJobs?.length} jobs for link ${link.id}`);
-      newJobs =
-        upsertedJobs?.filter((job) => job.status === "processing") ?? [];
+      newJobs = upsertedJobs?.filter((job) => job.status === 'processing') ?? [];
       logger.info(`found ${newJobs.length} new jobs`);
     }
 
     logger.info(`successfully created link: ${link.id}`);
 
     return new Response(JSON.stringify({ link, newJobs }), {
-      headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+      headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
     });
   } catch (error) {
     logger.error(getExceptionMessage(error));
@@ -166,28 +154,20 @@ Deno.serve(async (req) => {
     // this will also cascade and delete all jobs associated with the link
     if (inFlightLink) {
       const supabaseClient = createClient<DbSchema>(
-        Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       );
-      const { error: deleteError } = await supabaseClient
-        .from("links")
-        .delete()
-        .eq("id", inFlightLink.id);
+      const { error: deleteError } = await supabaseClient.from('links').delete().eq('id', inFlightLink.id);
       if (deleteError) {
-        logger.error(
-          `failed to delete link ${inFlightLink.id}: ${deleteError.message}`
-        );
+        logger.error(`failed to delete link ${inFlightLink.id}: ${deleteError.message}`);
       }
     }
 
-    return new Response(
-      JSON.stringify({ errorMessage: getExceptionMessage(error, true) }),
-      {
-        headers: { "Content-Type": "application/json", ...CORS_HEADERS },
-        // until this is fixed: https://github.com/supabase/functions-js/issues/45
-        // we have to return 200 and handle the error on the client side
-        // status: 400,
-      }
-    );
+    return new Response(JSON.stringify({ errorMessage: getExceptionMessage(error, true) }), {
+      headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+      // until this is fixed: https://github.com/supabase/functions-js/issues/45
+      // we have to return 200 and handle the error on the client side
+      // status: 400,
+    });
   }
 });

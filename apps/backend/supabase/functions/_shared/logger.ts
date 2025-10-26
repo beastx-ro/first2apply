@@ -1,5 +1,5 @@
-import { Logger as MezmoLogger, createLogger } from "npm:@logdna/logger";
-import { throwError } from "./errorUtils.ts";
+import { throwError } from '@first2apply/core';
+import { Logger as MezmoLogger, createLogger } from 'npm:@logdna/logger';
 
 export interface ILogger {
   debug(message: string, data?: Record<string, any>): void;
@@ -49,17 +49,14 @@ class Logger implements ILogger {
 }
 
 export const createLoggerWithMeta = (meta: Record<string, string>) => {
-  const mezmoLogger = createLogger(
-    Deno.env.get("MEZMO_API_KEY") ?? throwError(""),
-    {
-      level: "info",
-      app: "first2apply",
-      env: "all",
-      hostname: "edge-functions",
-      meta,
-      indexMeta: true,
-    }
-  );
+  const mezmoLogger = createLogger(Deno.env.get('MEZMO_API_KEY') ?? throwError(''), {
+    level: 'info',
+    app: 'first2apply',
+    env: 'all',
+    hostname: 'edge-functions',
+    meta,
+    indexMeta: true,
+  });
 
   return new Logger(mezmoLogger);
 };

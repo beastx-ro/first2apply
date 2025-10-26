@@ -124,6 +124,12 @@ importers:
         specifier: ^10.1.1
         version: 10.1.1
 
+  apps/backend:
+    dependencies:
+      '@first2apply/core':
+        specifier: workspace:*
+        version: link:../../libraries/core
+
   apps/blog:
     dependencies:
       '@next/bundle-analyzer':

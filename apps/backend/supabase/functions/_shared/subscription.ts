@@ -1,5 +1,5 @@
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.48.1";
-import { DbSchema, Profile } from "./types.ts";
+import { DbSchema, Profile } from '@first2apply/core';
+import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.48.1';
 
 /**
  * Retrieve the user profile and check if his subscription allows advanced matching.
@@ -8,7 +8,7 @@ export async function checkUserSubscription({
   supabaseAdminClient,
   userId,
 }: {
-  supabaseAdminClient: SupabaseClient<DbSchema, "public">;
+  supabaseAdminClient: SupabaseClient<DbSchema, 'public'>;
   userId: string;
 }): Promise<{
   profile: Profile;
@@ -17,9 +17,9 @@ export async function checkUserSubscription({
   hasCustomJobsParsing: boolean;
 }> {
   const { data: profile, error } = await supabaseAdminClient
-    .from("profiles")
-    .select("*")
-    .eq("user_id", userId)
+    .from('profiles')
+    .select('*')
+    .eq('user_id', userId)
     .single();
 
   if (error) {
@@ -27,13 +27,12 @@ export async function checkUserSubscription({
   }
 
   if (!profile) {
-    throw new Error("Profile not found");
+    throw new Error('Profile not found');
   }
 
   // check if the user's subscription has expired
-  const subscriptionHasExpired =
-    new Date(profile.subscription_end_date) < new Date();
-  const hasProTier = profile.subscription_tier === "pro";
+  const subscriptionHasExpired = new Date(profile.subscription_end_date) < new Date();
+  const hasProTier = profile.subscription_tier === 'pro';
 
   return {
     profile,

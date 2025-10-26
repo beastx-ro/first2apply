@@ -1,0 +1,17 @@
+{
+  "name": "@first2apply/backend",
+  "version": "0.0.0",
+  "description": "",
+  "scripts": {
+    "stop": "npx supabase stop",
+    "start": "npx supabase start",
+    "dev": "npx supabase functions serve",
+    "prettier": "npx prettier --check \"src/**/*.ts\""
+  },
+  "author": "BeastX Industries",
+  "license": "MIT",
+  "dependencies": {
+    "@first2apply/core": "workspace:*"
+  },
+  "devDependencies": {}
+}

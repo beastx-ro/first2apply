@@ -1,21 +1,16 @@
-import {
-  DOMParser,
-  Element,
-} from "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts";
+import { throwError } from '@first2apply/core';
+import { DbSchema, User } from '@first2apply/core';
+import { DOMParser, Element } from 'https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts';
+import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.48.1/dist/module/index.js';
+import { zodResponseFormat } from 'npm:openai@6.7.0/helpers/zod';
+import turndown from 'npm:turndown@7.1.2';
+import { z } from 'npm:zod';
 
-import { z } from "npm:zod";
-import turndown from "npm:turndown@7.1.2";
-
-import { JobSiteParseResult, ParsedJob } from "./jobListParser.ts";
-import { JobDescriptionUpdates } from "./jobDescriptionParser.ts";
-import { buildOpenAiClient, logAiUsage } from "./openAI.ts";
-import { zodResponseFormat } from "npm:openai@6.7.0/helpers/zod";
-
-import { throwError } from "./errorUtils.ts";
-import { ILogger } from "./logger.ts";
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.48.1/dist/module/index.js";
-import { DbSchema, User } from "./types.ts";
-import { denoHashString } from "./deno.ts";
+import { denoHashString } from './deno.ts';
+import { JobDescriptionUpdates } from './jobDescriptionParser.ts';
+import { JobSiteParseResult, ParsedJob } from './jobListParser.ts';
+import { ILogger } from './logger.ts';
+import { buildOpenAiClient, logAiUsage } from './openAI.ts';
 
 /**
  * Method used to parse jobs from custom pages.
@@ -35,41 +30,31 @@ export async function parseCustomJobs({
 
   // dependencies
   logger: ILogger;
-  supabaseAdminClient: SupabaseClient<DbSchema, "public">;
+  supabaseAdminClient: SupabaseClient<DbSchema, 'public'>;
 }): Promise<JobSiteParseResult> {
   const { logger } = context;
 
   const { openAi, llmConfig } = buildOpenAiClient({
-    modelName: "o3-mini",
+    modelName: 'o3-mini',
     ...context,
   });
 
   // helper methods
   const generateUserPrompt = () => {
-    const document = new DOMParser().parseFromString(html, "text/html");
-    if (!document || !document.documentElement)
-      throw new Error("Could not parse html");
+    const document = new DOMParser().parseFromString(html, 'text/html');
+    if (!document || !document.documentElement) throw new Error('Could not parse html');
 
     // save some info before stripping
     const headerInfo = extractHeaderInfo(document.documentElement);
     logger.info(
-      `page title: ${headerInfo.title}, description: ${headerInfo.metaDescription}, favicon: ${headerInfo.faviconUrl}`
+      `page title: ${headerInfo.title}, description: ${headerInfo.metaDescription}, favicon: ${headerInfo.faviconUrl}`,
     );
 
     // strip away nodes that are not relevant to the LLM
-    const nodesToRemove = [
-      "head",
-      "script",
-      "style",
-      "nav",
-      "header",
-      "footer",
-      "aside",
-      "iframe",
-    ];
+    const nodesToRemove = ['head', 'script', 'style', 'nav', 'header', 'footer', 'aside', 'iframe'];
     stripNodes(document.documentElement, nodesToRemove);
     stripAttributes(document.documentElement, /^(class|style|aria-.*|role)$/);
-    const htmlContent = document.documentElement?.outerHTML ?? "";
+    const htmlContent = document.documentElement?.outerHTML ?? '';
 
     return `Extract the jobs listing from the HTML page below. Return the result as a JSON object matching the provided schema. If no jobs are found, return an empty array for the jobs field.
 Here are some rules for the required output:
@@ -104,29 +89,24 @@ ${htmlContent}
     model: llmConfig.model,
     messages: [
       {
-        role: "system",
+        role: 'system',
         content: SYSTEM_PROMPT,
       },
       {
-        role: "user",
+        role: 'user',
         content: generateUserPrompt(),
       },
     ],
     max_completion_tokens: 50_000,
-    response_format: zodResponseFormat(
-      PARSE_JOBS_PAGE_SCHEMA,
-      "ParseJobsPageResponse"
-    ),
+    response_format: zodResponseFormat(PARSE_JOBS_PAGE_SCHEMA, 'ParseJobsPageResponse'),
   });
 
   const choice = response.choices[0];
-  if (choice.finish_reason !== "stop") {
+  if (choice.finish_reason !== 'stop') {
     throw new Error(`OpenAI response did not finish: ${choice.finish_reason}`);
   }
 
-  const parseResult = PARSE_JOBS_PAGE_SCHEMA.parse(
-    JSON.parse(choice.message.content ?? throwError("missing content"))
-  );
+  const parseResult = PARSE_JOBS_PAGE_SCHEMA.parse(JSON.parse(choice.message.content ?? throwError('missing content')));
 
   await logAiUsage({
     forUserId: user.id,
@@ -137,9 +117,7 @@ ${htmlContent}
 
   const listFound = !parseResult.errorMessage && parseResult.jobs.length > 0;
   if (!listFound) {
-    logger.error(
-      `Site ${siteId} - OpenAI reported an error: ${parseResult.errorMessage}`
-    );
+    logger.error(`Site ${siteId} - OpenAI reported an error: ${parseResult.errorMessage}`);
   }
 
   const jobs = await Promise.all(
@@ -158,8 +136,8 @@ ${htmlContent}
         // associate with the site
         siteId,
         labels: [],
-      })
-    )
+      }),
+    ),
   ).then((jobs) => {
     // filter out invalid jobs
     return jobs.filter((job) => !!job.externalId && !!job.externalUrl);
@@ -178,7 +156,7 @@ const JOB_SCHEMA = z.object({
   companyName: z.string().min(2).max(100),
   companyLogo: z.string().optional().nullable(),
 
-  jobType: z.enum(["remote", "hybrid", "onsite"]).optional().nullable(),
+  jobType: z.enum(['remote', 'hybrid', 'onsite']).optional().nullable(),
   location: z.string().max(100).optional().nullable(),
   salary: z.string().max(100).optional().nullable(),
   tags: z.array(z.string().max(50)).optional().nullable(),
@@ -220,36 +198,23 @@ export async function parseCustomJobDescription({
 
   // dependencies
   logger: ILogger;
-  supabaseAdminClient: SupabaseClient<DbSchema, "public">;
+  supabaseAdminClient: SupabaseClient<DbSchema, 'public'>;
 }): Promise<JobDescriptionUpdates> {
   const { logger } = context;
 
-  const document = new DOMParser().parseFromString(html, "text/html");
-  if (!document) throw new Error("Could not parse html");
+  const document = new DOMParser().parseFromString(html, 'text/html');
+  if (!document) throw new Error('Could not parse html');
 
   // helper methods
   const generateUserPrompt = () => {
-    const document = new DOMParser().parseFromString(html, "text/html");
-    if (!document || !document.documentElement)
-      throw new Error("Could not parse html");
+    const document = new DOMParser().parseFromString(html, 'text/html');
+    if (!document || !document.documentElement) throw new Error('Could not parse html');
 
     // strip away nodes that are not relevant to the LLM
-    const nodesToRemove = [
-      "head",
-      "script",
-      "style",
-      "nav",
-      "header",
-      "footer",
-      "aside",
-      "img",
-      "form",
-    ];
+    const nodesToRemove = ['head', 'script', 'style', 'nav', 'header', 'footer', 'aside', 'img', 'form'];
     stripNodes(document.documentElement, nodesToRemove);
     stripAttributes(document.documentElement, /^(class|style|aria-.*|role)$/);
-    const htmlContent = turndownService.turndown(
-      document.documentElement?.outerHTML ?? ""
-    );
+    const htmlContent = turndownService.turndown(document.documentElement?.outerHTML ?? '');
 
     return `Extract the job description from the HTML page below. Return the result as a JSON object matching the provided schema.
 Here is the HTML page turned into markdown:
@@ -259,7 +224,7 @@ ${htmlContent}
   };
 
   const { openAi, llmConfig } = buildOpenAiClient({
-    modelName: "gpt-4o-mini",
+    modelName: 'gpt-4o-mini',
     ...context,
   });
 
@@ -267,28 +232,25 @@ ${htmlContent}
     model: llmConfig.model,
     messages: [
       {
-        role: "system",
+        role: 'system',
         content: JOB_DESCRIPTION_SYSTEM_PROMPT,
       },
       {
-        role: "user",
+        role: 'user',
         content: generateUserPrompt(),
       },
     ],
     max_completion_tokens: 10_000,
-    response_format: zodResponseFormat(
-      PARSE_JOB_DESCRIPTION_SCHEMA,
-      "ParseJobDescriptionResponse"
-    ),
+    response_format: zodResponseFormat(PARSE_JOB_DESCRIPTION_SCHEMA, 'ParseJobDescriptionResponse'),
   });
 
   const choice = response.choices[0];
-  if (choice.finish_reason !== "stop") {
+  if (choice.finish_reason !== 'stop') {
     throw new Error(`OpenAI response did not finish: ${choice.finish_reason}`);
   }
 
   const parseResult = PARSE_JOB_DESCRIPTION_SCHEMA.parse(
-    JSON.parse(choice.message.content ?? throwError("missing content"))
+    JSON.parse(choice.message.content ?? throwError('missing content')),
   );
 
   await logAiUsage({
@@ -301,7 +263,7 @@ ${htmlContent}
   let updates: JobDescriptionUpdates = {};
   const parsingFailed = !!parseResult.errorMessage;
   if (parsingFailed) {
-    const errorMessage = parseResult.errorMessage ?? "Unknown error";
+    const errorMessage = parseResult.errorMessage ?? 'Unknown error';
 
     updates = {
       description: `Failed to parse job description: ${errorMessage}`,
@@ -336,8 +298,8 @@ Don't include the location, salary or job type as tags.
 Try to add seniority level as tag if available (e.g. junior, mid-level, senior, lead, principal).
 `;
 const turndownService = new turndown({
-  bulletListMarker: "-",
-  codeBlockStyle: "fenced",
+  bulletListMarker: '-',
+  codeBlockStyle: 'fenced',
 });
 
 function stripNodes(root: Element, selectors: string[]) {
@@ -347,7 +309,7 @@ function stripNodes(root: Element, selectors: string[]) {
   });
 }
 function stripAttributes(root: Element, dropAttrs: RegExp) {
-  const walker = root.querySelectorAll("*");
+  const walker = root.querySelectorAll('*');
   const elements = Array.from(walker) as Element[];
   elements.forEach((el: Element) => {
     [...el.attributes].forEach((attr) => {
@@ -357,28 +319,23 @@ function stripAttributes(root: Element, dropAttrs: RegExp) {
 }
 
 function extractHeaderInfo(document: Element) {
-  const title = document.querySelector("title")?.textContent ?? "";
-  const metaDescription =
-    document
-      .querySelector("meta[name='description']")
-      ?.getAttribute("content") ?? "";
+  const title = document.querySelector('title')?.textContent ?? '';
+  const metaDescription = document.querySelector("meta[name='description']")?.getAttribute('content') ?? '';
 
   // try to grab the favicon with the highest resolution
   const favicons = Array.from(
-    document.querySelectorAll(
-      "link[rel~='icon'], link[rel~='shortcut icon']"
-    ) as unknown as Element[]
+    document.querySelectorAll("link[rel~='icon'], link[rel~='shortcut icon']") as unknown as Element[],
   )
     .map((el) => ({
-      href: el.getAttribute("href") ?? "",
-      sizes: el.getAttribute("sizes") ?? "",
+      href: el.getAttribute('href') ?? '',
+      sizes: el.getAttribute('sizes') ?? '',
     }))
     .filter((el) => el.href);
   let faviconUrl;
   if (favicons.length > 0) {
     favicons.sort((a, b) => {
-      const sizeA = parseInt(a.sizes.split("x")[0]) || 0;
-      const sizeB = parseInt(b.sizes.split("x")[0]) || 0;
+      const sizeA = parseInt(a.sizes.split('x')[0]) || 0;
+      const sizeB = parseInt(b.sizes.split('x')[0]) || 0;
       return sizeB - sizeA;
     });
     faviconUrl = favicons[0].href;
