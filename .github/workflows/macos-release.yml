@@ -41,8 +41,7 @@ jobs:
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          cd apps/desktopProbe
-          pnpm build:mac
+          npx nx run @first2apply@desktop-probe:build:mac
           
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
