@@ -42,7 +42,7 @@ jobs:
           MEZMO_API_KEY: ${{ secrets.MEZMO_API_KEY }}
           AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
         run: |
-          npx nx run @first2apply/desktop-probe:build:mac
+          npx nx run @first2apply/desktop-probe:build:linux
           
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
