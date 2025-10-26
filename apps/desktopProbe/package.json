@@ -63,6 +63,7 @@
   "dependencies": {
     "@amplitude/analytics-node": "^1.3.5",
     "@first2apply/core": "workspace:*",
+    "@first2apply/ui": "workspace:*",
     "@hookform/resolvers": "^3.3.4",
     "@logdna/logger": "^2.6.8",
     "@radix-ui/react-accordion": "^1.1.2",
