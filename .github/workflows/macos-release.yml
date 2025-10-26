@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - ci/monorepo
   workflow_dispatch:
 
 jobs:
