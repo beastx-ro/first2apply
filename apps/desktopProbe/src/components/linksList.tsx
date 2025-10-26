@@ -1,9 +1,9 @@
 import { useSites } from '@/hooks/sites';
+import { Link } from '@first2apply/core';
 import { CopyIcon, Pencil1Icon, QuestionMarkCircledIcon, TrashIcon } from '@radix-ui/react-icons';
 import { useMemo, useState } from 'react';
 import ReactTimeAgo from 'react-time-ago';
 
-import { Link } from '../../../../supabase/functions/_shared/types';
 import { EditLink } from './editLink';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';

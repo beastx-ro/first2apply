@@ -3,12 +3,12 @@ import { useLinks } from '@/hooks/links';
 import { useSites } from '@/hooks/sites';
 import { LABEL_COLOR_CLASSES } from '@/lib/labels';
 import { cn } from '@/lib/utils';
+import { Job } from '@first2apply/core';
 import { ArchiveIcon, TrashIcon } from '@radix-ui/react-icons';
 import { createRef, useEffect, useMemo, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { Job } from '../../../../../supabase/functions/_shared/types';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';

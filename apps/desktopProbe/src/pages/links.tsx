@@ -7,7 +7,7 @@ import { useAppState } from '@/hooks/appState';
 import { useError } from '@/hooks/error';
 import { useLinks } from '@/hooks/links';
 import { scanLink } from '@/lib/electronMainSdk';
-import { throwError } from '@/lib/error';
+import { throwError } from '@first2apply/core';
 import { useEffect, useRef, useState } from 'react';
 
 import { DefaultLayout } from './defaultLayout';

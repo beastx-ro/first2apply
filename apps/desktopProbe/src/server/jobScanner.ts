@@ -1,11 +1,11 @@
 import { IAnalyticsClient } from '@/lib/analytics';
+import { getExceptionMessage, throwError } from '@first2apply/core';
+import { Job, Link } from '@first2apply/core';
 import { BrowserWindow, Notification, app, powerSaveBlocker } from 'electron';
 import fs from 'fs';
 import { ScheduledTask, schedule } from 'node-cron';
 import path from 'path';
 
-import { Job, Link } from '../../../../supabase/functions/_shared/types';
-import { getExceptionMessage, throwError } from '../lib/error';
 import { AVAILABLE_CRON_RULES, JobScannerSettings } from '../lib/types';
 import { chunk, promiseAllSequence, waitRandomBetween } from './helpers';
 import { HtmlDownloader } from './htmlDownloader';

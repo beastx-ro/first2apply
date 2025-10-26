@@ -1,4 +1,4 @@
-import { StripeConfig } from '../../../../supabase/functions/_shared/types';
+import { StripeConfig } from '@first2apply/core';
 
 const devConfig: StripeConfig = {
   customerPortalLink: 'https://billing.stripe.com/p/login/test_3csbLi9tW6AH48wfYY',

@@ -1,12 +1,12 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup } from '@/components/ui/radio-group';
+import { Review } from '@first2apply/core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Item } from '@radix-ui/react-radio-group';
 import { useEffect, useState } from 'react';
 import { set, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import { Review } from '../../../../supabase/functions/_shared/types';
 import { Icons } from '../components/icons';
 import { Button } from '../components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '../components/ui/form';

@@ -1,15 +1,7 @@
+import { AdvancedMatchingConfig, DbSchema, Job, JobLabel, JobStatus, Link } from '@first2apply/core';
 import { FunctionsHttpError, PostgrestError, SupabaseClient, User } from '@supabase/supabase-js';
 import { backOff } from 'exponential-backoff';
 import * as luxon from 'luxon';
-
-import {
-  AdvancedMatchingConfig,
-  DbSchema,
-  Job,
-  JobLabel,
-  JobStatus,
-  Link,
-} from '../../../../supabase/functions/_shared/types';
 
 /**
  * Class used to interact with our Supabase API.

@@ -1,7 +1,7 @@
 import { listSites } from '@/lib/electronMainSdk';
+import { JobSite } from '@first2apply/core';
 import { createContext, useContext, useEffect, useState } from 'react';
 
-import { JobSite } from '../../../../supabase/functions/_shared/types';
 import { useError } from './error';
 import { useSession } from './session';
 

@@ -1,9 +1,9 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { SubscriptionTier } from '@first2apply/core';
 import { CheckCircledIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 
-import { SubscriptionTier } from '../../../../supabase/functions/_shared/types';
 import { Button } from './ui/button';
 
 const tabs = ['Monthly', 'Quarterly', 'Biannually', 'Yearly'];

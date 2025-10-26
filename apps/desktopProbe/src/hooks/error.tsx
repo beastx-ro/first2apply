@@ -1,5 +1,5 @@
 import { useToast } from '@/components/ui/use-toast';
-import { getExceptionMessage } from '@/lib/error';
+import { getExceptionMessage } from '@first2apply/core';
 import { useState } from 'react';
 
 /**

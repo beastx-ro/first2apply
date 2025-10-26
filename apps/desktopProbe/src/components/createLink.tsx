@@ -12,13 +12,13 @@ import { useError } from '@/hooks/error';
 import { useLinks } from '@/hooks/links';
 import { useSites } from '@/hooks/sites';
 import { OverlayBrowserViewResult } from '@/lib/types';
+import { JobSite, Link } from '@first2apply/core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { InfoCircledIcon } from '@radix-ui/react-icons/dist';
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import { JobSite, Link } from '../../../../supabase/functions/_shared/types';
 import { BrowserWindow, BrowserWindowHandle } from './browserWindow';
 import { Icons } from './icons';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';

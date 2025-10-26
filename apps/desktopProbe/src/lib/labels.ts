@@ -1,4 +1,4 @@
-import { JOB_LABELS, JobLabel } from '../../../../supabase/functions/_shared/types';
+import { JOB_LABELS, JobLabel } from '@first2apply/core';
 
 export const LABEL_COLOR_CLASSES: Record<JobLabel, string> = {
   [JOB_LABELS.CONSIDERING]: 'bg-violet-500',

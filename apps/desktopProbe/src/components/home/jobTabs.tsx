@@ -19,11 +19,11 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/components/ui/use-toast';
 import { useError } from '@/hooks/error';
 import { changeAllJobsStatus, exportJobsToCsv } from '@/lib/electronMainSdk';
+import { Job, JobStatus } from '@first2apply/core';
 import { ArchiveIcon, DotsVerticalIcon, DownloadIcon, TrashIcon, UpdateIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { Job, JobStatus } from '../../../../../supabase/functions/_shared/types';
 import { JobTabsContent } from './jobTabsContent';
 
 export type JobListing = {

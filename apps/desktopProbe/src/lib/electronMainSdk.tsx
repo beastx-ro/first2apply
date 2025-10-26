@@ -1,5 +1,3 @@
-import { User } from '@supabase/supabase-js';
-
 import {
   AdvancedMatchingConfig,
   Job,
@@ -11,7 +9,9 @@ import {
   Profile,
   Review,
   StripeConfig,
-} from '../../../../supabase/functions/_shared/types';
+} from '@first2apply/core';
+import { User } from '@supabase/supabase-js';
+
 import { JobScannerSettings, NewAppVersion, OverlayBrowserViewResult } from './types';
 
 async function _mainProcessApiCall<T>(channel: string, params?: object): Promise<T> {

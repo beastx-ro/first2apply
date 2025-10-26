@@ -1,8 +1,8 @@
 import { getProfile, getStripeConfig, getUser } from '@/lib/electronMainSdk';
+import { Profile, StripeConfig } from '@first2apply/core';
 import { User } from '@supabase/supabase-js';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-import { Profile, StripeConfig } from '../../../../supabase/functions/_shared/types';
 import { useError } from './error';
 
 // Create a context for the session manager

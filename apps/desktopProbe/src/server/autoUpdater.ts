@@ -1,10 +1,10 @@
 import { IAnalyticsClient } from '@/lib/analytics';
 import { NewAppVersion } from '@/lib/types';
+import { getExceptionMessage } from '@first2apply/core';
 import { Notification, app, autoUpdater, shell } from 'electron';
 import { ScheduledTask, schedule } from 'node-cron';
 import * as semver from 'semver';
 
-import { getExceptionMessage } from '../lib/error';
 import { ILogger } from './logger';
 
 const S3_BUCKET = 'https://s3.eu-central-1.amazonaws.com/first2apply.com/releases';

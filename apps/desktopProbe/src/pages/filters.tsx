@@ -16,11 +16,11 @@ import { useToast } from '@/components/ui/use-toast';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
 import { getAdvancedMatchingConfig, openExternalUrl, updateAdvancedMatchingConfig } from '@/lib/electronMainSdk';
+import { StripeBillingPlan, SubscriptionTier } from '@first2apply/core';
 import { Cross2Icon, InfoCircledIcon, MinusCircledIcon } from '@radix-ui/react-icons';
 import { useEffect, useState } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 
-import { StripeBillingPlan, SubscriptionTier } from '../../../../supabase/functions/_shared/types';
 import { DefaultLayout } from './defaultLayout';
 
 export function FiltersPage() {

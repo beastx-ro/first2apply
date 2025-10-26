@@ -1,6 +1,7 @@
 import { useLinks } from '@/hooks/links';
 import { useSites } from '@/hooks/sites';
 import { LABEL_COLOR_CLASSES } from '@/lib/labels';
+import { JOB_LABELS, Job, JobLabel, JobStatus } from '@first2apply/core';
 import {
   ArchiveIcon,
   BackpackIcon,
@@ -14,7 +15,6 @@ import {
 } from '@radix-ui/react-icons';
 import React, { useMemo } from 'react';
 
-import { JOB_LABELS, Job, JobLabel, JobStatus } from '../../../../../supabase/functions/_shared/types';
 import { Avatar, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';

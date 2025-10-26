@@ -1,6 +1,6 @@
+import { Job } from '@first2apply/core';
 import React from 'react';
 
-import { Job } from '../../../../../supabase/functions/_shared/types';
 import {
   AlertDialog,
   AlertDialogAction,

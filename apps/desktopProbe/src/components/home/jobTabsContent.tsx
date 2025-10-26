@@ -4,11 +4,11 @@ import { useAppState } from '@/hooks/appState';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
 import { getJobById, listJobs, scanJob, updateJobLabels, updateJobStatus } from '@/lib/electronMainSdk';
+import { Job, JobLabel, JobStatus } from '@first2apply/core';
 import { useEffect, useRef, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-import { Job, JobLabel, JobStatus } from '../../../../../supabase/functions/_shared/types';
 import { BrowserWindow, BrowserWindowHandle } from '../browserWindow';
 import { JobDetails } from './jobDetails';
 import { JobFilters } from './jobFilters';

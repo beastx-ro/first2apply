@@ -1,10 +1,10 @@
 import { useError } from '@/hooks/error';
+import { Link } from '@first2apply/core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import { Link } from '../../../../supabase/functions/_shared/types';
 import { Icons } from './icons';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';

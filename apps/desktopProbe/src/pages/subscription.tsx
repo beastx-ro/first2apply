@@ -3,11 +3,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
 import { openExternalUrl } from '@/lib/electronMainSdk';
+import { StripeBillingPlan, SubscriptionTier } from '@first2apply/core';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import urljoin from 'url-join';
-
-import { StripeBillingPlan, SubscriptionTier } from '../../../../supabase/functions/_shared/types';
 
 export function SubscriptionPage() {
   const { handleError } = useError();

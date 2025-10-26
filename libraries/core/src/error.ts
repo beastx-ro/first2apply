@@ -3,9 +3,9 @@
  */
 export function getExceptionMessage(error: unknown, noStackTrace = false) {
   if (error instanceof Error) {
-    return noStackTrace ? error.message : error.stack ?? error.message;
+    return noStackTrace ? error.message : (error.stack ?? error.message);
   } else if (typeof error === 'object') {
-    if ('message' in error && 'details' in error && 'hint' in error && 'code' in error) {
+    if (error && 'message' in error && 'details' in error && 'hint' in error && 'code' in error) {
       // @ts-ignore
       return `${error.message} - ${error.details}`;
     }

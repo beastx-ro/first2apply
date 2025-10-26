@@ -1,7 +1,7 @@
 import { createLink, deleteLink, listLinks, updateLink } from '@/lib/electronMainSdk';
+import { Link } from '@first2apply/core';
 import { createContext, useContext, useEffect, useState } from 'react';
 
-import { Link } from '../../../../supabase/functions/_shared/types';
 import { useError } from './error';
 import { useSession } from './session';
 

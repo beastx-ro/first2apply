@@ -1,8 +1,8 @@
 import { useSites } from '@/hooks/sites';
+import { Job } from '@first2apply/core';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-import { Job } from '../../../../../supabase/functions/_shared/types';
 import { Skeleton } from '../ui/skeleton';
 
 /**

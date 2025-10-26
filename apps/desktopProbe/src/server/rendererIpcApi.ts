@@ -1,10 +1,10 @@
+import { getExceptionMessage } from '@first2apply/core';
+import { Job } from '@first2apply/core';
 import { dialog, ipcMain, shell } from 'electron';
 import fs from 'fs';
 import { json2csv } from 'json-2-csv';
 import os from 'os';
 
-import { Job } from '../../../../supabase/functions/_shared/types';
-import { getExceptionMessage } from '../lib/error';
 import { F2aAutoUpdater } from './autoUpdater';
 import { JobScanner } from './jobScanner';
 import { OverlayBrowserView } from './overlayBrowserView';
