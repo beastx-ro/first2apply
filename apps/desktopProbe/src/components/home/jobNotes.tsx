@@ -332,7 +332,7 @@ function EditJobNote({
           value={text}
           autoFocus={isNew}
           onChange={(e) => setText(e.target.value)}
-          className={`mb-2.5 w-full resize-none rounded-md px-6 py-2 text-base ring-ring focus:outline-none focus:ring-2 ${
+          className={`ring-ring mb-2.5 w-full resize-none rounded-md px-6 py-2 text-base focus:outline-none focus:ring-2 ${
             isNew && 'ring-2'
           }`}
         />

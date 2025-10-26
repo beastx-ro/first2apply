@@ -142,16 +142,16 @@ export function FiltersPage() {
             onChange={(evt) => setUserAiInput(evt.target.value)}
             minRows={3}
             maxLength={5000}
-            className="w-full resize-none rounded-md border border-border bg-card px-6 py-4 text-base ring-ring placeholder:text-muted-foreground focus:outline-none focus:ring-2"
+            className="border-border bg-card ring-ring placeholder:text-muted-foreground w-full resize-none rounded-md border px-6 py-4 text-base focus:outline-none focus:ring-2"
           />
-          <span className="absolute bottom-4 right-4 text-sm text-muted-foreground">{userAiInput.length}/5000</span>
+          <span className="text-muted-foreground absolute bottom-4 right-4 text-sm">{userAiInput.length}/5000</span>
         </div>
 
         <Alert className="flex items-center gap-2 border-0 p-0">
           <AlertTitle className="mb-0">
-            <InfoCircledIcon className="h-4 w-4 text-muted-foreground" />
+            <InfoCircledIcon className="text-muted-foreground h-4 w-4" />
           </AlertTitle>
-          <AlertDescription className="text-sm text-muted-foreground">
+          <AlertDescription className="text-muted-foreground text-sm">
             Pro Tips: Exclude skills you don’t want, specify salary expectations, define experience levels, select job
             specifics like remote work or PTO preferences and more.
           </AlertDescription>
@@ -173,16 +173,16 @@ export function FiltersPage() {
               placeholder="E.g. Luxoft"
               onChange={(evt) => setAddBlacklistedCompany(evt.target.value)}
               maxLength={100}
-              className="bg-card px-6 pr-20 text-base ring-ring placeholder:text-base focus-visible:ring-2"
+              className="bg-card ring-ring px-6 pr-20 text-base placeholder:text-base focus-visible:ring-2"
             />
-            <span className="absolute bottom-2 right-4 text-sm text-muted-foreground">
+            <span className="text-muted-foreground absolute bottom-2 right-4 text-sm">
               {addBlacklistedCompany.length}/100
             </span>
           </div>
 
           <Button
             variant="secondary"
-            className="w-36 border border-border"
+            className="border-border w-36 border"
             onClick={() => {
               if (addBlacklistedCompany) {
                 setBlacklistedCompanies([...blacklistedCompanies, addBlacklistedCompany]);
@@ -196,9 +196,9 @@ export function FiltersPage() {
 
         <Alert className="mt-1.5 flex items-center gap-2 border-0 p-0">
           <AlertTitle className="mb-0">
-            <MinusCircledIcon className="h-4 w-4 text-destructive/90" />
+            <MinusCircledIcon className="text-destructive/90 h-4 w-4" />
           </AlertTitle>
-          <AlertDescription className="text-sm text-destructive/90">
+          <AlertDescription className="text-destructive/90 text-sm">
             Attention: Ensure you input the company name accurately without any typos.
           </AlertDescription>
         </Alert>
@@ -212,14 +212,14 @@ export function FiltersPage() {
                 (company) => (
                   <Badge
                     key={company}
-                    className="flex items-center gap-2 border border-border bg-card py-1 pl-4 pr-2 text-base hover:bg-card"
+                    className="border-border bg-card hover:bg-card flex items-center gap-2 border py-1 pl-4 pr-2 text-base"
                   >
                     {company}
                     <TooltipProvider delayDuration={500}>
                       <Tooltip>
                         <TooltipTrigger>
                           <Cross2Icon
-                            className="h-4 w-4 text-foreground"
+                            className="text-foreground h-4 w-4"
                             onClick={() => setBlacklistedCompanies(blacklistedCompanies.filter((c) => c !== company))}
                           />
                         </TooltipTrigger>

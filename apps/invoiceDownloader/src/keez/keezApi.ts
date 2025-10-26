@@ -1,6 +1,7 @@
-import axios, { ResponseType } from "axios";
-import urljoin from "url-join";
-import { KeezInvoice, KeezItem } from "./keezTypes";
+import axios, { ResponseType } from 'axios';
+import urljoin from 'url-join';
+
+import { KeezInvoice, KeezItem } from './keezTypes';
 
 export type KeezApiConfig = {
   apiUrl: string;
@@ -31,7 +32,7 @@ export class KeezApi {
    */
   async listItems(): Promise<KeezItem[]> {
     const items = await this._apiCall<KeezItem[]>({
-      method: "get",
+      method: 'get',
       path: `/api/v1.0/public-api/${this._config.clientId}/items`,
     });
 
@@ -42,19 +43,12 @@ export class KeezApi {
    * Create a new item in Keez.
    */
   async createItem(
-    item: Pick<
-      KeezItem,
-      | "name"
-      | "categoryExternalId"
-      | "currencyCode"
-      | "isActive"
-      | "measureUnitId"
-    >
+    item: Pick<KeezItem, 'name' | 'categoryExternalId' | 'currencyCode' | 'isActive' | 'measureUnitId'>,
   ): Promise<KeezItem> {
     const { externalId: newItemId } = await this._apiCall<{
       externalId: string;
     }>({
-      method: "post",
+      method: 'post',
       path: `/api/v1.0/public-api/${this._config.clientId}/items`,
       body: {
         name: item.name,
@@ -73,17 +67,10 @@ export class KeezApi {
    */
   async updateItem(
     externalId: string,
-    item: Pick<
-      KeezItem,
-      | "name"
-      | "categoryExternalId"
-      | "currencyCode"
-      | "isActive"
-      | "measureUnitId"
-    >
+    item: Pick<KeezItem, 'name' | 'categoryExternalId' | 'currencyCode' | 'isActive' | 'measureUnitId'>,
   ): Promise<void> {
     await this._apiCall<void>({
-      method: "patch",
+      method: 'patch',
       path: `/api/v1.0/public-api/${this._config.clientId}/items/${externalId}`,
       body: {
         name: item.name,
@@ -100,7 +87,7 @@ export class KeezApi {
    */
   async getItemByExternalId(externalId: string): Promise<KeezItem> {
     const item = await this._apiCall<KeezItem>({
-      method: "get",
+      method: 'get',
       path: `/api/v1.0/public-api/${this._config.clientId}/items/${externalId}`,
     });
 
@@ -114,7 +101,7 @@ export class KeezApi {
     const { externalId: newInvoiceId } = await this._apiCall<{
       externalId: string;
     }>({
-      method: "post",
+      method: 'post',
       path: `/api/v1.0/public-api/${this._config.clientId}/invoices`,
       body: invoice,
     });
@@ -127,7 +114,7 @@ export class KeezApi {
    */
   async getInvoiceByExternalId(externalId: string): Promise<KeezInvoice> {
     const invoice = await this._apiCall<KeezInvoice>({
-      method: "get",
+      method: 'get',
       path: `/api/v1.0/public-api/${this._config.clientId}/invoices/${externalId}`,
     });
 
@@ -140,19 +127,14 @@ export class KeezApi {
   /**
    * Get invoice by series and number.
    */
-  async getInvoiceBySeriesAndNumber(
-    series: string,
-    number: number
-  ): Promise<KeezInvoice | null> {
+  async getInvoiceBySeriesAndNumber(series: string, number: number): Promise<KeezInvoice | null> {
     const { data: invoices } = await this._apiCall<{
       data: KeezInvoice[];
     }>({
-      method: "get",
+      method: 'get',
       path: `/api/v1.0/public-api/${this._config.clientId}/invoices`,
       params: {
-        filter: encodeURIComponent(
-          `series[eq]:${series} AND number[eq]:${number}`
-        ),
+        filter: encodeURIComponent(`series[eq]:${series} AND number[eq]:${number}`),
       },
     });
 
@@ -182,11 +164,11 @@ export class KeezApi {
     const { data: invoices } = await this._apiCall<{
       data: KeezInvoice[];
     }>({
-      method: "get",
+      method: 'get',
       path: `/api/v1.0/public-api/${this._config.clientId}/invoices`,
       params: {
         filter: encodeURIComponent(
-          `series[eq]:${series} AND partnerName[like]:${client} AND documentDate[eq]:${documentDate} AND comments[like]:${originalInvoiceSeries}${originalInvoiceNumber}`
+          `series[eq]:${series} AND partnerName[like]:${client} AND documentDate[eq]:${documentDate} AND comments[like]:${originalInvoiceSeries}${originalInvoiceNumber}`,
         ),
       },
     });
@@ -203,7 +185,7 @@ export class KeezApi {
    */
   async validateInvoice(externalId: string): Promise<void> {
     await this._apiCall<void>({
-      method: "post",
+      method: 'post',
       path: `/api/v1.0/public-api/${this._config.clientId}/invoices/valid`,
       body: {
         externalId,
@@ -218,7 +200,7 @@ export class KeezApi {
    */
   async deleteInvoice(externalId: string): Promise<void> {
     await this._apiCall<void>({
-      method: "delete",
+      method: 'delete',
       path: `/api/v1.0/public-api/${this._config.clientId}/invoices`,
       body: {
         externalId,
@@ -231,9 +213,9 @@ export class KeezApi {
    */
   async downloadInvoicePdf(invoiceId: string): Promise<Buffer> {
     const pdfBuffer = await this._apiCall<Buffer>({
-      method: "get",
+      method: 'get',
       path: `/api/v1.0/public-api/${this._config.clientId}/invoices/${invoiceId}/pdf`,
-      responseType: "arraybuffer",
+      responseType: 'arraybuffer',
     });
 
     return pdfBuffer;
@@ -248,18 +230,18 @@ export class KeezApi {
     }
 
     const response = await axios.request<KeezAccessToken>({
-      method: "post",
-      url: urljoin(this._config.apiUrl, "/idp/connect/token"),
+      method: 'post',
+      url: urljoin(this._config.apiUrl, '/idp/connect/token'),
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
       data: new URLSearchParams({
         // client_eid: this._config.clientId,
         // application_id: this._config.apiKey,
         // secret: this._config.apiSecret,
 
-        grant_type: "client_credentials",
-        scope: "public-api",
+        grant_type: 'client_credentials',
+        scope: 'public-api',
         client_id: `app${this._config.apiKey}`,
         client_secret: this._config.apiSecret,
       }).toString(),
@@ -273,14 +255,14 @@ export class KeezApi {
    * Generic http api call.
    */
   private async _apiCall<T>({
-    method = "get",
+    method = 'get',
     path,
     headers,
     body,
     params,
     responseType,
   }: {
-    method?: "get" | "post" | "put" | "delete" | "patch";
+    method?: 'get' | 'post' | 'put' | 'delete' | 'patch';
     path: string;
     headers?: Record<string, string>;
     body?: any;
@@ -306,11 +288,9 @@ export class KeezApi {
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
         throw new Error(
-          `Error calling Keez API ${method.toUpperCase()} ${path}: ${JSON.stringify(
-            error.response?.data
-          )}
+          `Error calling Keez API ${method.toUpperCase()} ${path}: ${JSON.stringify(error.response?.data)}
           
-${JSON.stringify(error.config?.data ?? {}, null, 2)}`
+${JSON.stringify(error.config?.data ?? {}, null, 2)}`,
         );
       }
 

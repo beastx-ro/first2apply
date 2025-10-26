@@ -57,7 +57,7 @@ function NoLinks() {
         <h1 className="text-3xl font-semibold sm:text-4xl md:text-5xl lg:text-6xl">
           Be the: <span className="text-primary">first 2 apply</span>
         </h1>
-        <p className="text-center text-muted-foreground">
+        <p className="text-muted-foreground text-center">
           Save your tailored job searches from top job platforms, and let us do the heavy lifting. We'll monitor your
           specified job feeds and swiftly notify you of new postings, providing you the edge to be the first in line.
         </p>

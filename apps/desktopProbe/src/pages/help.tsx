@@ -9,7 +9,7 @@ export function HelpPage() {
 
       <Accordion type="single" collapsible className="w-full rounded-lg border px-6">
         <AccordionItem value="item-1" className="py-2">
-          <AccordionTrigger className="text-lg font-normal hover:text-primary hover:no-underline">
+          <AccordionTrigger className="hover:text-primary text-lg font-normal hover:no-underline">
             Why is this a desktop app and not a website?
           </AccordionTrigger>
           <AccordionContent className="text-base font-light">
@@ -20,7 +20,7 @@ export function HelpPage() {
         </AccordionItem>
 
         <AccordionItem value="item-2" className="py-2">
-          <AccordionTrigger className="text-lg font-normal hover:text-primary hover:no-underline">
+          <AccordionTrigger className="hover:text-primary text-lg font-normal hover:no-underline">
             Does the app automatically apply to jobs for me?
           </AccordionTrigger>
           <AccordionContent className="text-base font-light">
@@ -30,7 +30,7 @@ export function HelpPage() {
         </AccordionItem>
 
         <AccordionItem value="item-3" className="py-2">
-          <AccordionTrigger className="text-lg font-normal hover:text-primary hover:no-underline">
+          <AccordionTrigger className="hover:text-primary text-lg font-normal hover:no-underline">
             Can it filter out jobs that I'm not interested in?
           </AccordionTrigger>
           <AccordionContent className="text-base font-light">
@@ -41,7 +41,7 @@ export function HelpPage() {
         </AccordionItem>
 
         <AccordionItem value="item-4" className="py-2">
-          <AccordionTrigger className="text-lg font-normal hover:text-primary hover:no-underline">
+          <AccordionTrigger className="hover:text-primary text-lg font-normal hover:no-underline">
             What happens if I close my computer?
           </AccordionTrigger>
           <AccordionContent className="text-base font-light">
@@ -52,7 +52,7 @@ export function HelpPage() {
         </AccordionItem>
 
         <AccordionItem value="item-5" className="py-2">
-          <AccordionTrigger className="text-lg font-normal hover:text-primary hover:no-underline">
+          <AccordionTrigger className="hover:text-primary text-lg font-normal hover:no-underline">
             How will I see new job alerts when I'm not in front on my computer?
           </AccordionTrigger>
           <AccordionContent className="text-base font-light">
@@ -62,7 +62,7 @@ export function HelpPage() {
         </AccordionItem>
 
         <AccordionItem value="item-6" className="border-b-0 py-2">
-          <AccordionTrigger className="text-lg font-normal hover:text-primary hover:no-underline">
+          <AccordionTrigger className="hover:text-primary text-lg font-normal hover:no-underline">
             Can I navigate the app using my keyboard?
           </AccordionTrigger>
           <AccordionContent className="text-base font-light">

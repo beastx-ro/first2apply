@@ -72,7 +72,7 @@ export function SettingsPage() {
 
       {/* new updates */}
       {hasNewUpdate && (
-        <div className="flex flex-row items-center justify-between gap-6 rounded-lg border border-destructive p-6">
+        <div className="border-destructive flex flex-row items-center justify-between gap-6 rounded-lg border p-6">
           <div className="space-y-1">
             <h2 className="text-lg">
               New update available <span className="font-bold">{newUpdate.name}</span>

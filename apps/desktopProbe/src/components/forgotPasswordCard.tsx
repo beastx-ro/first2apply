@@ -70,7 +70,7 @@ export function ForgotPasswordCard({
             </Button>
 
             <div className="justify-self-end">
-              <Link to="/login" className="w-fit text-xs text-muted-foreground">
+              <Link to="/login" className="text-muted-foreground w-fit text-xs">
                 Back to login
               </Link>
             </div>

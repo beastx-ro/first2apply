@@ -94,7 +94,7 @@ export function LoginCard({
             </Button>
 
             <div className="justify-self-end">
-              <Link to="/forgot-password" className="w-fit text-xs text-muted-foreground hover:underline">
+              <Link to="/forgot-password" className="text-muted-foreground w-fit text-xs hover:underline">
                 Forgot password?
               </Link>
             </div>

@@ -3,14 +3,14 @@
  */
 export function getExceptionMessage(error: unknown, noStackTrace = false) {
   if (error instanceof Error) {
-    return noStackTrace ? error.message : error.stack ?? error.message;
-  } else if (typeof error === "object") {
+    return noStackTrace ? error.message : (error.stack ?? error.message);
+  } else if (typeof error === 'object') {
     return JSON.stringify(error);
-  } else if (typeof error === "string") {
+  } else if (typeof error === 'string') {
     return error;
   }
 
-  return "(unkown exception reason)";
+  return '(unkown exception reason)';
 }
 
 /**

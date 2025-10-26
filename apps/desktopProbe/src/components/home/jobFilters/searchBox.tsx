@@ -24,11 +24,11 @@ export function SearchBox({
         onChange={(e) => setInputValue(e.target.value)}
       />
 
-      <MagnifyingGlassIcon className="absolute left-5 top-3.5 h-5 w-fit text-muted-foreground" />
+      <MagnifyingGlassIcon className="text-muted-foreground absolute left-5 top-3.5 h-5 w-fit" />
 
       {inputValue && (
         <Cross2Icon
-          className="absolute right-3.5 top-3.5 h-5 w-5 cursor-pointer text-muted-foreground"
+          className="text-muted-foreground absolute right-3.5 top-3.5 h-5 w-5 cursor-pointer"
           onClick={handleClearInput}
         />
       )}

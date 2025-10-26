@@ -1,26 +1,27 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import Link from "next/link";
-import { scrollToSection } from "@/utils/scrollToSection";
-import { Button } from "./ui/button";
+import { scrollToSection } from '@/utils/scrollToSection';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+
+import { Button } from './ui/button';
 
 const menuItems = [
-  { name: "Product", id: "product" },
-  { name: "Pricing", id: "pricing" },
-  { name: "Help", id: "help" },
-  { name: "Changelog", id: "changelog", url: "/changelog" },
+  { name: 'Product', id: 'product' },
+  { name: 'Pricing', id: 'pricing' },
+  { name: 'Help', id: 'help' },
+  { name: 'Changelog', id: 'changelog', url: '/changelog' },
 ];
 
 function useScrollLock(lock: boolean) {
   useEffect(() => {
     if (lock) {
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = 'auto';
     }
 
     return () => {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = 'auto';
     };
   }, [lock]);
 }
@@ -38,15 +39,15 @@ export function Navbar() {
       setHasScrolled(offset > 10);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
   const handleMenuItemClick = (id: string, onNavigate?: () => void) => {
-    if (router.pathname === "/") {
+    if (router.pathname === '/') {
       scrollToSection(id);
       if (onNavigate) {
         onNavigate();
@@ -60,14 +61,11 @@ export function Navbar() {
     <>
       {/* Mobile menu */}
       <nav
-        className={`fixed z-[100] top-0 left-0 right-0 md:hidden w-full h-14 px-4 flex justify-between items-center ${
-          hasScrolled && "border-b dark:border-background"
-        } backdrop-blur-md backdrop-filter transition-all duration-100 bg-gradient-to-b from-background to-background/60 dark:to-background/90`}
+        className={`fixed left-0 right-0 top-0 z-[100] flex h-14 w-full items-center justify-between px-4 md:hidden ${
+          hasScrolled && 'dark:border-background border-b'
+        } from-background to-background/60 dark:to-background/90 bg-gradient-to-b backdrop-blur-md backdrop-filter transition-all duration-100`}
       >
-        <button
-          className="flex items-center gap-3"
-          onClick={() => handleMenuItemClick("product")}
-        >
+        <button className="flex items-center gap-3" onClick={() => handleMenuItemClick('product')}>
           <svg
             version="1.0"
             xmlns="http://www.w3.org/2000/svg"
@@ -77,10 +75,7 @@ export function Navbar() {
             preserveAspectRatio="xMidYMid meet"
             fill="currentColor"
           >
-            <g
-              transform="translate(0.000000,752.000000) scale(0.100000,-0.100000)"
-              stroke="none"
-            >
+            <g transform="translate(0.000000,752.000000) scale(0.100000,-0.100000)" stroke="none">
               <path
                 d="M5799 5751 c-520 -299 -4122 -2430 -4144 -2452 -24 -24 -28 -32 -19
 -47 6 -9 24 -20 40 -23 16 -4 306 -7 644 -8 l615 -1 355 -744 c370 -777 372
@@ -97,77 +92,68 @@ export function Navbar() {
 
         {/* Burger menu */}
         <div
-          className={`z-[99999] w-10 h-10 relative flex flex-col justify-center items-center md:hidden focus-visible:outline-none ${
-            isOpen ? "gap-0.5" : "gap-2"
+          className={`relative z-[99999] flex h-10 w-10 flex-col items-center justify-center focus-visible:outline-none md:hidden ${
+            isOpen ? 'gap-0.5' : 'gap-2'
           }`}
           onClick={() => setIsOpen(!isOpen)}
         >
           {/* Line 1 */}
           <div
-            className={`h-0.5 w-7 bg-foreground transform transition-all duration-300 ease-in-out ${
-              isOpen && "rotate-45 translate-y-1"
+            className={`bg-foreground h-0.5 w-7 transform transition-all duration-300 ease-in-out ${
+              isOpen && 'translate-y-1 rotate-45'
             }`}
           ></div>
 
           {/* Line 2 */}
           <div
-            className={`h-0.5 w-7 bg-foreground transform transition-all duration-300 ease-in-out ${
-              isOpen && "translate-x-full opacity-0"
+            className={`bg-foreground h-0.5 w-7 transform transition-all duration-300 ease-in-out ${
+              isOpen && 'translate-x-full opacity-0'
             }`}
           ></div>
 
           {/* Line 3 */}
           <div
-            className={`h-0.5 w-7 bg-foreground transform transition-all duration-300 ease-in-out ${
-              isOpen && "-rotate-45 -translate-y-1"
+            className={`bg-foreground h-0.5 w-7 transform transition-all duration-300 ease-in-out ${
+              isOpen && '-translate-y-1 -rotate-45'
             }`}
           ></div>
         </div>
 
         <dialog
-          className={`fixed z-[9999] top-0 bg-background flex flex-col items-start gap-6 w-full h-screen pl-12 pt-24 md:hidden ${
-            !isOpen && "hidden"
+          className={`bg-background fixed top-0 z-[9999] flex h-screen w-full flex-col items-start gap-6 pl-12 pt-24 md:hidden ${
+            !isOpen && 'hidden'
           }`}
           open={isOpen}
         >
           {menuItems.map((item) =>
             item.url ? (
-              <Link
-                href={item.url}
-                key={item.id}
-                className="text-xl font-medium"
-              >
+              <Link href={item.url} key={item.id} className="text-xl font-medium">
                 {item.name}
               </Link>
             ) : (
               <button
                 key={item.id}
                 className="text-xl font-medium"
-                onClick={() =>
-                  handleMenuItemClick(item.id, () => setIsOpen(false))
-                }
+                onClick={() => handleMenuItemClick(item.id, () => setIsOpen(false))}
               >
                 {item.name}
               </button>
-            )
+            ),
           )}
           <Link href="/download" passHref>
-            <Button className="h-10 px-3 -ml-3 -mt-2 text-xl">Download</Button>
+            <Button className="-ml-3 -mt-2 h-10 px-3 text-xl">Download</Button>
           </Link>
         </dialog>
       </nav>
 
       {/* Desktop menu */}
       <nav
-        className={`fixed z-[100] hidden md:block w-full h-16 ${
-          hasScrolled && "border-b dark:border-background"
-        } backdrop-blur-md backdrop-filter transition-all duration-100 bg-background/60 dark:bg-background/90`}
+        className={`fixed z-[100] hidden h-16 w-full md:block ${
+          hasScrolled && 'dark:border-background border-b'
+        } bg-background/60 dark:bg-background/90 backdrop-blur-md backdrop-filter transition-all duration-100`}
       >
-        <div className="flex items-center justify-between w-full max-w-7xl h-full mx-auto px-10">
-          <button
-            className="flex items-center gap-3"
-            onClick={() => handleMenuItemClick("product")}
-          >
+        <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between px-10">
+          <button className="flex items-center gap-3" onClick={() => handleMenuItemClick('product')}>
             <svg
               version="1.0"
               xmlns="http://www.w3.org/2000/svg"
@@ -177,10 +163,7 @@ export function Navbar() {
               preserveAspectRatio="xMidYMid meet"
               fill="currentColor"
             >
-              <g
-                transform="translate(0.000000,752.000000) scale(0.100000,-0.100000)"
-                stroke="none"
-              >
+              <g transform="translate(0.000000,752.000000) scale(0.100000,-0.100000)" stroke="none">
                 <path
                   d="M5799 5751 c-520 -299 -4122 -2430 -4144 -2452 -24 -24 -28 -32 -19
 -47 6 -9 24 -20 40 -23 16 -4 306 -7 644 -8 l615 -1 355 -744 c370 -777 372
@@ -201,19 +184,19 @@ export function Navbar() {
                 <Link
                   href={item.url}
                   key={item.id}
-                  className="relative text-[17px] font-medium tracking-wide hover:text-primary after:content-[''] after:block after:absolute after:w-0 after:h-0.5 after:bg-primary after:transition-all hover:after:w-full after:right-0 after:bottom-0 after:transition-width duration-200 p-1"
+                  className="hover:text-primary after:bg-primary after:transition-width relative p-1 text-[17px] font-medium tracking-wide duration-200 after:absolute after:bottom-0 after:right-0 after:block after:h-0.5 after:w-0 after:transition-all after:content-[''] hover:after:w-full"
                 >
                   {item.name}
                 </Link>
               ) : (
                 <button
                   key={item.id}
-                  className="relative text-[17px] font-medium tracking-wide hover:text-primary after:content-[''] after:block after:absolute after:w-0 after:h-0.5 after:bg-primary after:transition-all hover:after:w-full after:right-0 after:bottom-0 after:transition-width duration-200 p-1"
+                  className="hover:text-primary after:bg-primary after:transition-width relative p-1 text-[17px] font-medium tracking-wide duration-200 after:absolute after:bottom-0 after:right-0 after:block after:h-0.5 after:w-0 after:transition-all after:content-[''] hover:after:w-full"
                   onClick={() => handleMenuItemClick(item.id)}
                 >
                   {item.name}
                 </button>
-              )
+              ),
             )}
             <Link href="/download" passHref>
               <Button className="h-10 px-3">Download</Button>

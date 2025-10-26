@@ -30,7 +30,7 @@ export type KeezInvoice = {
   partner: KeezParter; // Required: Client identification data
   invoiceDetails: KeezInvoiceDetail[]; // Required: Invoice details
 
-  discountType?: "Percent" | "Value"; // Optional: Type of global discount
+  discountType?: 'Percent' | 'Value'; // Optional: Type of global discount
   discountPercent?: number; // Optional: Discount percentage (if discountType is Percent)
   discountValueOnNet?: boolean; // Optional: Applies discount to net value (true/false)
 
@@ -67,7 +67,7 @@ export type KeezInvoiceDetail = {
   unitPriceCurrency: number; // Required: Item price in invoice currency (4 decimal places)
   vatPercent?: number; // Optional: VAT percentage (2 decimal places)
 
-  discountType?: "Percent" | "Value"; // Optional: Type of discount
+  discountType?: 'Percent' | 'Value'; // Optional: Type of discount
   discountPercent?: number; // Optional: Discount percentage if discountType is Percent
   discountValueOnNet?: boolean; // Optional: Indicates if discount applies to net or gross value
 

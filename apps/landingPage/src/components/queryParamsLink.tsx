@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
-interface DynamicLinkProps extends React.ComponentPropsWithoutRef<"a"> {
+interface DynamicLinkProps extends React.ComponentPropsWithoutRef<'a'> {
   baseUrl: string;
 }
 
@@ -8,11 +8,7 @@ interface DynamicLinkProps extends React.ComponentPropsWithoutRef<"a"> {
  * A link that appends the current page's query parameters to the baseUrl.
  * @returns
  */
-export const QueryParamsLink: React.FC<DynamicLinkProps> = ({
-  baseUrl,
-  children,
-  ...props
-}) => {
+export const QueryParamsLink: React.FC<DynamicLinkProps> = ({ baseUrl, children, ...props }) => {
   const [linkHref, setLinkHref] = useState(baseUrl);
 
   useEffect(() => {
@@ -20,7 +16,7 @@ export const QueryParamsLink: React.FC<DynamicLinkProps> = ({
     const queryParams = window.location.search;
 
     // If the baseUrl already has query parameters, append with "&", otherwise use "?"
-    const updatedHref = baseUrl.includes("?")
+    const updatedHref = baseUrl.includes('?')
       ? `${baseUrl}&${queryParams.substring(1)}` // Remove the leading "?" from queryParams
       : `${baseUrl}${queryParams}`;
 

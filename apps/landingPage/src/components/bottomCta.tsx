@@ -12,7 +12,7 @@ export function BottomCta() {
       </p>
 
       <Link href="/download" className="mt-6 flex justify-center md:mt-12">
-        <Button size="lg" className="w-full xs:w-fit">
+        <Button size="lg" className="xs:w-fit w-full">
           Download for free
         </Button>
       </Link>

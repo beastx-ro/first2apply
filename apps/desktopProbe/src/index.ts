@@ -1,3 +1,5 @@
+import { ENV } from './env';
+
 import { DbSchema, getExceptionMessage } from '@first2apply/core';
 import { createClient } from '@supabase/supabase-js';
 import { BrowserWindow, Notification, app, dialog, nativeTheme, safeStorage, shell } from 'electron';
@@ -5,7 +7,6 @@ import Storage from 'electron-store';
 import fs from 'fs';
 import path from 'path';
 
-import { ENV } from './env';
 import { AmplitudeAnalyticsClient } from './server/amplitude';
 import { F2aAutoUpdater } from './server/autoUpdater';
 import { promiseAllSequence } from './server/helpers';

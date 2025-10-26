@@ -18,7 +18,7 @@ export function AlertsSection() {
         </p>
       </div>
 
-      <Image src={alert} alt="alert" className="mt-2 h-auto w-full px-3 xs:mt-4 xs:px-5 md:w-1/2" />
+      <Image src={alert} alt="alert" className="xs:mt-4 xs:px-5 mt-2 h-auto w-full px-3 md:w-1/2" />
     </section>
   );
 }

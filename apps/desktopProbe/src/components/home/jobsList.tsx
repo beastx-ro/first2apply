@@ -141,7 +141,7 @@ export function JobsList({
             >
               <div className="flex flex-wrap-reverse items-center justify-between gap-1.5">
                 {/* Company Name */}
-                <p className="my-1.5 text-xs text-muted-foreground">{job.companyName}</p>
+                <p className="text-muted-foreground my-1.5 text-xs">{job.companyName}</p>
 
                 {/* Action buttons */}
                 <div className="ml-auto flex items-center gap-2">
@@ -152,13 +152,13 @@ export function JobsList({
                         <TooltipTrigger>
                           <Button
                             variant="secondary"
-                            className="h-[22px] w-[22px] rounded-sm bg-transparent px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/10 focus:bg-foreground/10"
+                            className="hover:bg-foreground/10 focus:bg-foreground/10 h-[22px] w-[22px] rounded-sm bg-transparent px-0 transition-colors duration-200 ease-in-out"
                             onClick={(evt) => {
                               onArchive(job);
                               evt.stopPropagation();
                             }}
                           >
-                            <ArchiveIcon className="min-h-4 w-fit text-foreground" />
+                            <ArchiveIcon className="text-foreground min-h-4 w-fit" />
                           </Button>
                         </TooltipTrigger>
 
@@ -175,14 +175,14 @@ export function JobsList({
                       <TooltipTrigger>
                         <Button
                           variant="destructive"
-                          className="h-[22px] w-[22px] rounded-sm bg-transparent px-0 transition-colors duration-200 ease-in-out hover:bg-destructive/20 focus:bg-destructive/20"
+                          className="hover:bg-destructive/20 focus:bg-destructive/20 h-[22px] w-[22px] rounded-sm bg-transparent px-0 transition-colors duration-200 ease-in-out"
                           onClick={(evt) => {
                             // onDelete(job);
                             setJobToDelete(job);
                             evt.stopPropagation();
                           }}
                         >
-                          <TrashIcon className="h-5 w-auto text-destructive" />
+                          <TrashIcon className="text-destructive h-5 w-auto" />
                         </Button>
                       </TooltipTrigger>
 
@@ -199,18 +199,18 @@ export function JobsList({
 
               <div className="mt-1.5 flex items-center justify-between gap-4">
                 {/* Location, JobType, Salary & Tags */}
-                <p className="text-sm leading-[18px] tracking-tight text-foreground/80">
+                <p className="text-foreground/80 text-sm leading-[18px] tracking-tight">
                   {job.location && <span>{job.location}</span>}
                   {job.jobType && (
                     <>
-                      {job.location && <span className="mx-1 text-[14px] font-light text-foreground/40"> | </span>}
+                      {job.location && <span className="text-foreground/40 mx-1 text-[14px] font-light"> | </span>}
                       <span>{job.jobType}</span>
                     </>
                   )}
                   {job.salary && (
                     <>
                       {(job.location || job.jobType) && (
-                        <span className="mx-1 text-[14px] font-light text-foreground/40"> | </span>
+                        <span className="text-foreground/40 mx-1 text-[14px] font-light"> | </span>
                       )}
                       <span>{job.salary}</span>
                     </>
@@ -218,7 +218,7 @@ export function JobsList({
                   {job.tags?.map((tag) => (
                     <span key={job.id + tag}>
                       {(job.location || job.jobType || job.salary) && (
-                        <span className="text-3 mx-[8px] font-light text-foreground/40"> | </span>
+                        <span className="text-3 text-foreground/40 mx-[8px] font-light"> | </span>
                       )}
                       <span>{tag}</span>
                     </span>
@@ -239,7 +239,7 @@ export function JobsList({
 
               <div className="mt-4 flex items-center gap-12">
                 {/* Source */}
-                <p className="flex items-center gap-2 text-xs leading-3 text-foreground/80">
+                <p className="text-foreground/80 flex items-center gap-2 text-xs leading-3">
                   {/* Source logo */}
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={siteLogos[job.siteId]} />
@@ -249,12 +249,12 @@ export function JobsList({
                 </p>
 
                 {/* Timestamp */}
-                <p className="ml-auto w-fit flex-shrink-0 text-xs text-foreground/80">
+                <p className="text-foreground/80 ml-auto w-fit flex-shrink-0 text-xs">
                   detected {getRelativeTimeString(new Date(job.created_at))}
                 </p>
               </div>
 
-              <hr className="mt-6 w-full border-muted" />
+              <hr className="border-muted mt-6 w-full" />
             </li>
           );
         })}

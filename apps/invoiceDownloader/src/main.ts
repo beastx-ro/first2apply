@@ -1,12 +1,12 @@
-import * as dotenv from "dotenv";
-import { Stripe } from "stripe";
-import * as luxon from "luxon";
-import * as _ from "lodash";
+import { parseEnv } from './env';
+import * as dotenv from 'dotenv';
 
-import { KeezApi } from "./keez/keezApi";
-import { parseEnv } from "./env";
+import * as _ from 'lodash';
+import * as luxon from 'luxon';
+import { Stripe } from 'stripe';
 
-import { uploadInvoicesToKeez } from "./keez/invoiceManagement";
+import { uploadInvoicesToKeez } from './keez/invoiceManagement';
+import { KeezApi } from './keez/keezApi';
 
 dotenv.config();
 
@@ -17,23 +17,18 @@ async function fetchAndDownloadInvoices({ stripe }: { stripe: Stripe }) {
   let hasMore = true;
   let lastInvoiceId: string | undefined = undefined;
 
-  const to = luxon.DateTime.now()
-    .setZone("Europe/Bucharest")
-    .minus({ months: 1 })
-    .endOf("month");
-  const from = to.startOf("month");
+  const to = luxon.DateTime.now().setZone('Europe/Bucharest').minus({ months: 1 }).endOf('month');
+  const from = to.startOf('month');
   while (hasMore) {
-    const invoices: Stripe.ApiList<Stripe.Invoice> = await stripe.invoices.list(
-      {
-        created: {
-          gte: Math.floor(from.toJSDate().getTime() / 1000), // Start of last month
-          lte: Math.floor(to.toJSDate().getTime() / 1000), // End of last month
-        },
-        limit: 100, // Stripe's max per page
-        ...(lastInvoiceId && { starting_after: lastInvoiceId }),
-        expand: ["data.discounts", "data.payments"],
-      }
-    );
+    const invoices: Stripe.ApiList<Stripe.Invoice> = await stripe.invoices.list({
+      created: {
+        gte: Math.floor(from.toJSDate().getTime() / 1000), // Start of last month
+        lte: Math.floor(to.toJSDate().getTime() / 1000), // End of last month
+      },
+      limit: 100, // Stripe's max per page
+      ...(lastInvoiceId && { starting_after: lastInvoiceId }),
+      expand: ['data.discounts', 'data.payments'],
+    });
 
     // Check if there's more data to paginate
     hasMore = invoices.has_more;
@@ -71,5 +66,5 @@ async function run() {
 }
 
 run()
-  .then(() => console.log("Done"))
+  .then(() => console.log('Done'))
   .catch(console.error);

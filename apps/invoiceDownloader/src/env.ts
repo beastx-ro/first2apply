@@ -1,4 +1,4 @@
-import { KeezApiConfig } from "./keez/keezApi";
+import { KeezApiConfig } from './keez/keezApi';
 
 export type Env = {
   stripeApiKey: string;
@@ -17,19 +17,19 @@ export function parseEnv() {
   };
 
   if (!env.stripeApiKey) {
-    throw new Error("Missing STRIPE_API_KEY in environment variables");
+    throw new Error('Missing STRIPE_API_KEY in environment variables');
   }
   if (!env.keez.apiUrl) {
-    throw new Error("Missing KEEZ_API_URL in environment variables");
+    throw new Error('Missing KEEZ_API_URL in environment variables');
   }
   if (!env.keez.apiKey) {
-    throw new Error("Missing KEEZ_API_KEY in environment variables");
+    throw new Error('Missing KEEZ_API_KEY in environment variables');
   }
   if (!env.keez.apiSecret) {
-    throw new Error("Missing KEEZ_API_SECRET in environment variables");
+    throw new Error('Missing KEEZ_API_SECRET in environment variables');
   }
   if (!env.keez.clientId) {
-    throw new Error("Missing KEEZ_CLIENT_ID in environment variables");
+    throw new Error('Missing KEEZ_CLIENT_ID in environment variables');
   }
 
   return env;

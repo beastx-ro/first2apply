@@ -1,9 +1,9 @@
+import { ENV } from '../env';
+
 import { IAnalyticsClient } from '@/lib/analytics';
 import * as amplitude from '@amplitude/analytics-node';
 import { createHash } from 'crypto';
 import { app } from 'electron';
-
-import { ENV } from '../env';
 
 const userDataPath = app.getPath('userData');
 const deviceId = createHash('sha256').update(userDataPath).digest('hex');

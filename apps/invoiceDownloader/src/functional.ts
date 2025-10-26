@@ -6,19 +6,19 @@ import { chunk } from 'lodash';
  */
 export async function promiseAllSequence<ElementType, PromisedReturnType>(
   items: ElementType[],
-  functor: (item: ElementType) => Promise<PromisedReturnType>
+  functor: (item: ElementType) => Promise<PromisedReturnType>,
 ): Promise<PromisedReturnType[]> {
   return items.reduce(
     (promiseChain, item) =>
       promiseChain.then((resultsSoFar) => functor(item).then((currentResult) => [...resultsSoFar, currentResult])),
-    Promise.resolve<PromisedReturnType[]>([])
+    Promise.resolve<PromisedReturnType[]>([]),
   );
 }
 
 export async function promiseAllBatched<ElementType, PromisedReturnType>(
   items: ElementType[],
   batchSize: number,
-  functor: (item: ElementType) => Promise<PromisedReturnType>
+  functor: (item: ElementType) => Promise<PromisedReturnType>,
 ): Promise<PromisedReturnType[]> {
   const batches = chunk(items, batchSize);
   const processBatch = (batch: ElementType[]) => Promise.all(batch.map(functor));

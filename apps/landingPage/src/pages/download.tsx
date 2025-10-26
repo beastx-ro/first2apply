@@ -19,12 +19,12 @@ export default function Download() {
           <h1 className="w-full text-balance text-3xl font-semibold sm:text-center sm:text-5xl lg:text-6xl">
             Download First 2 Apply
           </h1>
-          <h2 className="mt-2 text-sm font-medium text-foreground/70 sm:text-balance sm:text-center sm:tracking-wide lg:text-xl">
+          <h2 className="text-foreground/70 mt-2 text-sm font-medium sm:text-balance sm:text-center sm:tracking-wide lg:text-xl">
             Experience the convenience of monitoring and managing job applications from top platforms, all in one place.
             Dive into a 7-day free trial, no credit card required
           </h2>
 
-          <div className="mt-12 flex w-full flex-col gap-4 xs:max-w-[500px] xs:flex-row xs:flex-wrap xs:items-center xs:justify-center">
+          <div className="xs:max-w-[500px] xs:flex-row xs:flex-wrap xs:items-center xs:justify-center mt-12 flex w-full flex-col gap-4">
             {/* macos apple silicon */}
             <a
               href="https://s3.eu-central-1.amazonaws.com/first2apply.com/releases/darwin/arm64/First+2+Apply-2.0.0-arm64.dmg"
@@ -35,7 +35,7 @@ export default function Download() {
                 });
               }}
             >
-              <Button size="lg" className="flex h-12 w-full items-center gap-2 xs:w-fit">
+              <Button size="lg" className="xs:w-fit flex h-12 w-full items-center gap-2">
                 <img
                   width="16"
                   alt="Apple logo white"
@@ -62,7 +62,7 @@ export default function Download() {
                 });
               }}
             >
-              <Button size="lg" className="flex h-12 w-full items-center gap-2 xs:w-fit">
+              <Button size="lg" className="xs:w-fit flex h-12 w-full items-center gap-2">
                 <img
                   width="16"
                   alt="Windows logo white"
@@ -89,7 +89,7 @@ export default function Download() {
                 });
               }}
             >
-              <Button size="lg" className="flex h-12 w-full items-center gap-2 xs:w-fit">
+              <Button size="lg" className="xs:w-fit flex h-12 w-full items-center gap-2">
                 <img
                   width="16"
                   alt="Apple logo white"
@@ -116,7 +116,7 @@ export default function Download() {
                 });
               }}
             >
-              <Button size="lg" className="flex h-12 w-full items-center gap-2 xs:w-fit">
+              <Button size="lg" className="xs:w-fit flex h-12 w-full items-center gap-2">
                 <svg
                   className="h-auto w-5 dark:hidden"
                   viewBox="0 0 24 24"

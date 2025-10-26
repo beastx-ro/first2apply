@@ -260,21 +260,21 @@ function TabActions({
             evt.stopPropagation();
           }}
         >
-          <DotsVerticalIcon className="m-auto h-5 w-auto text-muted-foreground transition-all duration-200 ease-in-out hover:h-6" />
+          <DotsVerticalIcon className="text-muted-foreground m-auto h-5 w-auto transition-all duration-200 ease-in-out hover:h-6" />
         </DropdownMenuTrigger>
         <DropdownMenuContent side="bottom" className="space-y-1">
-          <DropdownMenuItem className="cursor-pointer focus:bg-secondary/40" onClick={() => onTabChange(tab)}>
+          <DropdownMenuItem className="focus:bg-secondary/40 cursor-pointer" onClick={() => onTabChange(tab)}>
             <UpdateIcon className="mb-0.5 mr-2 inline-block h-4 w-4" />
             Refresh
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="cursor-pointer focus:bg-secondary/40" onClick={() => onCsvExport(tab)}>
+          <DropdownMenuItem className="focus:bg-secondary/40 cursor-pointer" onClick={() => onCsvExport(tab)}>
             <DownloadIcon className="mb-0.5 mr-2 inline-block h-4 w-4" />
             CSV export
           </DropdownMenuItem>
           {tab !== 'archived' && (
             <DropdownMenuItem
-              className="cursor-pointer focus:bg-secondary/40"
+              className="focus:bg-secondary/40 cursor-pointer"
               onClick={() => setIsArchiveAllDialogOpen(true)}
             >
               <ArchiveIcon className="mb-0.5 mr-2 inline-block h-4 w-4" />
@@ -282,10 +282,10 @@ function TabActions({
             </DropdownMenuItem>
           )}
           <DropdownMenuItem
-            className="cursor-pointer bg-destructive/5 focus:bg-destructive/20"
+            className="bg-destructive/5 focus:bg-destructive/20 cursor-pointer"
             onClick={() => setIsDeleteAllDialogOpen(true)}
           >
-            <TrashIcon className="-ml-0.5 mb-0.5 mr-2 inline-block h-5 w-5 text-destructive" />
+            <TrashIcon className="text-destructive -ml-0.5 mb-0.5 mr-2 inline-block h-5 w-5" />
             Delete all
           </DropdownMenuItem>
         </DropdownMenuContent>

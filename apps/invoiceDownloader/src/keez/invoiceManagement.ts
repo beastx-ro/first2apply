@@ -1,21 +1,16 @@
-import * as luxon from "luxon";
-import Stripe from "stripe";
-import * as _ from "lodash";
-import axios from "axios";
-import xml2js from "xml2js";
-import fs from "fs";
-import path from "path";
+import axios from 'axios';
+import fs from 'fs';
+import * as _ from 'lodash';
+import * as luxon from 'luxon';
+import path from 'path';
+import Stripe from 'stripe';
+import xml2js from 'xml2js';
 
-import { KeezApi } from "./keezApi";
-import { getExceptionMessage, throwError } from "../error";
-import { COUNTRY_NAMES_BY_CODE } from "./keezConstants";
-import { promiseAllBatched } from "../functional";
-import {
-  KeezInvoice,
-  KeezInvoiceDetail,
-  KeezItem,
-  KeezParter,
-} from "./keezTypes";
+import { getExceptionMessage, throwError } from '../error';
+import { promiseAllBatched } from '../functional';
+import { KeezApi } from './keezApi';
+import { COUNTRY_NAMES_BY_CODE } from './keezConstants';
+import { KeezInvoice, KeezInvoiceDetail, KeezItem, KeezParter } from './keezTypes';
 
 export async function uploadInvoicesToKeez({
   keez,
@@ -32,16 +27,12 @@ export async function uploadInvoicesToKeez({
     stripe,
   });
 
-  console.log("uploading invoices to keez ...");
-  const keezTierToItemMap = new Map<string, KeezItem>(
-    keezItems.map((item) => [item.name, item])
-  );
+  console.log('uploading invoices to keez ...');
+  const keezTierToItemMap = new Map<string, KeezItem>(keezItems.map((item) => [item.name, item]));
 
   // it seems that sometimes the invoices are not ordered by number, which keez kinda requires
   // so we need to sort them
-  const stripeInvoicesOrdered = stripeInvoices.sort(
-    sortStripeInvoiceBySeriesAndNumberAsc
-  );
+  const stripeInvoicesOrdered = stripeInvoices.sort(sortStripeInvoiceBySeriesAndNumberAsc);
 
   // upload invoices to keez
   const { newKeezInvoices, existingKeezInvoices } = await createKeezInvoices({
@@ -58,7 +49,7 @@ export async function uploadInvoicesToKeez({
   await promiseAllBatched(allKeezInvoices, 10, async (invoice) => {
     await downloadInvoicePdf({
       keez,
-      invoiceId: invoice.externalId ?? throwError("Missing ID"),
+      invoiceId: invoice.externalId ?? throwError('Missing ID'),
       invoiceNumber: `${invoice.series}-${invoice.number}`,
     });
   });
@@ -71,25 +62,21 @@ export async function uploadInvoicesToKeez({
   //   ),
   // });
 
-  const { reverseKeezInvoices, existingReverseKeezInvoices } =
-    await createReverseInvoices({
-      keez,
-      stripe,
-      stripeInvoices: stripeInvoicesOrdered,
-      keezTierToItemMap,
-      stripePriceMap,
-    });
-  allKeezInvoicesToValidate = reverseKeezInvoices.concat(
-    existingReverseKeezInvoices
-  );
+  const { reverseKeezInvoices, existingReverseKeezInvoices } = await createReverseInvoices({
+    keez,
+    stripe,
+    stripeInvoices: stripeInvoicesOrdered,
+    keezTierToItemMap,
+    stripePriceMap,
+  });
+  allKeezInvoicesToValidate = reverseKeezInvoices.concat(existingReverseKeezInvoices);
   await validateKeezInvoices({ keez, keezInvoices: allKeezInvoicesToValidate });
 
-  const allReverseKeezInvoices =
-    existingReverseKeezInvoices.concat(reverseKeezInvoices);
+  const allReverseKeezInvoices = existingReverseKeezInvoices.concat(reverseKeezInvoices);
   await promiseAllBatched(allReverseKeezInvoices, 10, async (invoice) => {
     await downloadInvoicePdf({
       keez,
-      invoiceId: invoice.externalId ?? throwError("Missing ID"),
+      invoiceId: invoice.externalId ?? throwError('Missing ID'),
       invoiceNumber: `${invoice.series}-${invoice.number}`,
     });
   });
@@ -103,12 +90,9 @@ export async function uploadInvoicesToKeez({
   // });
 }
 
-const capitalize = (s: string) =>
-  s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 const toKeezItemNameCode = (tier: string, variant?: string) =>
-  `First 2 Apply ${capitalize(tier)}${
-    variant ? ` - ${variant.toLowerCase()}` : ""
-  }`;
+  `First 2 Apply ${capitalize(tier)}${variant ? ` - ${variant.toLowerCase()}` : ''}`;
 async function upsertKeezItems({
   keez,
   stripeInvoices,
@@ -119,7 +103,7 @@ async function upsertKeezItems({
   stripe: Stripe;
 }) {
   // check if we have items in keez for the invoices
-  console.log("checking if keez has all required items ...");
+  console.log('checking if keez has all required items ...');
   let keezItems = await keez.listItems();
 
   const stripeItems: Stripe.InvoiceLineItem[] = [];
@@ -130,19 +114,15 @@ async function upsertKeezItems({
 
   const priceIds = new Set(
     stripeItems
-      .map((li) =>
-        li.pricing?.type === "price_details"
-          ? li.pricing.price_details?.price
-          : undefined
-      )
-      .filter((id): id is string => !!id)
+      .map((li) => (li.pricing?.type === 'price_details' ? li.pricing.price_details?.price : undefined))
+      .filter((id): id is string => !!id),
   );
 
   const stripePriceMap = new Map<string, Stripe.Price>();
   await Promise.all(
     [...priceIds].map(async (id) => {
       stripePriceMap.set(id, await stripe.prices.retrieve(id));
-    })
+    }),
   );
 
   console.log(`fetched ${stripeItems.length} items from Stripe`);
@@ -150,44 +130,33 @@ async function upsertKeezItems({
     ...new Set(
       stripeItems
         .map((li) => {
-          if (li.pricing?.type !== "price_details") return undefined;
-          const price = stripePriceMap.get(
-            li.pricing.price_details?.price ?? ""
-          );
+          if (li.pricing?.type !== 'price_details') return undefined;
+          const price = stripePriceMap.get(li.pricing.price_details?.price ?? '');
           return price?.metadata.tier;
         })
-        .filter((t): t is string => !!t)
+        .filter((t): t is string => !!t),
     ),
   ];
 
   // we need two versions for each item, one for ro clients and one for non-ro clients
-  const usedTierCodes = usedTiers.flatMap((tier) => [
-    toKeezItemNameCode(tier),
-    toKeezItemNameCode(tier, `ro`),
-  ]);
+  const usedTierCodes = usedTiers.flatMap((tier) => [toKeezItemNameCode(tier), toKeezItemNameCode(tier, `ro`)]);
 
-  const unkownTiers = usedTierCodes.filter(
-    (tierCode) => !keezItems.find((item) => item.name === tierCode)
-  );
+  const unkownTiers = usedTierCodes.filter((tierCode) => !keezItems.find((item) => item.name === tierCode));
   if (unkownTiers.length > 0) {
-    console.log(
-      `unkown tiers: ${unkownTiers.join(", ")}, creating them in keez ...`
-    );
+    console.log(`unkown tiers: ${unkownTiers.join(', ')}, creating them in keez ...`);
     for (const tier of unkownTiers) {
       // invoices for romanian clients have a different category
-      const categoryExternalId = tier.endsWith(" - ro")
-        ? "MISCSRV"
-        : "SRV_ELECTR";
+      const categoryExternalId = tier.endsWith(' - ro') ? 'MISCSRV' : 'SRV_ELECTR';
       const newKeezItem = await keez.createItem({
         name: tier,
         categoryExternalId, // Misc Services
-        currencyCode: "USD", // hard coded for now
+        currencyCode: 'USD', // hard coded for now
         isActive: true,
         measureUnitId: 1,
       });
       keezItems.push(newKeezItem);
     }
-    console.log("new tiers created");
+    console.log('new tiers created');
   }
 
   return { keezItems, stripePriceMap };
@@ -212,10 +181,7 @@ async function createKeezInvoices({
     console.log(`Creating invoice ${invoice.number} ...`);
     // check if the invoice is already uploaded
     const { series, number } = getInvoiceSeriesAndNumber(invoice);
-    const existingInvoice = await keez.getInvoiceBySeriesAndNumber(
-      series,
-      parseInt(number)
-    );
+    const existingInvoice = await keez.getInvoiceBySeriesAndNumber(series, parseInt(number));
     if (existingInvoice) {
       console.log(`Invoice ${invoice.number} already uploaded to Keez`);
       existingKeezInvoices.push(existingInvoice);
@@ -231,9 +197,7 @@ async function createKeezInvoices({
     });
     newKeezInvoices.push(keezInvoice);
   }
-  console.log(
-    `finished creating ${stripeInvoicesOrdered.length} invoices in Keez`
-  );
+  console.log(`finished creating ${stripeInvoicesOrdered.length} invoices in Keez`);
 
   return { newKeezInvoices, existingKeezInvoices };
 }
@@ -255,77 +219,59 @@ async function createKeezInvoiceFromStripeInvoice({
 }) {
   const { series, number } = getInvoiceSeriesAndNumber(stripeInvoice);
 
-  const countryCode =
-    stripeInvoice.customer_address?.country ??
-    throwError("Missing country code");
-  const isRomanianInvoice = countryCode === "RO";
+  const countryCode = stripeInvoice.customer_address?.country ?? throwError('Missing country code');
+  const isRomanianInvoice = countryCode === 'RO';
   const exchangeRate = isRomanianInvoice
     ? await getExchangeRate({
-        day: luxon.DateTime.fromSeconds(stripeInvoice.created).toFormat(
-          "yyyy-MM-dd"
-        ),
+        day: luxon.DateTime.fromSeconds(stripeInvoice.created).toFormat('yyyy-MM-dd'),
         currency: stripeInvoice.currency,
       })
     : 1;
 
-  let countyName =
-    stripeInvoice.customer_address?.state ||
-    stripeInvoice.customer_address?.city ||
-    "";
-  if (countyName.toLowerCase().trim() === "bucharest") {
-    countyName = "Bucuresti"; // București
+  let countyName = stripeInvoice.customer_address?.state || stripeInvoice.customer_address?.city || '';
+  if (countyName.toLowerCase().trim() === 'bucharest') {
+    countyName = 'Bucuresti'; // București
   }
-  const countryName =
-    COUNTRY_NAMES_BY_CODE[countryCode] ?? throwError("Unknown country");
+  const countryName = COUNTRY_NAMES_BY_CODE[countryCode] ?? throwError('Unknown country');
   const partner: KeezParter = {
-    partnerName: stripeInvoice.customer_name || throwError("Unnamed Customer"),
+    partnerName: stripeInvoice.customer_name || throwError('Unnamed Customer'),
     isLegalPerson: false,
     countryCode,
     countryName,
     cityName: stripeInvoice.customer_address?.city || countryName,
     countyName,
-    addressDetails: `${stripeInvoice.customer_address?.line1} ${
-      stripeInvoice.customer_address?.line2 || ""
-    }`,
+    addressDetails: `${stripeInvoice.customer_address?.line1} ${stripeInvoice.customer_address?.line2 || ''}`,
   };
 
   const comments: string[] = [];
   if (isStorno) {
     comments.push(
       `Stornare factura numarul ${series}${number} din data ${luxon.DateTime.fromSeconds(
-        stripeInvoice.created
-      ).toFormat("dd.MM.yyyy")}`
+        stripeInvoice.created,
+      ).toFormat('dd.MM.yyyy')}`,
     );
   }
 
   const multiplier = isStorno ? -1 : 1;
-  const totalTax =
-    stripeInvoice.total_taxes?.reduce((acc, tax) => acc + tax.amount, 0) ?? 0;
+  const totalTax = stripeInvoice.total_taxes?.reduce((acc, tax) => acc + tax.amount, 0) ?? 0;
   const vatAmountCurrency = multiplier * totalTax;
   let vatPercent = 0;
   const usedTaxRate = stripeInvoice.total_taxes?.find((tax) => tax.amount > 0);
   if (usedTaxRate) {
-    const taxRateId =
-      usedTaxRate.tax_rate_details?.tax_rate ??
-      throwError("Missing tax rate ID");
+    const taxRateId = usedTaxRate.tax_rate_details?.tax_rate ?? throwError('Missing tax rate ID');
     const taxRate = await stripe.taxRates.retrieve(taxRateId);
     vatPercent = taxRate.percentage;
   }
 
   const invoiceDetails = stripeInvoice.lines.data
     .map((item): KeezInvoiceDetail => {
-      const price =
-        stripePriceMap.get(item.pricing?.price_details?.price ?? "") ??
-        throwError("Missing price details");
+      const price = stripePriceMap.get(item.pricing?.price_details?.price ?? '') ?? throwError('Missing price details');
       const tier = price.metadata.tier;
       if (!tier) {
         throw new Error(`Item ${item.id} does not have a tier`);
       }
 
-      const keezItemName = toKeezItemNameCode(
-        tier,
-        isRomanianInvoice ? "ro" : ""
-      );
+      const keezItemName = toKeezItemNameCode(tier, isRomanianInvoice ? 'ro' : '');
       const keezItem = keezTierToItemMap.get(keezItemName);
       if (!keezItem) {
         throw new Error(`Item ${tier} not found in Keez`);
@@ -334,42 +280,30 @@ async function createKeezInvoiceFromStripeInvoice({
       if (item.period?.start && item.period?.end) {
         comments.push(
           `Period: ${luxon.DateTime.fromSeconds(item.period.start).toFormat(
-            "MMM dd, yyyy"
-          )} - ${luxon.DateTime.fromSeconds(item.period.end).toFormat(
-            "MMM dd, yyyy"
-          )}`
+            'MMM dd, yyyy',
+          )} - ${luxon.DateTime.fromSeconds(item.period.end).toFormat('MMM dd, yyyy')}`,
         );
       }
 
-      const unitPriceCurrency =
-        price.unit_amount ?? throwError("Missing unit price");
-      const quantity = item.quantity ?? throwError("Missing quantity");
+      const unitPriceCurrency = price.unit_amount ?? throwError('Missing unit price');
+      const quantity = item.quantity ?? throwError('Missing quantity');
       const originalNetAmountCurrency = item.amount; // total item price without discount
 
-      const discountAmountCurrency =
-        item.discount_amounts?.reduce(
-          (acc, discount) => acc + discount.amount,
-          0
-        ) ?? 0;
-      const netAmountCurrency =
-        originalNetAmountCurrency - discountAmountCurrency;
+      const discountAmountCurrency = item.discount_amounts?.reduce((acc, discount) => acc + discount.amount, 0) ?? 0;
+      const netAmountCurrency = originalNetAmountCurrency - discountAmountCurrency;
 
-      const originalVatAmountCurrency =
-        originalNetAmountCurrency * (vatPercent / 100);
+      const originalVatAmountCurrency = originalNetAmountCurrency * (vatPercent / 100);
       const vatAmountCurrency = netAmountCurrency * (vatPercent / 100);
-      const discountVatAmountCurrency =
-        originalVatAmountCurrency - vatAmountCurrency;
+      const discountVatAmountCurrency = originalVatAmountCurrency - vatAmountCurrency;
       const hasDiscount = discountAmountCurrency !== 0;
 
       return {
-        itemExternalId:
-          keezItem.externalId ?? throwError("Missing external ID"),
+        itemExternalId: keezItem.externalId ?? throwError('Missing external ID'),
         itemName: keezItem.name,
-        itemDescription: item.description ?? throwError("Missing description"),
-        measureUnitId: keezItem.measureUnitId ?? throwError("Missing measure"),
+        itemDescription: item.description ?? throwError('Missing description'),
+        measureUnitId: keezItem.measureUnitId ?? throwError('Missing measure'),
         // if the price is negative make sure the quantity is negative too
-        quantity:
-          originalNetAmountCurrency < 0 ? -quantity : quantity * multiplier,
+        quantity: originalNetAmountCurrency < 0 ? -quantity : quantity * multiplier,
         // quantity: multiplier * quantity,
 
         unitPriceCurrency: fromCents(unitPriceCurrency),
@@ -378,7 +312,7 @@ async function createKeezInvoiceFromStripeInvoice({
             value: unitPriceCurrency,
             exchangeRate,
             decimals: 4,
-          })
+          }),
         ),
         // unitPriceCurrency: Math.abs(fromCents(netAmountCurrency)),
         // unitPrice: Math.abs(
@@ -399,10 +333,9 @@ async function createKeezInvoiceFromStripeInvoice({
               value: netAmountCurrency,
               exchangeRate,
               decimals: 2,
-            })
+            }),
           ),
-        grossAmountCurrency:
-          multiplier * fromCents(netAmountCurrency + vatAmountCurrency),
+        grossAmountCurrency: multiplier * fromCents(netAmountCurrency + vatAmountCurrency),
         grossAmount:
           multiplier *
           fromCents(
@@ -410,10 +343,9 @@ async function createKeezInvoiceFromStripeInvoice({
               value: netAmountCurrency + vatAmountCurrency,
               exchangeRate,
               decimals: 2,
-            })
+            }),
           ),
-        originalNetAmountCurrency:
-          multiplier * fromCents(originalNetAmountCurrency),
+        originalNetAmountCurrency: multiplier * fromCents(originalNetAmountCurrency),
         originalNetAmount:
           multiplier *
           fromCents(
@@ -421,7 +353,7 @@ async function createKeezInvoiceFromStripeInvoice({
               value: originalNetAmountCurrency,
               exchangeRate,
               decimals: 2,
-            })
+            }),
           ),
 
         // VAT
@@ -434,10 +366,9 @@ async function createKeezInvoiceFromStripeInvoice({
               value: vatAmountCurrency,
               exchangeRate,
               decimals: 2,
-            })
+            }),
           ),
-        originalVatAmountCurrency:
-          multiplier * fromCents(originalVatAmountCurrency),
+        originalVatAmountCurrency: multiplier * fromCents(originalVatAmountCurrency),
         originalVatAmount:
           multiplier *
           fromCents(
@@ -445,16 +376,15 @@ async function createKeezInvoiceFromStripeInvoice({
               value: originalVatAmountCurrency,
               exchangeRate,
               decimals: 2,
-            })
+            }),
           ),
 
         // Discount
         ...(hasDiscount && {
-          discountType: "Value",
+          discountType: 'Value',
           discountValueOnNet: true,
 
-          discountNetValueCurrency:
-            multiplier * fromCents(discountAmountCurrency),
+          discountNetValueCurrency: multiplier * fromCents(discountAmountCurrency),
           discountNetValue:
             multiplier *
             fromCents(
@@ -462,10 +392,9 @@ async function createKeezInvoiceFromStripeInvoice({
                 value: discountAmountCurrency,
                 exchangeRate,
                 decimals: 2,
-              })
+              }),
             ),
-          discountVatValueCurrency:
-            multiplier * fromCents(discountVatAmountCurrency),
+          discountVatValueCurrency: multiplier * fromCents(discountVatAmountCurrency),
           discountVatValue:
             multiplier *
             fromCents(
@@ -473,11 +402,9 @@ async function createKeezInvoiceFromStripeInvoice({
                 value: discountVatAmountCurrency,
                 exchangeRate,
                 decimals: 2,
-              })
+              }),
             ),
-          discountGrossValueCurrency:
-            multiplier *
-            fromCents(discountAmountCurrency + discountVatAmountCurrency),
+          discountGrossValueCurrency: multiplier * fromCents(discountAmountCurrency + discountVatAmountCurrency),
           discountGrossValue:
             multiplier *
             fromCents(
@@ -485,7 +412,7 @@ async function createKeezInvoiceFromStripeInvoice({
                 value: discountAmountCurrency + discountVatAmountCurrency,
                 exchangeRate,
                 decimals: 2,
-              })
+              }),
             ),
         }),
 
@@ -504,48 +431,32 @@ async function createKeezInvoiceFromStripeInvoice({
   }
 
   const discountAmountCurrency =
-    multiplier *
-    (stripeInvoice.total_discount_amounts?.reduce(
-      (acc, discount) => acc + discount.amount,
-      0
-    ) ?? 0);
+    multiplier * (stripeInvoice.total_discount_amounts?.reduce((acc, discount) => acc + discount.amount, 0) ?? 0);
   const discountVatAmountCurrency = (discountAmountCurrency * vatPercent) / 100;
   const hasDiscount = discountAmountCurrency !== 0;
 
-  const netAmountCurrency =
-    multiplier *
-    (stripeInvoice.total_excluding_tax ?? throwError("Missing net amount"));
-  const originalNetAmountCurrency =
-    multiplier * (stripeInvoice.subtotal_excluding_tax ?? 0);
+  const netAmountCurrency = multiplier * (stripeInvoice.total_excluding_tax ?? throwError('Missing net amount'));
+  const originalNetAmountCurrency = multiplier * (stripeInvoice.subtotal_excluding_tax ?? 0);
   const grossAmountCurrency = multiplier * (stripeInvoice.total ?? 0);
-  const originalVatAmountCurrency =
-    multiplier * originalNetAmountCurrency * (vatPercent / 100);
+  const originalVatAmountCurrency = multiplier * originalNetAmountCurrency * (vatPercent / 100);
 
   // for romanian invoices, the reference currency HAS to be RON
-  const currencyCode = isRomanianInvoice
-    ? "RON"
-    : stripeInvoice.currency.toUpperCase();
+  const currencyCode = isRomanianInvoice ? 'RON' : stripeInvoice.currency.toUpperCase();
   const referenceCurrencyCode = stripeInvoice.currency.toUpperCase(); // must always be the same as the invoice currency
 
   const keezInvoice: KeezInvoice = {
     // externalId: stripeInvoice.id,
-    series: isStorno ? "F2C" : series,
+    series: isStorno ? 'F2C' : series,
     number: isStorno ? undefined : parseInt(number),
     ...(isStorno && {
       storno: {
         series,
         number: parseInt(number),
-        date: luxon.DateTime.fromSeconds(stripeInvoice.created).toFormat(
-          "yyyyMMdd"
-        ),
+        date: luxon.DateTime.fromSeconds(stripeInvoice.created).toFormat('yyyyMMdd'),
       },
     }),
-    documentDate: luxon.DateTime.fromSeconds(stripeInvoice.created).toFormat(
-      "yyyyMMdd"
-    ),
-    dueDate: luxon.DateTime.fromSeconds(
-      stripeInvoice.due_date ?? stripeInvoice.created
-    ).toFormat("yyyyMMdd"),
+    documentDate: luxon.DateTime.fromSeconds(stripeInvoice.created).toFormat('yyyyMMdd'),
+    dueDate: luxon.DateTime.fromSeconds(stripeInvoice.due_date ?? stripeInvoice.created).toFormat('yyyyMMdd'),
     vatOnCollection: false,
     currencyCode,
     referenceCurrencyCode,
@@ -561,7 +472,7 @@ async function createKeezInvoiceFromStripeInvoice({
         value: netAmountCurrency,
         exchangeRate,
         decimals: 2,
-      })
+      }),
     ),
     originalNetAmountCurrency: fromCents(originalNetAmountCurrency),
     originalNetAmount: fromCents(
@@ -569,7 +480,7 @@ async function createKeezInvoiceFromStripeInvoice({
         value: originalNetAmountCurrency,
         exchangeRate,
         decimals: 2,
-      })
+      }),
     ),
 
     grossAmountCurrency: fromCents(grossAmountCurrency),
@@ -578,7 +489,7 @@ async function createKeezInvoiceFromStripeInvoice({
         value: grossAmountCurrency,
         exchangeRate,
         decimals: 2,
-      })
+      }),
     ),
 
     // VAT
@@ -588,7 +499,7 @@ async function createKeezInvoiceFromStripeInvoice({
         value: vatAmountCurrency,
         exchangeRate,
         decimals: 2,
-      })
+      }),
     ),
     originalVatAmountCurrency: fromCents(originalVatAmountCurrency),
     originalVatAmount: fromCents(
@@ -596,12 +507,12 @@ async function createKeezInvoiceFromStripeInvoice({
         value: originalVatAmountCurrency,
         exchangeRate,
         decimals: 2,
-      })
+      }),
     ),
 
     // Discount
     ...(hasDiscount && {
-      discountType: "Value",
+      discountType: 'Value',
       discountValueOnNet: true,
 
       discountNetValueCurrency: fromCents(discountAmountCurrency),
@@ -610,7 +521,7 @@ async function createKeezInvoiceFromStripeInvoice({
           value: discountAmountCurrency,
           exchangeRate,
           decimals: 2,
-        })
+        }),
       ),
       discountVatValueCurrency: fromCents(discountVatAmountCurrency),
       discountVatValue: fromCents(
@@ -618,62 +529,50 @@ async function createKeezInvoiceFromStripeInvoice({
           value: discountVatAmountCurrency,
           exchangeRate,
           decimals: 2,
-        })
+        }),
       ),
 
-      discountGrossValueCurrency: fromCents(
-        discountAmountCurrency + discountVatAmountCurrency
-      ),
+      discountGrossValueCurrency: fromCents(discountAmountCurrency + discountVatAmountCurrency),
       discountGrossValue: fromCents(
         convertCurrency({
           value: discountAmountCurrency + discountVatAmountCurrency,
           exchangeRate,
           decimals: 2,
-        })
+        }),
       ),
     }),
 
     exciseAmountCurrency: 0,
     exciseAmount: 0,
 
-    comments: comments.join("\n"),
+    comments: comments.join('\n'),
   };
 
   const createdInvoice = await keez.createInvoice(keezInvoice);
 
-  console.log(
-    `Invoice ${createdInvoice.series}-${createdInvoice.number} uploaded to Keez`
-  );
+  console.log(`Invoice ${createdInvoice.series}-${createdInvoice.number} uploaded to Keez`);
   return createdInvoice;
 }
 
-async function validateKeezInvoices({
-  keez,
-  keezInvoices,
-}: {
-  keez: KeezApi;
-  keezInvoices: KeezInvoice[];
-}) {
+async function validateKeezInvoices({ keez, keezInvoices }: { keez: KeezApi; keezInvoices: KeezInvoice[] }) {
   console.log(`Validating ${keezInvoices.length} invoices in Keez ...`);
   for (const invoice of keezInvoices) {
-    const invoiceId = invoice?.externalId ?? throwError("Missing ID");
+    const invoiceId = invoice?.externalId ?? throwError('Missing ID');
     try {
       await keez.validateInvoice(invoiceId);
     } catch (error) {
-      console.log(
-        `Error validating invoice ${invoiceId}: ${getExceptionMessage(error)}`
-      );
+      console.log(`Error validating invoice ${invoiceId}: ${getExceptionMessage(error)}`);
     }
   }
-  console.log("All invoices validated in Keez");
+  console.log('All invoices validated in Keez');
 }
 
 function getInvoiceSeriesAndNumber(stripeInvoice: Stripe.Invoice) {
-  const series = stripeInvoice.number?.split("-")[0];
+  const series = stripeInvoice.number?.split('-')[0];
   if (!series) {
     throw new Error(`Invoice ${stripeInvoice.id} does not have a series`);
   }
-  const number = stripeInvoice.number?.split("-")[1];
+  const number = stripeInvoice.number?.split('-')[1];
   if (!number) {
     throw new Error(`Invoice ${stripeInvoice.id} does not have a number`);
   }
@@ -730,13 +629,7 @@ async function getExchangeRateMap(): Promise<ExchangeRateMap> {
   exchangeRateMap = freshExchangeRateMap;
   return exchangeRateMap;
 }
-async function getExchangeRate({
-  day,
-  currency,
-}: {
-  day: string;
-  currency: string;
-}) {
+async function getExchangeRate({ day, currency }: { day: string; currency: string }) {
   const exchangeRateMap = await getExchangeRateMap();
   const exchangeRates = exchangeRateMap[day];
   if (!exchangeRates) {
@@ -744,9 +637,8 @@ async function getExchangeRate({
   }
 
   return (
-    exchangeRates.find(
-      (rate) => rate.currency.toLowerCase() === currency.toLowerCase()
-    )?.value ?? throwError(`No exchange rate found for RON on day ${day}`)
+    exchangeRates.find((rate) => rate.currency.toLowerCase() === currency.toLowerCase())?.value ??
+    throwError(`No exchange rate found for RON on day ${day}`)
   );
 }
 
@@ -768,21 +660,15 @@ function fromCents(cents: number) {
   return _.round(cents / 100, 2);
 }
 
-async function deleteInvoicesFromKeez({
-  keez,
-  keezInvoices,
-}: {
-  keez: KeezApi;
-  keezInvoices: KeezInvoice[];
-}) {
+async function deleteInvoicesFromKeez({ keez, keezInvoices }: { keez: KeezApi; keezInvoices: KeezInvoice[] }) {
   console.log(`Deleting ${keezInvoices.length} invoices from Keez ...`);
 
   for (const invoice of keezInvoices) {
     const { series, number } = invoice;
     console.log(`Deleting invoice ${series}-${number}`);
-    await keez.deleteInvoice(invoice?.externalId ?? throwError("Missing ID"));
+    await keez.deleteInvoice(invoice?.externalId ?? throwError('Missing ID'));
   }
-  console.log("All invoices deleted from Keez");
+  console.log('All invoices deleted from Keez');
 }
 
 /**
@@ -801,23 +687,21 @@ export async function createReverseInvoices({
   keezTierToItemMap: Map<string, KeezItem>;
   stripePriceMap: Map<string, Stripe.Price>;
 }) {
-  console.log("Creating reverse invoices ...");
+  console.log('Creating reverse invoices ...');
 
   let invoicesToReverse: Stripe.Invoice[] = [];
   await promiseAllBatched(stripeInvoices, 10, async (invoice) => {
     const paymentIntentId = invoice.payments?.data[0]?.payment?.payment_intent;
     const paymentIntent =
-      paymentIntentId === "string"
-        ? await stripe.paymentIntents.retrieve(paymentIntentId)
-        : undefined;
+      paymentIntentId === 'string' ? await stripe.paymentIntents.retrieve(paymentIntentId) : undefined;
 
     const latestCharge =
-      typeof paymentIntent?.latest_charge === "string"
+      typeof paymentIntent?.latest_charge === 'string'
         ? await stripe.charges.retrieve(paymentIntent.latest_charge)
         : undefined;
     const isRefunded = latestCharge?.refunded ?? false;
     const isPaid =
-      invoice.status === "paid" &&
+      invoice.status === 'paid' &&
       invoice.status_transitions.paid_at !== null &&
       invoice.status_transitions.voided_at === null &&
       invoice.status_transitions.marked_uncollectible_at === null;
@@ -826,12 +710,8 @@ export async function createReverseInvoices({
       invoicesToReverse.push(invoice);
     }
   });
-  invoicesToReverse = invoicesToReverse.sort(
-    sortStripeInvoiceBySeriesAndNumberAsc
-  );
-  console.log(
-    `Found ${invoicesToReverse.length} invoices to reverse out of ${stripeInvoices.length}`
-  );
+  invoicesToReverse = invoicesToReverse.sort(sortStripeInvoiceBySeriesAndNumberAsc);
+  console.log(`Found ${invoicesToReverse.length} invoices to reverse out of ${stripeInvoices.length}`);
 
   const reverseKeezInvoices: KeezInvoice[] = [];
   const existingReverseKeezInvoices: KeezInvoice[] = [];
@@ -840,11 +720,9 @@ export async function createReverseInvoices({
 
     // check if the invoice is already uploaded
     const existingInvoice = await keez.getReverseInvoice({
-      series: "F2C",
-      client: invoice.customer_name ?? throwError("Missing customer name"),
-      documentDate: luxon.DateTime.fromSeconds(
-        invoice.due_date ?? invoice.created
-      ).toFormat("yyyyMMdd"),
+      series: 'F2C',
+      client: invoice.customer_name ?? throwError('Missing customer name'),
+      documentDate: luxon.DateTime.fromSeconds(invoice.due_date ?? invoice.created).toFormat('yyyyMMdd'),
       originalInvoiceSeries: series,
       originalInvoiceNumber: number,
     });
@@ -870,10 +748,7 @@ export async function createReverseInvoices({
   return { reverseKeezInvoices, existingReverseKeezInvoices };
 }
 
-function sortStripeInvoiceBySeriesAndNumberAsc(
-  a: Stripe.Invoice,
-  b: Stripe.Invoice
-) {
+function sortStripeInvoiceBySeriesAndNumberAsc(a: Stripe.Invoice, b: Stripe.Invoice) {
   const aNumber = parseInt(getInvoiceSeriesAndNumber(a).number);
   const bNumber = parseInt(getInvoiceSeriesAndNumber(b).number);
   return aNumber - bNumber;
@@ -899,14 +774,14 @@ async function downloadInvoicePdf({
   const pdf = await keez.downloadInvoicePdf(invoiceId);
 
   // Ensure the folder exists
-  const folderPath = "./invoices";
+  const folderPath = './invoices';
   if (!fs.existsSync(folderPath)) {
     fs.mkdirSync(folderPath);
   }
 
   // Define the PDF path and write the file
   const filePath = path.join(folderPath, `${invoiceNumber}.pdf`);
-  fs.writeFileSync(filePath, pdf, { encoding: "binary" });
+  fs.writeFileSync(filePath, pdf, { encoding: 'binary' });
 
   console.log(`Invoice ${invoiceNumber} saved to ${filePath}`);
 }

@@ -1,7 +1,7 @@
+import { ENV } from '../env';
+
 import { Logger as MezmoLogger, createLogger } from '@logdna/logger';
 import { app } from 'electron';
-
-import { ENV } from '../env';
 
 export interface ILogger {
   debug(message: string, data?: Record<string, any>): void;

@@ -23,12 +23,12 @@ export function OrganizationSection() {
       <Image
         src={organizationLight}
         alt="organization light"
-        className="h-auto w-full pb-6 pr-5 dark:hidden md:w-1/2"
+        className="h-auto w-full pb-6 pr-5 md:w-1/2 dark:hidden"
       />
       <Image
         src={organizationDark}
         alt="organization dark"
-        className="hidden h-auto w-full pb-6 pr-5 dark:block md:w-1/2"
+        className="hidden h-auto w-full pb-6 pr-5 md:w-1/2 dark:block"
       />
     </section>
   );
