@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "outDir": "./build",
     /* Visit https://aka.ms/tsconfig to read more about this file */
 
     /* Projects */

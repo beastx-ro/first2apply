@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
       if (getUserIdError) {
         throw getUserIdError;
       }
-      const userId = data?.[0]?.id;
+      const userId = (data as unknown as any)?.[0]?.id;
       if (!userId) {
         throw new Error(`No user found for email ${customer.email}`);
       }
