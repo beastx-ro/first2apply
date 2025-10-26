@@ -1,3 +1,6 @@
+import { useError } from '@/hooks/error';
+import { addFileToNote, createNote, deleteNote, listNotes, updateNote } from '@/lib/electronMainSdk';
+import { Note } from '@first2apply/core';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -7,20 +10,16 @@ import {
   AlertDialogTitle,
 } from '@first2apply/ui';
 import { useToast } from '@first2apply/ui';
-import { useError } from '@/hooks/error';
-import { addFileToNote, createNote, deleteNote, listNotes, updateNote } from '@/lib/electronMainSdk';
-import { Note } from '@first2apply/core';
+import { AlertDialogFooter, AlertDialogHeader } from '@first2apply/ui';
+import { Button } from '@first2apply/ui';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@first2apply/ui';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';
 import { PlusIcon } from '@radix-ui/react-icons';
 import { Pencil2Icon, TrashIcon } from '@radix-ui/react-icons';
 import { useEffect, useState } from 'react';
 import Markdown from 'react-markdown';
 import TextareaAutosize from 'react-textarea-autosize';
 import remarkGfm from 'remark-gfm';
-
-import { AlertDialogFooter, AlertDialogHeader } from '@first2apply/ui';
-import { Button } from '@first2apply/ui';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@first2apply/ui';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';
 
 /**
  * Job notes component.
@@ -198,7 +197,6 @@ export function JobNotes({ jobId }: { jobId: number }) {
 function JobNote({
   note,
   onDelete,
-  onAddFile,
   onStartEditing,
 }: {
   note: Note;
@@ -286,7 +284,6 @@ function EditJobNote({
   isNew,
   onCreate,
   onUpdate,
-  onAddFile,
   onEndEditing,
 }: {
   note: Note;
@@ -296,8 +293,6 @@ function EditJobNote({
   onAddFile: (noteId: number, file: string) => Promise<void>;
   onEndEditing: () => void;
 }) {
-  const { toast } = useToast();
-
   const [text, setText] = useState(note.text);
 
   return (
