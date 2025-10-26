@@ -44,7 +44,6 @@
     "babel-runtime": "^6.26.0",
     "css-loader": "^6.9.0",
     "electron": "^38.2.0",
-    "eslint": "^8.56.0",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.1",
     "fork-ts-checker-webpack-plugin": "^7.3.0",
