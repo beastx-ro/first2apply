@@ -90,6 +90,7 @@
     "clsx": "^2.1.0",
     "copy-webpack-plugin": "^12.0.1",
     "dotenv": "^16.3.1",
+    "electron-forge": "5.2.4",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.2.0",
     "exponential-backoff": "^3.1.1",
