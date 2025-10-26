@@ -1,7 +1,7 @@
 import { DbSchema, SubscriptionTier } from '@first2apply/core';
 import { getExceptionMessage } from '@first2apply/core';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.48.1';
-import Stripe from 'npm:stripe@^15.1.0';
+import { createClient } from '@supabase/supabase-js';
+import Stripe from 'npm:stripe';
 
 import { CORS_HEADERS } from '../_shared/cors.ts';
 import { createLoggerWithMeta } from '../_shared/logger.ts';
@@ -60,6 +60,7 @@ Deno.serve(async (req) => {
       if (getUserIdError) {
         throw getUserIdError;
       }
+      // deno-lint-ignore no-explicit-any
       const userId = (data as unknown as any)?.[0]?.id;
       if (!userId) {
         throw new Error(`No user found for email ${customer.email}`);
@@ -79,7 +80,7 @@ Deno.serve(async (req) => {
         .update({
           stripe_customer_id: customer.id,
           stripe_subscription_id: subscription.id,
-          // @ts-ignore: type is actually Date, but the front end get's it as a string
+          // @ts-expect-error: type is actually Date, but the front end get's it as a string
           subscription_end_date: new Date(subscription.current_period_end * 1000),
           subscription_tier: tier,
           is_trial: false,
