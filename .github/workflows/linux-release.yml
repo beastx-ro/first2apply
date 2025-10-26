@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - ci/monorepo
   workflow_dispatch:
 
 jobs:
@@ -15,21 +17,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: '22'
+          cache: 'pnpm'
           
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y rpm
           
       - name: Install dependencies
         run: |
-          cd desktopProbe
-          npm ci
+          pnpm install --frozen-lockfile
           
       - name: Build Linux packages
         env:
@@ -39,7 +42,7 @@ jobs:
           MEZMO_API_KEY: ${{ secrets.MEZMO_API_KEY }}
           AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
         run: |
-          cd desktopProbe
+          cd app/sdesktopProbe
           npm run build:linux
           
       - name: Configure AWS credentials
@@ -54,10 +57,10 @@ jobs:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
         run: |
           # Get the version from package.json
-          VERSION=$(node -p "require('./desktopProbe/package.json').version")
+          VERSION=$(node -p "require('./package.json').version")
           
           # Upload DEB file
-          aws s3 cp desktopProbe/out/make/deb/x64/*.deb \
+          aws s3 cp apps/desktopProbe/out/make/deb/x64/*.deb \
             s3://${S3_BUCKET_NAME}/releases/linux/x64/first2apply-${VERSION}-amd64.deb \
             --acl public-read
           
@@ -65,7 +68,7 @@ jobs:
         env:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
         run: |
-          VERSION=$(node -p "require('./desktopProbe/package.json').version")
+          VERSION=$(node -p "require('./package.json').version")
           
           # Create "latest" versions for easy linking
           aws s3 cp s3://${S3_BUCKET_NAME}/releases/linux/x64/first2apply-${VERSION}-amd64.deb \
