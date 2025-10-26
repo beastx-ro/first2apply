@@ -37,7 +37,7 @@ jobs:
           MEZMO_API_KEY: ${{ secrets.MEZMO_API_KEY }}
           AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
         run: |
-          cd desktopProbe
+          cd apps\desktopProbe
           pnpm build:win
           
       - name: Configure AWS credentials
