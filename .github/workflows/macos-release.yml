@@ -15,16 +15,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
+      - name: Setup pnpm
+        uses: pnpm/setup-node@v4
+        with:
+          version: '10'
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: '22'
+          cache: 'pnpm'
           
       - name: Install dependencies
         run: |
-          cd desktopProbe
-          npm ci
+          pnpm install --frozen-lockfile
           
       - name: Build macOS packages
         env:
