@@ -40,6 +40,8 @@
     "@release-it/conventional-changelog": "^8.0.1",
     "@slack/webhook": "^7.0.2",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "@types/lodash": "^4.17.13",
+    "@types/luxon": "^3.4.2",
     "@types/node": "^20.19.23",
     "@types/url-join": "^4",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
@@ -56,24 +58,22 @@
     "nx": "16.4.2",
     "pino-pretty": "^11.2.2",
     "prettier": "^3.3.3",
-    "release-it": "^17.6.0",
+    "release-it": "^17.11.0",
     "slackify-markdown": "^4.3.1",
     "supabase": "^2.53.6",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
-    "yarn-audit-fix": "^10.1.1",
-    "@types/lodash": "^4.17.13",
-    "@types/luxon": "^3.4.2"
+    "yarn-audit-fix": "^10.1.1"
   },
   "dependencies": {
-    "javascript-time-ago": "^2.5.12",
-    "luxon": "^3.7.2",
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
+    "javascript-time-ago": "^2.5.12",
     "lodash": "^4.17.21",
-    "url-join": "^4.0.1",
-    "next": "^14.2.33"
+    "luxon": "^3.7.2",
+    "next": "^14.2.33",
+    "url-join": "^4.0.1"
   }
 }
