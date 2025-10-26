@@ -1,33 +1,33 @@
 export enum SiteProvider {
-  linkedin = "linkedin",
-  glassdoor = "glassdoor",
-  indeed = "indeed",
-  remoteok = "remoteok",
-  weworkremotely = "weworkremotely",
-  dice = "dice",
-  flexjobs = "flexjobs",
-  bestjobs = "bestjobs",
-  echojobs = "echojobs",
-  remotive = "remotive",
-  remoteio = "remoteio",
-  builtin = "builtin",
-  naukri = "naukri",
-  robertHalf = "robertHalf",
-  zipRecruiter = "zipRecruiter",
-  usaJobs = "usaJobs",
-  talent = "talent",
+  linkedin = 'linkedin',
+  glassdoor = 'glassdoor',
+  indeed = 'indeed',
+  remoteok = 'remoteok',
+  weworkremotely = 'weworkremotely',
+  dice = 'dice',
+  flexjobs = 'flexjobs',
+  bestjobs = 'bestjobs',
+  echojobs = 'echojobs',
+  remotive = 'remotive',
+  remoteio = 'remoteio',
+  builtin = 'builtin',
+  naukri = 'naukri',
+  robertHalf = 'robertHalf',
+  zipRecruiter = 'zipRecruiter',
+  usaJobs = 'usaJobs',
+  talent = 'talent',
 
   // generic provider for sites not in the list above
-  custom = "custom",
+  custom = 'custom',
 }
 
 export const JOB_LABELS = {
-  CONSIDERING: "Considering",
-  SUBMITTED: "Submitted",
-  INTERVIEWING: "Interviewing",
-  OFFER: "Offer",
-  REJECTED: "Rejected",
-  GHOSTED: "Ghosted",
+  CONSIDERING: 'Considering',
+  SUBMITTED: 'Submitted',
+  INTERVIEWING: 'Interviewing',
+  OFFER: 'Offer',
+  REJECTED: 'Rejected',
+  GHOSTED: 'Ghosted',
 } as const;
 
 export type JobLabel = (typeof JOB_LABELS)[keyof typeof JOB_LABELS];
@@ -44,7 +44,7 @@ export type JobSite = {
   urls: string[];
   queryParamsToRemove?: string[];
   blacklisted_paths: string[];
-  created_at: Date;
+  created_at: string;
   logo_url: string;
   deprecated: boolean;
   incognito_support: boolean;
@@ -56,20 +56,14 @@ export type Link = {
   title: string;
   user_id: string;
   site_id: number;
-  created_at: Date;
+  created_at: string;
   scrape_failure_count: number;
-  last_scraped_at: Date;
+  last_scraped_at: string;
   scrape_failure_email_sent: boolean;
 };
 
-export type JobType = "remote" | "hybrid" | "onsite";
-export type JobStatus =
-  | "new"
-  | "applied"
-  | "archived"
-  | "deleted"
-  | "processing"
-  | "excluded_by_advanced_matching";
+export type JobType = 'remote' | 'hybrid' | 'onsite';
+export type JobStatus = 'new' | 'applied' | 'archived' | 'deleted' | 'processing' | 'excluded_by_advanced_matching';
 export type Job = {
   id: number;
   user_id: string;
@@ -125,7 +119,7 @@ export type Note = {
   files: string[];
 };
 
-export type SubscriptionTier = "basic" | "pro";
+export type SubscriptionTier = 'basic' | 'pro';
 export type Profile = {
   id: number;
   user_id: string;
@@ -167,13 +161,13 @@ export type DbSchema = {
     Tables: {
       sites: {
         Row: JobSite;
-        Insert: Pick<JobSite, "name" | "urls">;
+        Insert: Pick<JobSite, 'name' | 'urls'>;
         Update: never;
         Relationships: [];
       };
       links: {
         Row: Link;
-        Insert: Pick<Link, "url" | "title" | "site_id">;
+        Insert: Pick<Link, 'url' | 'title' | 'site_id'>;
         Update: {
           title?: string;
           url?: string;
@@ -187,34 +181,31 @@ export type DbSchema = {
         Row: Job;
         Insert: Pick<
           Job,
-          | "siteId"
-          | "externalId"
-          | "externalUrl"
-          | "title"
-          | "companyName"
-          | "companyLogo"
-          | "location"
-          | "salary"
-          | "tags"
-          | "jobType"
-          | "status"
-          | "link_id"
+          | 'siteId'
+          | 'externalId'
+          | 'externalUrl'
+          | 'title'
+          | 'companyName'
+          | 'companyLogo'
+          | 'location'
+          | 'salary'
+          | 'tags'
+          | 'jobType'
+          | 'status'
+          | 'link_id'
         >;
-        Update:
-          | Pick<Job, "status">
-          | Pick<Job, "description">
-          | Pick<Job, "labels">;
+        Update: Pick<Job, 'status'> | Pick<Job, 'description'> | Pick<Job, 'labels'>;
         Relationships: [];
       };
       reviews: {
         Row: Review;
-        Insert: Pick<Review, "title" | "description" | "rating">;
-        Update: Pick<Review, "title" | "description" | "rating">;
+        Insert: Pick<Review, 'title' | 'description' | 'rating'>;
+        Update: Pick<Review, 'title' | 'description' | 'rating'>;
         Relationships: [];
       };
       html_dumps: {
         Row: HtmlDump;
-        Insert: Pick<HtmlDump, "url" | "html">;
+        Insert: Pick<HtmlDump, 'url' | 'html'>;
         Update: never;
         Relationships: [];
       };
@@ -223,32 +214,20 @@ export type DbSchema = {
         Insert: never;
         Update: Pick<
           Profile,
-          | "stripe_customer_id"
-          | "stripe_subscription_id"
-          | "subscription_end_date"
-          | "subscription_tier"
-          | "is_trial"
+          'stripe_customer_id' | 'stripe_subscription_id' | 'subscription_end_date' | 'subscription_tier' | 'is_trial'
         >;
         Relationships: [];
       };
       notes: {
         Row: Note;
-        Insert: Pick<Note, "job_id" | "text" | "files">;
-        Update: Partial<Pick<Note, "text" | "files">>;
+        Insert: Pick<Note, 'job_id' | 'text' | 'files'>;
+        Update: Partial<Pick<Note, 'text' | 'files'>>;
         Relationships: [];
       };
       advanced_matching: {
         Row: AdvancedMatchingConfig;
-        Insert: Pick<
-          AdvancedMatchingConfig,
-          "blacklisted_companies" | "chatgpt_prompt"
-        >;
-        Update: Partial<
-          Pick<
-            AdvancedMatchingConfig,
-            "blacklisted_companies" | "chatgpt_prompt"
-          >
-        >;
+        Insert: Pick<AdvancedMatchingConfig, 'blacklisted_companies' | 'chatgpt_prompt'>;
+        Update: Partial<Pick<AdvancedMatchingConfig, 'blacklisted_companies' | 'chatgpt_prompt'>>;
         Relationships: [];
       };
     };

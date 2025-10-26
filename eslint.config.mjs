@@ -44,6 +44,6 @@ export default [
   },
   {
     // Use "ignores" to specify patterns to ignore
-    ignores: ['apps/channelApis/src/channels/adaptorMainProxy/', 'apps/channelContents/src/compatibility/adaptorMain/'],
+    ignores: [],
   },
 ];

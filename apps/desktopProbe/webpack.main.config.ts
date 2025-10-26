@@ -1,20 +1,21 @@
-import type { Configuration, PathData, AssetInfo } from "webpack";
+import path from 'path';
+import type { AssetInfo, Configuration, PathData } from 'webpack';
 
-import { rules } from "./webpack.rules";
-import { plugins } from "./webpack.plugins";
+import { plugins } from './webpack.plugins';
+import { rules } from './webpack.rules';
 
 export const mainConfig: Configuration = {
   /**
    * This is the main entry point for your application, it's the first file
    * that runs in the main process.
    */
-  entry: "./src/index.ts",
+  entry: './src/index.ts',
   // Put your normal webpack config below here
   module: {
     rules,
   },
   plugins,
   resolve: {
-    extensions: [".js", ".ts", ".jsx", ".tsx", ".css", ".json"],
+    extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
   },
 };

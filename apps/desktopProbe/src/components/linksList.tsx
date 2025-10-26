@@ -66,11 +66,11 @@ export function LinksList({
                 <div>
                   <p className="text-xs font-light text-foreground/40">
                     {'Last checked '}
-                    <ReactTimeAgo date={link.last_scraped_at} locale="en-US" />
+                    <ReactTimeAgo date={new Date(link.last_scraped_at)} locale="en-US" />
                   </p>
                   <p className="text-xs font-light text-foreground/40">
                     {'Added '}
-                    <ReactTimeAgo date={link.created_at} locale="en-US" />
+                    <ReactTimeAgo date={new Date(link.created_at)} locale="en-US" />
                   </p>
                 </div>
 
