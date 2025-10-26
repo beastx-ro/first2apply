@@ -2,12 +2,12 @@ import { BrowserWindow, BrowserWindowHandle } from '@/components/browserWindow';
 import { CreateLink } from '@/components/createLink';
 import { LinksList } from '@/components/linksList';
 import { LinksListSkeleton } from '@/components/skeletons/linksListSkeleton';
-import { toast } from '@first2apply/ui';
 import { useAppState } from '@/hooks/appState';
 import { useError } from '@/hooks/error';
 import { useLinks } from '@/hooks/links';
 import { scanLink } from '@/lib/electronMainSdk';
 import { throwError } from '@first2apply/core';
+import { toast } from '@first2apply/ui';
 import { useEffect, useRef, useState } from 'react';
 
 import { DefaultLayout } from './defaultLayout';
@@ -60,6 +60,7 @@ export function LinksPage() {
       toast({
         title: 'Scanning URL in background ...',
         description: 'The link will be scanned in the background. You will be notified if there are new jobs.',
+        // variant: 'success',
       });
     } catch (error) {
       handleError({ error });
