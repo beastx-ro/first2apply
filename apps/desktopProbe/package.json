@@ -10,6 +10,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
+    "build": "echo 'building deps'",
     "build:win": "electron-forge make --platform=win32 --targets=@electron-forge/maker-appx",
     "build:linux": "electron-forge make --platform=linux --arch=x64",
     "build:mac": "electron-forge make --platform=darwin && electron-forge make --platform=darwin --arch=x64",
