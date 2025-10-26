@@ -1,5 +1,5 @@
 import { ForgotPasswordCard } from '@/components/forgotPasswordCard';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@first2apply/ui';
 import { useError } from '@/hooks/error';
 import { sendPasswordResetEmail } from '@/lib/electronMainSdk';
 import { useState } from 'react';

@@ -1,5 +1,5 @@
-import { TabsContent } from '@/components/ui/tabs';
-import { toast } from '@/components/ui/use-toast';
+import { TabsContent } from '@first2apply/ui';
+import { toast } from '@first2apply/ui';
 import { useAppState } from '@/hooks/appState';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';

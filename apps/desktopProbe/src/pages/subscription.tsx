@@ -1,5 +1,5 @@
 import { PricingOptions } from '@/components/pricingOptions';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@first2apply/ui';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
 import { openExternalUrl } from '@/lib/electronMainSdk';

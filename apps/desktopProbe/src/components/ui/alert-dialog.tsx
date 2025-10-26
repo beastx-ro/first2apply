@@ -1,4 +1,4 @@
-import { buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@first2apply/ui';
 import { cn } from '@/lib/utils';
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
 import * as React from 'react';

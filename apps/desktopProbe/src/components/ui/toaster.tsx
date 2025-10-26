@@ -1,5 +1,5 @@
-import { Toast, ToastClose, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from '@/components/ui/toast';
-import { useToast } from '@/components/ui/use-toast';
+import { Toast, ToastClose, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from '@first2apply/ui';
+import { useToast } from '@first2apply/ui';
 
 export function Toaster() {
   const { toasts } = useToast();

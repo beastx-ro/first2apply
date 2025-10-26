@@ -1,3 +1,4 @@
+import { Toaster } from '@first2apply/ui';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import { ComponentType, useEffect } from 'react';
@@ -6,7 +7,6 @@ import { Route, RouterProvider, createMemoryRouter, createRoutesFromElements } f
 
 import { withAuthGuard } from './components/authGuard';
 import { ThemeProvider } from './components/themeProvider';
-import { Toaster } from './components/ui/toaster';
 import { AppStateProvider } from './hooks/appState';
 import { LinksProvider } from './hooks/links';
 import { SessionProvider } from './hooks/session';

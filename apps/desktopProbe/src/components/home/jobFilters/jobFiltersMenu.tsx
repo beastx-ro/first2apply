@@ -10,7 +10,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@first2apply/ui';
 import { useLinks } from '@/hooks/links';
 import { useSites } from '@/hooks/sites';
 import { LABEL_COLOR_CLASSES } from '@/lib/labels';

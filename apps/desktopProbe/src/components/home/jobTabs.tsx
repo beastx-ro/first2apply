@@ -7,16 +7,16 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from '@first2apply/ui';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { toast } from '@/components/ui/use-toast';
+} from '@first2apply/ui';
+import { Tabs, TabsList, TabsTrigger } from '@first2apply/ui';
+import { toast } from '@first2apply/ui';
 import { useError } from '@/hooks/error';
 import { changeAllJobsStatus, exportJobsToCsv } from '@/lib/electronMainSdk';
 import { Job, JobStatus } from '@first2apply/core';

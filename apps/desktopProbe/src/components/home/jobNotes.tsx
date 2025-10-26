@@ -5,8 +5,8 @@ import {
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { useToast } from '@/components/ui/use-toast';
+} from '@first2apply/ui';
+import { useToast } from '@first2apply/ui';
 import { useError } from '@/hooks/error';
 import { addFileToNote, createNote, deleteNote, listNotes, updateNote } from '@/lib/electronMainSdk';
 import { Note } from '@first2apply/core';

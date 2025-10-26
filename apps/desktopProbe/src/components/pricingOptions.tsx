@@ -1,5 +1,5 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@first2apply/ui';
+import { Tabs, TabsList, TabsTrigger } from '@first2apply/ui';
 import { SubscriptionTier } from '@first2apply/core';
 import { CheckCircledIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';

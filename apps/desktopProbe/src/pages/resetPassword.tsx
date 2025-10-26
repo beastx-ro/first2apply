@@ -1,5 +1,5 @@
 import { ResetPasswordCard } from '@/components/resetPasswordCard';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@first2apply/ui';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
 import { changePassword } from '@/lib/electronMainSdk';

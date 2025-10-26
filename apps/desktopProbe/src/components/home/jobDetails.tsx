@@ -1,9 +1,8 @@
 import { useSites } from '@/hooks/sites';
 import { Job } from '@first2apply/core';
+import { Skeleton } from '@first2apply/ui';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-
-import { Skeleton } from '../ui/skeleton';
 
 /**
  * Job details component.

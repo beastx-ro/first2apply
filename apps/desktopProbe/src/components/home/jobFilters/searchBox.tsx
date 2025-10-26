@@ -1,4 +1,4 @@
-import { Input } from '@/components/ui/input';
+import { Input } from '@first2apply/ui';
 import { Cross2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
 
 /**

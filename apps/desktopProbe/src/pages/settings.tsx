@@ -1,7 +1,7 @@
 import { CronSchedule } from '@/components/cronSchedule';
 import { SettingsSkeleton } from '@/components/skeletons/SettingsSkeleton';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
+import { Button } from '@first2apply/ui';
+import { Switch } from '@first2apply/ui';
 import { useAppState } from '@/hooks/appState';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';

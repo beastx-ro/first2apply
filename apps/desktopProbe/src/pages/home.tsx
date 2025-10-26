@@ -1,7 +1,7 @@
 import { JobTabs } from '@/components/home/jobTabs';
 import { JobsListSkeleton } from '@/components/home/jobsSkeleton';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@first2apply/ui';
+import { Skeleton } from '@first2apply/ui';
 import { useLinks } from '@/hooks/links';
 import { Link } from 'react-router-dom';
 

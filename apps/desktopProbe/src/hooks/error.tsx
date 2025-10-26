@@ -1,4 +1,4 @@
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@first2apply/ui';
 import { getExceptionMessage } from '@first2apply/core';
 import { useState } from 'react';
 

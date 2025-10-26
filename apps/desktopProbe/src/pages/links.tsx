@@ -2,7 +2,7 @@ import { BrowserWindow, BrowserWindowHandle } from '@/components/browserWindow';
 import { CreateLink } from '@/components/createLink';
 import { LinksList } from '@/components/linksList';
 import { LinksListSkeleton } from '@/components/skeletons/linksListSkeleton';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@first2apply/ui';
 import { useAppState } from '@/hooks/appState';
 import { useError } from '@/hooks/error';
 import { useLinks } from '@/hooks/links';

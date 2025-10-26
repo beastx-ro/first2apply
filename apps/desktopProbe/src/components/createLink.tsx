@@ -6,8 +6,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { useToast } from '@/components/ui/use-toast';
+} from '@first2apply/ui';
+import { useToast } from '@first2apply/ui';
 import { useError } from '@/hooks/error';
 import { useLinks } from '@/hooks/links';
 import { useSites } from '@/hooks/sites';

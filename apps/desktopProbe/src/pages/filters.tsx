@@ -1,18 +1,18 @@
 import { PricingOptions } from '@/components/pricingOptions';
 import { FiltersSkeleton } from '@/components/skeletons/filtersSkeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@first2apply/ui';
 import {
   AlertDialog,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useToast } from '@/components/ui/use-toast';
+} from '@first2apply/ui';
+import { Badge } from '@first2apply/ui';
+import { Button } from '@first2apply/ui';
+import { Input } from '@first2apply/ui';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';
+import { useToast } from '@first2apply/ui';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
 import { getAdvancedMatchingConfig, openExternalUrl, updateAdvancedMatchingConfig } from '@/lib/electronMainSdk';

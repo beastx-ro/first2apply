@@ -1,5 +1,5 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { RadioGroup } from '@/components/ui/radio-group';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@first2apply/ui';
+import { RadioGroup } from '@first2apply/ui';
 import { Review } from '@first2apply/core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Item } from '@radix-ui/react-radio-group';
