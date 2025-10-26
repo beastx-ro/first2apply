@@ -56,29 +56,29 @@ jobs:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
         run: |
           # Get the version from package.json
-          VERSION=$(node -p "require('./desktopProbe/package.json').version")
+          VERSION=$(node -p "require('./package.json').version")
           
           # Upload DMG file (Intel)
-          if [ -f desktopProbe/out/make/dmg/x64/*.dmg ]; then
-            aws s3 cp desktopProbe/out/make/dmg/x64/*.dmg \
+          if [ -f apps/desktopProbe/out/make/dmg/x64/*.dmg ]; then
+            aws s3 cp apps/desktopProbe/out/make/dmg/x64/*.dmg \
               s3://${S3_BUCKET_NAME}/releases/macos/x64/first2apply-${VERSION}-x64.dmg
           fi
           
           # Upload DMG file (Apple Silicon)
-          if [ -f desktopProbe/out/make/dmg/arm64/*.dmg ]; then
-            aws s3 cp desktopProbe/out/make/dmg/arm64/*.dmg \
+          if [ -f apps/desktopProbe/out/make/dmg/arm64/*.dmg ]; then
+            aws s3 cp apps/desktopProbe/out/make/dmg/arm64/*.dmg \
               s3://${S3_BUCKET_NAME}/releases/macos/arm64/first2apply-${VERSION}-arm64.dmg
           fi
           
           # Upload ZIP file (Intel)
-          if [ -f desktopProbe/out/make/zip/darwin/x64/*.zip ]; then
-            aws s3 cp desktopProbe/out/make/zip/darwin/x64/*.zip \
+          if [ -f apps/desktopProbe/out/make/zip/darwin/x64/*.zip ]; then
+            aws s3 cp apps/desktopProbe/out/make/zip/darwin/x64/*.zip \
               s3://${S3_BUCKET_NAME}/releases/macos/x64/first2apply-${VERSION}-x64.zip
           fi
           
           # Upload ZIP file (Apple Silicon)
-          if [ -f desktopProbe/out/make/zip/darwin/arm64/*.zip ]; then
-            aws s3 cp desktopProbe/out/make/zip/darwin/arm64/*.zip \
+          if [ -f dapps/esktopProbe/out/make/zip/darwin/arm64/*.zip ]; then
+            aws s3 cp apps/desktopProbe/out/make/zip/darwin/arm64/*.zip \
               s3://${S3_BUCKET_NAME}/releases/macos/arm64/first2apply-${VERSION}-arm64.zip
           fi
           
@@ -86,7 +86,7 @@ jobs:
         env:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
         run: |
-          VERSION=$(node -p "require('./desktopProbe/package.json').version")
+          VERSION=$(node -p "require('./package.json').version")
           
           # Create "latest" versions for easy linking
           
