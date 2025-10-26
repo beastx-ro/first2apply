@@ -13,7 +13,7 @@
     "build": "npx tsc --noEmit",
     "build:win": "electron-forge make --platform=win32 --targets=@electron-forge/maker-appx",
     "build:linux": "electron-forge make --platform=linux --arch=x64",
-    "build:mac": "electron-forge make --platform=darwin && electron-forge make --platform=darwin --arch=x64",
+    "build:mac": "electron-forge make --platform=darwin --arch=arm64",
     "prettier": "prettier --check \"src/**/*.{ts,tsx}\""
   },
   "keywords": [],
