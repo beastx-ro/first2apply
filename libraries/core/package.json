@@ -5,10 +5,10 @@
   "main": "build/index.js",
   "typings": "build/index.d.ts",
   "scripts": {
-    "dev": "npx tsc -p tsconfig.json -w",
-    "build": "npx tsc -p tsconfig.json",
-    "test": "npx jest --config ./jest.config.ts --verbose",
-    "lint": "npx eslint src/",
-    "prettier": "npx prettier --check \"src/**/*.ts\""
+    "dev": "tsc -p tsconfig.json -w",
+    "build": "tsc -p tsconfig.json",
+    "test": "jest --config ./jest.config.ts --verbose",
+    "lint": "eslint src/",
+    "prettier": "prettier --check \"src/**/*.ts\""
   }
 }

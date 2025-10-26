@@ -2,9 +2,17 @@ import { parseEnv } from './env.ts';
 
 import { getExceptionMessage } from '@first2apply/core';
 import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.48.1/dist/module/index.js';
-import { AzureOpenAI } from 'npm:openai@6.7.0';
+import { AzureOpenAI } from 'npm:openai';
 
 import { ILogger } from './logger.ts';
+
+// Type for OpenAI API response with usage information
+type OpenAIResponse = {
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+  };
+};
 
 const env = parseEnv();
 
@@ -66,7 +74,7 @@ export type LLMConfig = {
   costPerMillionOutputTokens: number;
 };
 
-function computeLlmApiCallCost({ llmConfig, response }: { llmConfig: LLMConfig; response: any }) {
+function computeLlmApiCallCost({ llmConfig, response }: { llmConfig: LLMConfig; response: OpenAIResponse }) {
   const inputTokensUsed = response.usage?.prompt_tokens ?? 0;
   const outputTokensUsed = response.usage?.completion_tokens ?? 0;
   const cost =
@@ -87,7 +95,7 @@ export async function logAiUsage({
   supabaseAdminClient: SupabaseClient;
   forUserId: string;
   llmConfig: LLMConfig;
-  response: any;
+  response: OpenAIResponse;
 }) {
   const { cost, inputTokensUsed, outputTokensUsed } = computeLlmApiCallCost({
     llmConfig,
