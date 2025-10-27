@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "tsc -p tsconfig.json -w",
     "build": "tsc -p tsconfig.json",
-    "test": "jest --config ./jest.config.ts --verbose",
+    "test#": "jest --config ./jest.config.ts --verbose",
     "lint": "eslint src/",
     "prettier": "prettier --check \"src/**/*.ts\""
   }

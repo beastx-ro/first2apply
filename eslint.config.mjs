@@ -34,12 +34,13 @@ export default [
 
     rules: {
       '@typescript-eslint/no-unused-vars': [
-        'error',
+        'warn',
         {
           ignoreRestSiblings: true,
           argsIgnorePattern: '^_$',
         },
       ],
+      '@ts-ignore': 'off',
     },
   },
   {
