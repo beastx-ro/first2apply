@@ -8,17 +8,17 @@ export const rules: Required<ModuleOptions>['rules'] = [
     test: /native_modules[/\\].+\.node$/,
     use: 'node-loader',
   },
-  {
-    test: /[/\\]node_modules[/\\].+\.(m?js|node)$/,
-    exclude: [/preload/],
-    parser: { amd: false },
-    use: {
-      loader: '@vercel/webpack-asset-relocator-loader',
-      options: {
-        outputAssetBase: 'native_modules',
-      },
-    },
-  },
+  // {
+  //   test: /[/\\]node_modules[/\\].+\.(m?js|node)$/,
+  //   exclude: [/preload/],
+  //   parser: { amd: false },
+  //   use: {
+  //     loader: '@vercel/webpack-asset-relocator-loader',
+  //     options: {
+  //       outputAssetBase: 'native_modules',
+  //     },
+  //   },
+  // },
   {
     test: /\.tsx?$/,
     exclude: /(node_modules|\.webpack)/,

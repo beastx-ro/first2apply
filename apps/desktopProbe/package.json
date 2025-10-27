@@ -19,7 +19,10 @@
   "keywords": [],
   "author": "BeastX Industries",
   "license": "MIT",
-  "devDependencies": {},
+  "devDependencies": {
+    "@electron-forge/cli": "*",
+    "electron": "*"
+  },
   "dependencies": {
     "@first2apply/core": "workspace:*",
     "@first2apply/ui": "workspace:*"

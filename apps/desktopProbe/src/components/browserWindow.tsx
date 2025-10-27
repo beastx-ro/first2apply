@@ -64,7 +64,7 @@ export const BrowserWindow = forwardRef<BrowserWindowHandle, BrowserWindowProps>
         });
 
         // @ts-expect-error -- cleanup ---
-        if (removeListener) return removeListener();
+        if (typeof removeListener === 'function') return removeListener();
       };
     }, []);
 
@@ -126,7 +126,7 @@ export const BrowserWindow = forwardRef<BrowserWindowHandle, BrowserWindowProps>
 
     return (
       <div className="justify-left fixed bottom-0 left-0 right-0 top-0 z-50">
-        <div className="bg-background flex h-[50px] w-full items-center border-b px-4">
+        <div className="flex h-[50px] w-full items-center border-b bg-background px-4">
           <div className="flex gap-2" id="navigation-buttons">
             <div id="back-button" className="rounded-full">
               <Button variant="ghost" size="icon" disabled={!canGoBack} onClick={() => overlayBrowserViewGoBack()}>
