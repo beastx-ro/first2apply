@@ -1,5 +1,5 @@
-import { ThemeProvider } from '@/components/themeProvider';
 import '@/styles/globals.css';
+import { ThemeProvider } from '@first2apply/ui';
 import { GoogleTagManager } from '@next/third-parties/google';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';

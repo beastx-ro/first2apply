@@ -1,6 +1,6 @@
 import { DefaultLayout } from '@/components/defaultLayout';
 import { F2aHead } from '@/components/head';
-import { Button } from '@/components/ui/button';
+import { Button } from '@first2apply/ui';
 import { sendGTMEvent } from '@next/third-parties/google';
 
 export default function Download() {
