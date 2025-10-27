@@ -5,7 +5,15 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAppState } from '@/hooks/appState';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
-import { getJobById, listJobs, scanJob, updateJobLabels, updateJobStatus } from '@/lib/electronMainSdk';
+import { useSettings } from '@/hooks/settings';
+import {
+  getJobById,
+  listJobs,
+  openExternalUrl,
+  scanJob,
+  updateJobLabels,
+  updateJobStatus,
+} from '@/lib/electronMainSdk';
 import { Job, JobLabel, JobStatus } from '@first2apply/core';
 import { TabsContent } from '@first2apply/ui';
 import { toast } from '@first2apply/ui';
@@ -44,6 +52,7 @@ export function JobTabsContent({
   labels: string[];
 }) {
   const { handleError } = useError();
+  const { settings } = useSettings();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -265,7 +274,11 @@ export function JobTabsContent({
 
   // Open a job in the default browser
   const onViewJob = (job: Job) => {
-    browserWindowRef.current?.open(job.externalUrl);
+    if (settings.inAppBrowserEnabled) {
+      browserWindowRef.current?.open(job.externalUrl);
+    } else {
+      openExternalUrl(job.externalUrl);
+    }
   };
   const onOpenUrl = (url: string) => {
     browserWindowRefOther.current?.open(url);
@@ -275,7 +288,11 @@ export function JobTabsContent({
     try {
       if (selectedJobId) {
         await onUpdateJobStatus(selectedJobId, 'applied');
-        toast({ title: 'Job marked as applied' });
+        toast({
+          title: 'Job marked as applied',
+          description: 'The job has been moved to the applied jobs list.',
+          variant: 'success',
+        });
         await browserWindowRef.current?.finish();
       }
     } catch (error) {

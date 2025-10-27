@@ -26,7 +26,7 @@ export const useSettings = () => {
 };
 
 // Provider component
-export const SettingsProvider = ({ children }: React.PropsWithChildren<{}>) => {
+export const SettingsProvider = ({ children }: React.PropsWithChildren<unknown>) => {
   const { handleError } = useError();
   const { isLoggedIn } = useSession();
 
@@ -36,6 +36,7 @@ export const SettingsProvider = ({ children }: React.PropsWithChildren<{}>) => {
     useSound: false,
     preventSleep: false,
     areEmailAlertsEnabled: true,
+    inAppBrowserEnabled: true,
   });
 
   // Load settings on component mount

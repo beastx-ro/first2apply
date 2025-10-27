@@ -23,7 +23,7 @@ import { toast } from '@first2apply/ui';
 
 import { DeleteJobDialog } from './deleteJobDialog';
 
-function isJobLabel(value: any): value is JobLabel {
+function isJobLabel(value: JobLabel): value is JobLabel {
   return Object.values(JOB_LABELS).includes(value);
 }
 
@@ -298,7 +298,7 @@ function JobLabelSelector({
   return (
     <Select
       value={label}
-      onValueChange={(labelValue) => {
+      onValueChange={(labelValue: JobLabel) => {
         const newLabels = isJobLabel(labelValue) ? [labelValue] : [];
         onUpdateLabels(job.id, newLabels);
       }}

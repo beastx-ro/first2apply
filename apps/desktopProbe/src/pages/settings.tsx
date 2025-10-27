@@ -126,6 +126,18 @@ export function SettingsPage() {
         />
       </div>
 
+      {/* in-app browser settings */}
+      <div className="flex flex-row items-center justify-between gap-6 rounded-lg border p-6">
+        <div className="space-y-1">
+          <h2 className="text-lg">In-app browser</h2>
+          <p className="text-sm font-light">Use the in-app browser to view job listings without leaving the app</p>
+        </div>
+        <Switch
+          checked={settings.inAppBrowserEnabled}
+          onCheckedChange={(checked) => onUpdatedSettings({ ...settings, inAppBrowserEnabled: checked })}
+        />
+      </div>
+
       {/* subscription */}
       <div className="flex flex-row items-center justify-between gap-6 rounded-lg border p-6">
         <div className="space-y-1">

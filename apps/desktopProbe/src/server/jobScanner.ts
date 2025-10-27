@@ -1,7 +1,7 @@
 import { IAnalyticsClient } from '@/lib/analytics';
 import { getExceptionMessage, throwError } from '@first2apply/core';
 import { Job, Link } from '@first2apply/core';
-import { BrowserWindow, Notification, app, powerSaveBlocker } from 'electron';
+import { Notification, app, powerSaveBlocker } from 'electron';
 import fs from 'fs';
 import { ScheduledTask, schedule } from 'node-cron';
 import path from 'path';
@@ -20,6 +20,7 @@ const DEFAULT_SETTINGS: JobScannerSettings = {
   preventSleep: true,
   useSound: true,
   areEmailAlertsEnabled: true,
+  inAppBrowserEnabled: true,
 };
 
 /**
@@ -34,11 +35,12 @@ export class JobScanner {
   private _analytics: IAnalyticsClient;
 
   private _isRunning = true;
-  // do not use the default settings directly
+  // these defaults will be applied when migrating from older versions
   private _settings: JobScannerSettings = {
     preventSleep: false,
     useSound: false,
     areEmailAlertsEnabled: true,
+    inAppBrowserEnabled: true,
   };
   private _cronJob: ScheduledTask | undefined;
   private _prowerSaveBlockerId: number | undefined;
@@ -326,7 +328,7 @@ export class JobScanner {
     const displatedJobs = newJobs.slice(0, maxDisplayedJobs);
     const otherJobsCount = newJobs.length - maxDisplayedJobs;
 
-    const firstJobsLabel = displatedJobs.map((job: any) => `${job.title} at ${job.companyName}`).join(', ');
+    const firstJobsLabel = displatedJobs.map((job: Job) => `${job.title} at ${job.companyName}`).join(', ');
     const plural = otherJobsCount > 1 ? 's' : '';
     const otherJobsLabel = otherJobsCount > 0 ? ` and ${otherJobsCount} other${plural}` : '';
     const notification = new Notification({

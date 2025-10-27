@@ -43,6 +43,7 @@ export type JobScannerSettings = {
   preventSleep: boolean;
   useSound: boolean;
   areEmailAlertsEnabled: boolean;
+  inAppBrowserEnabled: boolean;
 };
 
 export type NewAppVersion = {
