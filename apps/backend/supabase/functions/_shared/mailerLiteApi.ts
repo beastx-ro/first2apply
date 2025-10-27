@@ -23,21 +23,18 @@ export class MailerLiteApi {
     fields: Record<string, string | number>;
     groups?: string[];
   }): Promise<MailerLiteSubscriber> {
-    const response = await fetch(
-      "https://connect.mailerlite.com/api/subscribers",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${this._apiKey}`,
-        },
-        body: JSON.stringify({
-          email,
-          fields,
-          groups,
-        }),
-      }
-    );
+    const response = await fetch('https://connect.mailerlite.com/api/subscribers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this._apiKey}`,
+      },
+      body: JSON.stringify({
+        email,
+        fields,
+        groups,
+      }),
+    });
 
     if (!response.ok) {
       throw new Error(`Failed to add subscriber: ${await response.text()}`);
@@ -51,54 +48,32 @@ export class MailerLiteApi {
   /**
    * Remove subscriber from a group.
    */
-  async removeSubscriberFromGroup({
-    subscriberId,
-    groupId,
-  }: {
-    subscriberId: number;
-    groupId: string;
-  }) {
-    const response = await fetch(
-      `https://connect.mailerlite.com/api/subscribers/${subscriberId}/groups/${groupId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${this._apiKey}`,
-        },
-      }
-    );
+  async removeSubscriberFromGroup({ subscriberId, groupId }: { subscriberId: number; groupId: string }) {
+    const response = await fetch(`https://connect.mailerlite.com/api/subscribers/${subscriberId}/groups/${groupId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${this._apiKey}`,
+      },
+    });
 
     if (!response.ok) {
-      throw new Error(
-        `Failed to remove subscriber from group: ${await response.text()}`
-      );
+      throw new Error(`Failed to remove subscriber from group: ${await response.text()}`);
     }
   }
 
   /**
    * Add subscriber to a group.
    */
-  async addSubscriberToGroup({
-    subscriberId,
-    groupId,
-  }: {
-    subscriberId: number;
-    groupId: string;
-  }) {
-    const response = await fetch(
-      `https://connect.mailerlite.com/api/subscribers/${subscriberId}/groups/${groupId}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this._apiKey}`,
-        },
-      }
-    );
+  async addSubscriberToGroup({ subscriberId, groupId }: { subscriberId: number; groupId: string }) {
+    const response = await fetch(`https://connect.mailerlite.com/api/subscribers/${subscriberId}/groups/${groupId}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this._apiKey}`,
+      },
+    });
 
     if (!response.ok) {
-      throw new Error(
-        `Failed to add subscriber to group: ${await response.text()}`
-      );
+      throw new Error(`Failed to add subscriber to group: ${await response.text()}`);
     }
   }
 }
