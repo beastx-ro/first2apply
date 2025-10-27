@@ -1,27 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
-import { scrollToSection } from "@/utils/scrollToSection";
-import { Button } from "@first2apply/ui";
-import Link from "next/link";
-import { useRouter } from "next/router";
+import { scrollToSection } from '@/utils/scrollToSection';
+import { Button } from '@first2apply/ui';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 const menuItems = [
-  { name: "Product", id: "product" },
-  { name: "Pricing", id: "pricing" },
-  { name: "Help", id: "help" },
-  { name: "Changelog", id: "changelog", url: "/changelog" },
+  { name: 'Product', id: 'product' },
+  { name: 'Pricing', id: 'pricing' },
+  { name: 'Help', id: 'help' },
+  { name: 'Changelog', id: 'changelog', url: '/changelog' },
 ];
 
 function useScrollLock(lock: boolean) {
   useEffect(() => {
     if (lock) {
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = 'auto';
     }
 
     return () => {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = 'auto';
     };
   }, [lock]);
 }
@@ -39,15 +39,15 @@ export function Navbar() {
       setHasScrolled(offset > 10);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
   const handleMenuItemClick = (id: string, onNavigate?: () => void) => {
-    if (router.pathname === "/") {
+    if (router.pathname === '/') {
       scrollToSection(id);
       if (onNavigate) {
         onNavigate();
@@ -62,10 +62,10 @@ export function Navbar() {
       {/* Mobile menu */}
       <nav
         className={`fixed left-0 right-0 top-0 z-[100] flex h-14 w-full items-center justify-between px-4 md:hidden ${
-          hasScrolled && "dark:border-background border-b"
+          hasScrolled && 'dark:border-background border-b'
         } from-background to-background/60 dark:to-background/90 bg-gradient-to-b backdrop-blur-md backdrop-filter transition-all duration-100`}
       >
-        <button className="flex items-center gap-3" onClick={() => handleMenuItemClick("product")}>
+        <button className="flex items-center gap-3" onClick={() => handleMenuItemClick('product')}>
           <svg
             version="1.0"
             xmlns="http://www.w3.org/2000/svg"
@@ -93,35 +93,35 @@ export function Navbar() {
         {/* Burger menu */}
         <div
           className={`relative z-[99999] flex h-10 w-10 flex-col items-center justify-center focus-visible:outline-none md:hidden ${
-            isOpen ? "gap-0.5" : "gap-2"
+            isOpen ? 'gap-0.5' : 'gap-2'
           }`}
           onClick={() => setIsOpen(!isOpen)}
         >
           {/* Line 1 */}
           <div
             className={`bg-foreground h-0.5 w-7 transform transition-all duration-300 ease-in-out ${
-              isOpen && "translate-y-1 rotate-45"
+              isOpen && 'translate-y-1 rotate-45'
             }`}
           ></div>
 
           {/* Line 2 */}
           <div
             className={`bg-foreground h-0.5 w-7 transform transition-all duration-300 ease-in-out ${
-              isOpen && "translate-x-full opacity-0"
+              isOpen && 'translate-x-full opacity-0'
             }`}
           ></div>
 
           {/* Line 3 */}
           <div
             className={`bg-foreground h-0.5 w-7 transform transition-all duration-300 ease-in-out ${
-              isOpen && "-translate-y-1 -rotate-45"
+              isOpen && '-translate-y-1 -rotate-45'
             }`}
           ></div>
         </div>
 
         <dialog
           className={`bg-background fixed top-0 z-[9999] flex h-screen w-full flex-col items-start gap-6 pl-12 pt-24 md:hidden ${
-            !isOpen && "hidden"
+            !isOpen && 'hidden'
           }`}
           open={isOpen}
         >
@@ -149,11 +149,11 @@ export function Navbar() {
       {/* Desktop menu */}
       <nav
         className={`fixed z-[100] hidden h-16 w-full md:block ${
-          hasScrolled && "dark:border-background border-b"
+          hasScrolled && 'dark:border-background border-b'
         } bg-background/60 dark:bg-background/90 backdrop-blur-md backdrop-filter transition-all duration-100`}
       >
         <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between px-10">
-          <button className="flex items-center gap-3" onClick={() => handleMenuItemClick("product")}>
+          <button className="flex items-center gap-3" onClick={() => handleMenuItemClick('product')}>
             <svg
               version="1.0"
               xmlns="http://www.w3.org/2000/svg"

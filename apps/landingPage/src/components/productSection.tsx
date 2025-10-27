@@ -1,9 +1,9 @@
-import { Button } from "@first2apply/ui";
-import Image from "next/image";
-import Link from "next/link";
+import { Button } from '@first2apply/ui';
+import Image from 'next/image';
+import Link from 'next/link';
 
-import trackBlackImage from "../../public/assets/track-black.png";
-import trackWhiteImage from "../../public/assets/track-white.png";
+import trackBlackImage from '../../public/assets/track-black.png';
+import trackWhiteImage from '../../public/assets/track-white.png';
 
 export function ProductSection() {
   return (

@@ -1,5 +1,5 @@
-import { Button } from "@first2apply/ui";
-import Link from "next/link";
+import { Button } from '@first2apply/ui';
+import Link from 'next/link';
 
 export function BottomCta() {
   return (
