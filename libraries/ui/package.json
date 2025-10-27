@@ -8,7 +8,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "lint": "eslint src/",
-    "prettier": "prettier --check \"src/**/*.ts\""
+    "prettier": "prettier --check \"src/**/*.{ts,tsx,css}\""
   },
   "files": [
     "build/**/*"
