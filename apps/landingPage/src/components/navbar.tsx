@@ -1,7 +1,8 @@
+import { useEffect, useState } from 'react';
+
 import { scrollToSection } from '@/utils/scrollToSection';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
 
 import { Button } from './ui/button';
 

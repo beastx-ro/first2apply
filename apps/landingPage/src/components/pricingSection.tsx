@@ -1,8 +1,9 @@
+import { CheckCircledIcon } from '@radix-ui/react-icons';
+import { useState } from 'react';
+
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircledIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
-import { useState } from 'react';
 
 import { QueryParamsLink } from './queryParamsLink';
 import { Button } from './ui/button';

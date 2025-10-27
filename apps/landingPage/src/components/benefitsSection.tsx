@@ -1,5 +1,6 @@
-import Image from 'next/image';
 import { useState } from 'react';
+
+import Image from 'next/image';
 
 import benefitsDark from '../../public/assets/benefits-dark.png';
 import benefitsLight from '../../public/assets/benefits-light.png';

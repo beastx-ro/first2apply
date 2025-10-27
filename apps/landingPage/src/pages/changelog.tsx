@@ -1,7 +1,8 @@
+import ReactTimeAgo from 'react-time-ago';
+
 import { DefaultLayout } from '@/components/defaultLayout';
 import { F2aHead } from '@/components/head';
 import Image, { StaticImageData } from 'next/image';
-import ReactTimeAgo from 'react-time-ago';
 
 import alert from '../../public/assets/alert.png';
 
