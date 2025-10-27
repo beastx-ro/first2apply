@@ -12,6 +12,7 @@ import path from 'path';
 import { mainConfig } from './webpack.main.config';
 import { rendererConfig } from './webpack.renderer.config';
 
+
 // load env vars
 loadEnvVars({ path: path.join(__dirname, '..', 'desktopProbe', '.env') });
 
@@ -108,7 +109,7 @@ const config: ForgeConfig = {
             preload: {
               js: './src/preload.ts',
             },
-          },
+          }
         ],
       },
       port: 3049,
