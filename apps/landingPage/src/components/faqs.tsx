@@ -1,4 +1,4 @@
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@first2apply/ui";
 
 export function Faqs() {
   return (

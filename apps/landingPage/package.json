@@ -10,6 +10,7 @@
     "prettier": "npx prettier --check \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
+    "@first2apply/ui": "workspace:^",
     "@next/third-parties": "14.2.0-canary.34",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-dialog": "^1.0.5",

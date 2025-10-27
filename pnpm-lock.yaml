@@ -519,6 +519,9 @@ importers:
 
   apps/landingPage:
     dependencies:
+      '@first2apply/ui':
+        specifier: workspace:^
+        version: link:../../libraries/ui
       '@next/third-parties':
         specifier: 14.2.0-canary.34
         version: 14.2.0-canary.34(next@14.2.33(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react@18.2.0)
