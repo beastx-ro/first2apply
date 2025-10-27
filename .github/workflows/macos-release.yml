@@ -32,7 +32,6 @@ jobs:
           
       - name: Build macOS packages
         env:
-          NODE_OPTIONS: "--max-old-space-size=8192 --stack-size=2048"
           APP_BUNDLE_ID: ${{ secrets.APP_BUNDLE_ID }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
@@ -44,8 +43,7 @@ jobs:
           FORCE_COLOR: ${{ vars.FORCE_COLOR }}
           NO_COLOR: ${{ vars.NO_COLOR }}
         run: |
-          cd apps/desktopProbe
-          pnpm build:mac
+          npx nx run @first2apply/desktop-probe:build:mac
           
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3

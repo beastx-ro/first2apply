@@ -36,9 +36,10 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           MEZMO_API_KEY: ${{ secrets.MEZMO_API_KEY }}
           AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
+          FORCE_COLOR: ${{ vars.FORCE_COLOR }}
+          NO_COLOR: ${{ vars.NO_COLOR }}
         run: |
-          cd apps\desktopProbe
-          pnpm build:win
+          npx nx run @first2apply/desktop-probe:build:win
           
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
