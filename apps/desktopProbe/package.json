@@ -10,7 +10,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
-    "build": "npx tsc --noEmit",
+    "build": "tsc --noEmit",
     "build:win": "electron-forge make --platform=win32 --targets=@electron-forge/maker-appx",
     "build:linux": "electron-forge make --platform=linux --arch=x64",
     "build:mac": "electron-forge make --platform=darwin --arch=arm64",
@@ -19,8 +19,7 @@
   "keywords": [],
   "author": "BeastX Industries",
   "license": "MIT",
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "dependencies": {
     "@first2apply/core": "workspace:*",
     "@first2apply/ui": "workspace:*"
