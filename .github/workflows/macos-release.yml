@@ -32,6 +32,7 @@ jobs:
           
       - name: Build macOS packages
         env:
+          NODE_OPTIONS: "--max-old-space-size=8192 --stack-size=2048"
           APP_BUNDLE_ID: ${{ secrets.APP_BUNDLE_ID }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
