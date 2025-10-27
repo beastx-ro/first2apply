@@ -1,9 +1,10 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { SignupCard } from '@/components/signupCard';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
 import { signupWithEmail } from '@/lib/electronMainSdk';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 /**
  * Component used to render the signup page.

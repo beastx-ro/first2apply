@@ -1,7 +1,8 @@
 // auth guard decorator for nextjs that automatically redirects to login page
-import { useSession } from '@/hooks/session';
 import { memo, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+
+import { useSession } from '@/hooks/session';
 
 // if the user is not logged in
 export const withAuthGuard = (Component: React.ComponentType) => {

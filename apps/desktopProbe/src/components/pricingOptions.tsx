@@ -1,9 +1,9 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@first2apply/ui';
-import { Tabs, TabsList, TabsTrigger } from '@first2apply/ui';
-import { SubscriptionTier } from '@first2apply/core';
 import { CheckCircledIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 
+import { SubscriptionTier } from '@first2apply/core';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@first2apply/ui';
+import { Tabs, TabsList, TabsTrigger } from '@first2apply/ui';
 import { Button } from '@first2apply/ui';
 
 const tabs = ['Monthly', 'Quarterly', 'Biannually', 'Yearly'];
@@ -87,16 +87,16 @@ export function PricingOptions({
                 <span className="text-sm"> /month</span>
                 {selectedTab !== 'Monthly' && (
                   <div className="relative ml-4 inline-block">
-                    <span className="text-muted-foreground/30 text-2xl font-semibold md:text-3xl">$</span>
-                    <span className="text-muted-foreground/30 text-4xl font-bold md:text-5xl">
+                    <span className="text-2xl font-semibold text-muted-foreground/30 md:text-3xl">$</span>
+                    <span className="text-4xl font-bold text-muted-foreground/30 md:text-5xl">
                       {plan.monthly.pricePerMonth}
                     </span>
-                    <span className="text-muted-foreground/30 text-sm">/month</span>
-                    <div className="border-t-1 border-muted-foreground/30 dark:border-muted-foreground/60 absolute top-5 w-full rotate-12 border md:top-7"></div>
+                    <span className="text-sm text-muted-foreground/30">/month</span>
+                    <div className="border-t-1 absolute top-5 w-full rotate-12 border border-muted-foreground/30 dark:border-muted-foreground/60 md:top-7"></div>
                   </div>
                 )}
               </p>
-              <p className="text-muted-foreground mt-1 h-6 sm:mt-2">
+              <p className="mt-1 h-6 text-muted-foreground sm:mt-2">
                 {selectedTab !== 'Monthly' && (
                   <>
                     Pay ${(plan[selectedTab.toLowerCase() as keyof PricingPlan] as PriceDetail).total}{' '}
@@ -109,7 +109,7 @@ export function PricingOptions({
               <ul>
                 {plan.benefits.map((benefit, index) => (
                   <li key={index} className="flex items-center gap-2">
-                    <CheckCircledIcon className="text-primary h-5 w-5" />
+                    <CheckCircledIcon className="h-5 w-5 text-primary" />
                     <span className="md:text-lg">{benefit}</span>
                   </li>
                 ))}

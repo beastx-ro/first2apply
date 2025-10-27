@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { Job } from '@first2apply/core';
 import {
   AlertDialog,
@@ -10,7 +12,6 @@ import {
   AlertDialogTitle,
 } from '@first2apply/ui';
 import { Checkbox } from '@first2apply/ui';
-import React from 'react';
 
 let SHOW_DELETE_WARNING = true;
 

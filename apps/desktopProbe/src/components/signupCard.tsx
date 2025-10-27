@@ -1,13 +1,14 @@
+import { useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
+
 import { Button } from '@first2apply/ui';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@first2apply/ui';
 import { Input } from '@first2apply/ui';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@first2apply/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
 import * as z from 'zod';
 
 import { Icons } from './icons';
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@first2apply/ui';
 
 // Schema definition for form validation using Zod
 const schema = z.object({

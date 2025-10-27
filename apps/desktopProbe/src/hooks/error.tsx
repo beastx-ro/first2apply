@@ -1,6 +1,7 @@
-import { useToast } from '@first2apply/ui';
-import { getExceptionMessage } from '@first2apply/core';
 import { useState } from 'react';
+
+import { getExceptionMessage } from '@first2apply/core';
+import { useToast } from '@first2apply/ui';
 
 /**
  * Hook used to handle errors.

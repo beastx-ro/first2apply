@@ -1,13 +1,13 @@
 import { CronSchedule } from '@/components/cronSchedule';
 import { SettingsSkeleton } from '@/components/skeletons/SettingsSkeleton';
-import { Button } from '@first2apply/ui';
-import { Switch } from '@first2apply/ui';
 import { useAppState } from '@/hooks/appState';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
 import { useSettings } from '@/hooks/settings';
 import { applyAppUpdate, logout, openExternalUrl } from '@/lib/electronMainSdk';
 import { JobScannerSettings } from '@/lib/types';
+import { Button } from '@first2apply/ui';
+import { Switch } from '@first2apply/ui';
 import * as luxon from 'luxon';
 
 import { DefaultLayout } from './defaultLayout';
@@ -72,7 +72,7 @@ export function SettingsPage() {
 
       {/* new updates */}
       {hasNewUpdate && (
-        <div className="border-destructive flex flex-row items-center justify-between gap-6 rounded-lg border p-6">
+        <div className="flex flex-row items-center justify-between gap-6 rounded-lg border border-destructive p-6">
           <div className="space-y-1">
             <h2 className="text-lg">
               New update available <span className="font-bold">{newUpdate.name}</span>

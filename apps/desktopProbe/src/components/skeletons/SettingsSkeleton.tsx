@@ -1,6 +1,6 @@
-import { CronScheduleSkeleton } from '@/components/skeletons/CronScheduleSkeleton';
 import { FC } from 'react';
 
+import { CronScheduleSkeleton } from '@/components/skeletons/CronScheduleSkeleton';
 import { Skeleton } from '@first2apply/ui';
 
 export const SettingsSkeleton: FC = () => {

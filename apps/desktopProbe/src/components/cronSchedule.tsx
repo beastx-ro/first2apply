@@ -1,5 +1,4 @@
 import { AVAILABLE_CRON_RULES } from '@/lib/types';
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@first2apply/ui';
 
 /**

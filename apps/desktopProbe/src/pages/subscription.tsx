@@ -1,11 +1,12 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { PricingOptions } from '@/components/pricingOptions';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@first2apply/ui';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
 import { openExternalUrl } from '@/lib/electronMainSdk';
 import { StripeBillingPlan, SubscriptionTier } from '@first2apply/core';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@first2apply/ui';
 import urljoin from 'url-join';
 
 export function SubscriptionPage() {

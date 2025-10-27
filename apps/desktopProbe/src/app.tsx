@@ -1,9 +1,10 @@
-import { Toaster } from '@first2apply/ui';
-import TimeAgo from 'javascript-time-ago';
-import en from 'javascript-time-ago/locale/en';
 import { ComponentType, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Route, RouterProvider, createMemoryRouter, createRoutesFromElements } from 'react-router-dom';
+
+import { Toaster } from '@first2apply/ui';
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
 
 import { withAuthGuard } from './components/authGuard';
 import { ThemeProvider } from './components/themeProvider';

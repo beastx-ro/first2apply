@@ -16,7 +16,7 @@ export const LinksListSkeleton: FC = () => {
         {Array.from({ length: 9 }).map((_, index) => (
           <li
             key={index}
-            className="border-border bg-card flex animate-pulse cursor-pointer flex-col gap-4 rounded-lg border px-6 pb-6 pt-8 shadow-sm"
+            className="flex animate-pulse cursor-pointer flex-col gap-4 rounded-lg border border-border bg-card px-6 pb-6 pt-8 shadow-sm"
           >
             <div className="flex items-center gap-2">
               {/* Avatar */}

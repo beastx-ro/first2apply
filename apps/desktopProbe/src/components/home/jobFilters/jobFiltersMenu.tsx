@@ -1,3 +1,10 @@
+import { FilterIcon } from 'lucide-react';
+import { useState } from 'react';
+
+import { useLinks } from '@/hooks/links';
+import { useSites } from '@/hooks/sites';
+import { LABEL_COLOR_CLASSES } from '@/lib/labels';
+import { JOB_LABELS } from '@first2apply/core';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -11,12 +18,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@first2apply/ui';
-import { useLinks } from '@/hooks/links';
-import { useSites } from '@/hooks/sites';
-import { LABEL_COLOR_CLASSES } from '@/lib/labels';
-import { JOB_LABELS } from '@first2apply/core';
-import { FilterIcon } from 'lucide-react';
-import { useState } from 'react';
 
 export type JobFiltersType = {
   sites: number[];
@@ -104,15 +105,15 @@ export function JobFiltersMenu({
   return (
     <DropdownMenu open={isOpen} onOpenChange={(opened) => setIsOpen(opened)}>
       <DropdownMenuTrigger
-        className={`hover:bg-foreground/10 relative flex h-12 w-12 items-center justify-center rounded-md bg-transparent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-0 ${isOpen && 'bg-foreground/10'}`}
+        className={`relative flex h-12 w-12 items-center justify-center rounded-md bg-transparent transition-colors duration-200 ease-in-out hover:bg-foreground/10 focus-visible:outline-none focus-visible:ring-0 ${isOpen && 'bg-foreground/10'}`}
         onClick={(evt) => {
           evt.preventDefault();
           evt.stopPropagation();
         }}
       >
-        <FilterIcon className="text-foreground/90 h-auto w-6" />
+        <FilterIcon className="h-auto w-6 text-foreground/90" />
         {activeFilterCount > 0 && (
-          <div className="bg-foreground text-background absolute bottom-1.5 right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full p-0 text-[10px] dark:font-bold">
+          <div className="absolute bottom-1.5 right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-foreground p-0 text-[10px] text-background dark:font-bold">
             {activeFilterCount}
           </div>
         )}
@@ -148,7 +149,7 @@ export function JobFiltersMenu({
                     clearSites();
                   }}
                   disabled={selectedSites.length === 0}
-                  className="text-destructive px-8"
+                  className="px-8 text-destructive"
                 >
                   Reset Board Selection
                 </DropdownMenuItem>
@@ -186,7 +187,7 @@ export function JobFiltersMenu({
                     clearLinks();
                   }}
                   disabled={selectedLinks.length === 0}
-                  className="text-destructive px-8"
+                  className="px-8 text-destructive"
                 >
                   Reset Search Selection
                 </DropdownMenuItem>
@@ -228,7 +229,7 @@ export function JobFiltersMenu({
                     clearLabels();
                   }}
                   disabled={selectedLabels.length === 0}
-                  className="text-destructive px-8"
+                  className="px-8 text-destructive"
                 >
                   Reset Labels
                 </DropdownMenuItem>

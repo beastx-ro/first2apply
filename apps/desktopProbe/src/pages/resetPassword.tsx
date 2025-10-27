@@ -1,10 +1,11 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { ResetPasswordCard } from '@/components/resetPasswordCard';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
 import { changePassword } from '@/lib/electronMainSdk';
 import { useToast } from '@first2apply/ui';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 /**
  * Component used to render the reset password page.

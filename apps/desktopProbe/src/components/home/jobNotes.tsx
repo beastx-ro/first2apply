@@ -1,3 +1,9 @@
+import { PlusIcon } from '@radix-ui/react-icons';
+import { Pencil2Icon, TrashIcon } from '@radix-ui/react-icons';
+import { useEffect, useState } from 'react';
+import Markdown from 'react-markdown';
+import TextareaAutosize from 'react-textarea-autosize';
+
 import { useError } from '@/hooks/error';
 import { addFileToNote, createNote, deleteNote, listNotes, updateNote } from '@/lib/electronMainSdk';
 import { Note } from '@first2apply/core';
@@ -14,11 +20,6 @@ import { AlertDialogFooter, AlertDialogHeader } from '@first2apply/ui';
 import { Button } from '@first2apply/ui';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@first2apply/ui';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';
-import { PlusIcon } from '@radix-ui/react-icons';
-import { Pencil2Icon, TrashIcon } from '@radix-ui/react-icons';
-import { useEffect, useState } from 'react';
-import Markdown from 'react-markdown';
-import TextareaAutosize from 'react-textarea-autosize';
 import remarkGfm from 'remark-gfm';
 
 /**
@@ -327,7 +328,7 @@ function EditJobNote({
           value={text}
           autoFocus={isNew}
           onChange={(e) => setText(e.target.value)}
-          className={`ring-ring mb-2.5 w-full resize-none rounded-md px-6 py-2 text-base focus:outline-none focus:ring-2 ${
+          className={`mb-2.5 w-full resize-none rounded-md px-6 py-2 text-base ring-ring focus:outline-none focus:ring-2 ${
             isNew && 'ring-2'
           }`}
         />

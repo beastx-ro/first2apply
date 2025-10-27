@@ -1,3 +1,7 @@
+import { Item } from '@radix-ui/react-radio-group';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+
 import { Review } from '@first2apply/core';
 import { Card, CardContent, CardHeader } from '@first2apply/ui';
 import { RadioGroup } from '@first2apply/ui';
@@ -8,9 +12,6 @@ import { Skeleton } from '@first2apply/ui';
 import { Textarea } from '@first2apply/ui';
 import { toast } from '@first2apply/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Item } from '@radix-ui/react-radio-group';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { Icons } from '../components/icons';
@@ -146,12 +147,12 @@ export function FeedbackPage() {
       <Card className="rounded-lg">
         <CardHeader>
           <h2 className="text-xl font-medium">Help us make First 2 Apply better</h2>
-          <p className="text-muted-foreground text-balance text-sm">
+          <p className="text-balance text-sm text-muted-foreground">
             Let us know what works, what doesn't or any ideas you might have that would make the app better suited to
             your job hunting needs.
           </p>
           {userOS === 'win32' && (
-            <p className="text-muted-foreground my-2 text-balance text-sm">
+            <p className="my-2 text-balance text-sm text-muted-foreground">
               If you're enjoying First 2 Apply, please consider leaving a review on the{' '}
               <a
                 className="hover:text-primary-dark text-primary underline hover:cursor-pointer hover:no-underline"

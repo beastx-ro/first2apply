@@ -1,5 +1,3 @@
-import { Icons } from '@/components/icons';
-import { useAppState } from '@/hooks/appState';
 import {
   ChatBubbleIcon,
   Crosshair2Icon,
@@ -11,10 +9,12 @@ import {
   SunIcon,
 } from '@radix-ui/react-icons';
 import { RefreshCw } from 'lucide-react';
-import { useTheme } from 'next-themes';
 import { Link, useLocation } from 'react-router-dom';
 
+import { Icons } from '@/components/icons';
+import { useAppState } from '@/hooks/appState';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';
+import { useTheme } from 'next-themes';
 
 export function Navbar() {
   // Hook to get the current location
@@ -48,7 +48,7 @@ export function Navbar() {
       icon: (
         <div className="relative">
           <GearIcon className="h-7 w-7" />
-          {hasUpdate && <div className="bg-destructive absolute -right-1.5 -top-1.5 h-2.5 w-2.5 rounded-full"></div>}
+          {hasUpdate && <div className="absolute -right-1.5 -top-1.5 h-2.5 w-2.5 rounded-full bg-destructive"></div>}
         </div>
       ),
     },
@@ -63,7 +63,7 @@ export function Navbar() {
     isScanning ? <RefreshCw className="h-7 w-7 animate-spin" /> : <Icons.logo className="h-7 w-7"></Icons.logo>;
 
   return (
-    <nav className="border-muted-foreground/20 fixed z-50 flex h-screen w-16 flex-col items-center justify-between border-r py-6 md:p-10 2xl:w-56 2xl:items-start">
+    <nav className="fixed z-50 flex h-screen w-16 flex-col items-center justify-between border-r border-muted-foreground/20 py-6 md:p-10 2xl:w-56 2xl:items-start">
       <div className="flex flex-col items-center gap-6 2xl:items-start">
         <Link to={isScanning ? '/links' : '/'} className="mb-16 md:mb-20">
           <TooltipProvider delayDuration={500}>
@@ -87,7 +87,7 @@ export function Navbar() {
                 <Link
                   key={item.name}
                   to={item.path}
-                  className={`after:transition-width after:bg-primary hover:text-primary relative flex items-center gap-3 p-1 duration-200 after:absolute after:bottom-0 after:right-0 after:block after:h-0.5 after:w-0 after:transition-all after:content-[''] hover:after:w-full ${
+                  className={`after:transition-width relative flex items-center gap-3 p-1 duration-200 after:absolute after:bottom-0 after:right-0 after:block after:h-0.5 after:w-0 after:bg-primary after:transition-all after:content-[''] hover:text-primary hover:after:w-full ${
                     location.pathname === item.path && 'text-primary'
                   }`}
                 >
@@ -110,7 +110,7 @@ export function Navbar() {
           <TooltipTrigger>
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="hover:text-primary flex items-center gap-3 p-1"
+              className="flex items-center gap-3 p-1 hover:text-primary"
             >
               {theme === 'dark' ? <SunIcon className="h-7 w-7" /> : <MoonIcon className="h-7 w-7" />}
               <span className="hidden text-lg 2xl:inline-block">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>

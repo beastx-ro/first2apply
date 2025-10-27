@@ -1,7 +1,3 @@
-import { useLinks } from '@/hooks/links';
-import { useSites } from '@/hooks/sites';
-import { LABEL_COLOR_CLASSES } from '@/lib/labels';
-import { JOB_LABELS, Job, JobLabel, JobStatus } from '@first2apply/core';
 import {
   ArchiveIcon,
   BackpackIcon,
@@ -15,11 +11,16 @@ import {
 } from '@radix-ui/react-icons';
 import React, { useMemo } from 'react';
 
+import { useLinks } from '@/hooks/links';
+import { useSites } from '@/hooks/sites';
+import { LABEL_COLOR_CLASSES } from '@/lib/labels';
+import { JOB_LABELS, Job, JobLabel, JobStatus } from '@first2apply/core';
 import { Avatar, AvatarImage } from '@first2apply/ui';
 import { Button } from '@first2apply/ui';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@first2apply/ui';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';
 import { toast } from '@first2apply/ui';
+
 import { DeleteJobDialog } from './deleteJobDialog';
 
 function isJobLabel(value: any): value is JobLabel {
@@ -52,13 +53,13 @@ export function JobSummary({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
 
   return (
-    <div className="border-muted rounded-lg border p-4 lg:p-6">
+    <div className="rounded-lg border border-muted p-4 lg:p-6">
       <div className="flex items-start justify-between gap-4 lg:gap-6">
         <div>
           {/* search site */}
           {usedLink && (
             <a
-              className="text-muted-foreground flex items-center gap-2 text-sm"
+              className="flex items-center gap-2 text-sm text-muted-foreground"
               href="#"
               onClick={(e) => {
                 e.stopPropagation();
@@ -78,7 +79,7 @@ export function JobSummary({
           <h1 className="mt-3 text-xl font-medium lg:mt-4">{job.title}</h1>
 
           {/* Company name & location */}
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             {job.companyName}
             {job.location && (
               <span>
@@ -100,19 +101,19 @@ export function JobSummary({
       {/* Job details */}
       <div className="mt-3 space-y-1.5 lg:mt-4">
         {job.jobType && (
-          <div className="text-muted-foreground flex items-center gap-3 capitalize">
+          <div className="flex items-center gap-3 capitalize text-muted-foreground">
             <BackpackIcon className="h-auto w-5" />
             {job.jobType}
           </div>
         )}
         {job.salary && (
-          <div className="text-muted-foreground flex items-center gap-3">
+          <div className="flex items-center gap-3 text-muted-foreground">
             <CookieIcon className="h-auto w-5" />
             {job.salary}
           </div>
         )}
         {job.tags.length > 0 && (
-          <div className="text-muted-foreground flex items-center gap-3">
+          <div className="flex items-center gap-3 text-muted-foreground">
             <ListBulletIcon className="h-auto w-5" />
             <p>{job.tags?.slice(0, 5).join(', ')}</p>
           </div>
@@ -121,7 +122,7 @@ export function JobSummary({
 
       {/* Filtered out job explainer */}
       {job.status === 'excluded_by_advanced_matching' && job.exclude_reason && (
-        <div className="bg-destructive/10 mt-6 rounded-md p-4">
+        <div className="mt-6 rounded-md bg-destructive/10 p-4">
           <div className="flex items-center gap-2">
             <InfoCircledIcon className="h-auto w-5" />
             <p className="font-medium">Why was this job excluded?</p>
@@ -151,7 +152,7 @@ export function JobSummary({
                 <Button
                   size="lg"
                   variant="secondary"
-                  className="bg-border hover:bg-foreground/15 focus:bg-foreground/15 w-10 border-none px-0 transition-colors duration-200 ease-in-out"
+                  className="w-10 border-none bg-border px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/15 focus:bg-foreground/15"
                   onClick={() => onUpdateJobStatus(job.id, 'applied')}
                 >
                   <CheckIcon className="h-5 w-auto" />
@@ -173,7 +174,7 @@ export function JobSummary({
                 <Button
                   size="lg"
                   variant="secondary"
-                  className="bg-border hover:bg-foreground/15 focus:bg-foreground/15 w-10 border-none px-0 transition-colors duration-200 ease-in-out"
+                  className="w-10 border-none bg-border px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/15 focus:bg-foreground/15"
                   onClick={() => onUpdateJobStatus(job.id, 'new')}
                 >
                   <ResetIcon className="h-4 w-auto" />
@@ -195,7 +196,7 @@ export function JobSummary({
                 <Button
                   size="lg"
                   variant="secondary"
-                  className="bg-border hover:bg-foreground/15 focus:bg-foreground/15 w-10 border-none px-0 transition-colors duration-200 ease-in-out"
+                  className="w-10 border-none bg-border px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/15 focus:bg-foreground/15"
                   onClick={() => onUpdateJobStatus(job.id, 'archived')}
                 >
                   <ArchiveIcon className="h-4 w-auto" />
@@ -216,7 +217,7 @@ export function JobSummary({
               <Button
                 size="lg"
                 variant="secondary"
-                className="bg-border hover:bg-foreground/15 focus:bg-foreground/15 w-10 border-none px-0 transition-colors duration-200 ease-in-out"
+                className="w-10 border-none bg-border px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/15 focus:bg-foreground/15"
                 onClick={(evt) => {
                   evt.stopPropagation();
                   navigator.clipboard.writeText(job.externalUrl);
@@ -244,10 +245,10 @@ export function JobSummary({
               <Button
                 size="lg"
                 variant="destructive"
-                className="bg-destructive/10 hover:bg-destructive/20 focus:bg-destructive/20 w-10 px-0 transition-colors duration-200 ease-in-out"
+                className="w-10 bg-destructive/10 px-0 transition-colors duration-200 ease-in-out hover:bg-destructive/20 focus:bg-destructive/20"
                 onClick={() => setIsDeleteDialogOpen(true)}
               >
-                <TrashIcon className="text-destructive h-5 w-auto" />
+                <TrashIcon className="h-5 w-auto text-destructive" />
               </Button>
             </TooltipTrigger>
 

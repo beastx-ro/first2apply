@@ -1,3 +1,7 @@
+import { ArchiveIcon, DotsVerticalIcon, DownloadIcon, TrashIcon, UpdateIcon } from '@radix-ui/react-icons';
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+
 import { useError } from '@/hooks/error';
 import { changeAllJobsStatus, exportJobsToCsv } from '@/lib/electronMainSdk';
 import { Job, JobStatus } from '@first2apply/core';
@@ -20,9 +24,6 @@ import {
 } from '@first2apply/ui';
 import { Tabs, TabsList, TabsTrigger } from '@first2apply/ui';
 import { toast } from '@first2apply/ui';
-import { ArchiveIcon, DotsVerticalIcon, DownloadIcon, TrashIcon, UpdateIcon } from '@radix-ui/react-icons';
-import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 import { JobTabsContent } from './jobTabsContent';
 
@@ -260,21 +261,21 @@ function TabActions({
             evt.stopPropagation();
           }}
         >
-          <DotsVerticalIcon className="text-muted-foreground m-auto h-5 w-auto transition-all duration-200 ease-in-out hover:h-6" />
+          <DotsVerticalIcon className="m-auto h-5 w-auto text-muted-foreground transition-all duration-200 ease-in-out hover:h-6" />
         </DropdownMenuTrigger>
         <DropdownMenuContent side="bottom" className="space-y-1">
-          <DropdownMenuItem className="focus:bg-secondary/40 cursor-pointer" onClick={() => onTabChange(tab)}>
+          <DropdownMenuItem className="cursor-pointer focus:bg-secondary/40" onClick={() => onTabChange(tab)}>
             <UpdateIcon className="mb-0.5 mr-2 inline-block h-4 w-4" />
             Refresh
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="focus:bg-secondary/40 cursor-pointer" onClick={() => onCsvExport(tab)}>
+          <DropdownMenuItem className="cursor-pointer focus:bg-secondary/40" onClick={() => onCsvExport(tab)}>
             <DownloadIcon className="mb-0.5 mr-2 inline-block h-4 w-4" />
             CSV export
           </DropdownMenuItem>
           {tab !== 'archived' && (
             <DropdownMenuItem
-              className="focus:bg-secondary/40 cursor-pointer"
+              className="cursor-pointer focus:bg-secondary/40"
               onClick={() => setIsArchiveAllDialogOpen(true)}
             >
               <ArchiveIcon className="mb-0.5 mr-2 inline-block h-4 w-4" />
@@ -282,10 +283,10 @@ function TabActions({
             </DropdownMenuItem>
           )}
           <DropdownMenuItem
-            className="bg-destructive/5 focus:bg-destructive/20 cursor-pointer"
+            className="cursor-pointer bg-destructive/5 focus:bg-destructive/20"
             onClick={() => setIsDeleteAllDialogOpen(true)}
           >
-            <TrashIcon className="text-destructive -ml-0.5 mb-0.5 mr-2 inline-block h-5 w-5" />
+            <TrashIcon className="-ml-0.5 mb-0.5 mr-2 inline-block h-5 w-5 text-destructive" />
             Delete all
           </DropdownMenuItem>
         </DropdownMenuContent>

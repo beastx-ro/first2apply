@@ -1,9 +1,10 @@
+import { Link } from 'react-router-dom';
+
 import { JobTabs } from '@/components/home/jobTabs';
 import { JobsListSkeleton } from '@/components/home/jobsSkeleton';
+import { useLinks } from '@/hooks/links';
 import { Button } from '@first2apply/ui';
 import { Skeleton } from '@first2apply/ui';
-import { useLinks } from '@/hooks/links';
-import { Link } from 'react-router-dom';
 
 import { DefaultLayout } from './defaultLayout';
 
@@ -57,7 +58,7 @@ function NoLinks() {
         <h1 className="text-3xl font-semibold sm:text-4xl md:text-5xl lg:text-6xl">
           Be the: <span className="text-primary">first 2 apply</span>
         </h1>
-        <p className="text-muted-foreground text-center">
+        <p className="text-center text-muted-foreground">
           Save your tailored job searches from top job platforms, and let us do the heavy lifting. We'll monitor your
           specified job feeds and swiftly notify you of new postings, providing you the edge to be the first in line.
         </p>

@@ -1,5 +1,6 @@
-import { Input } from '@first2apply/ui';
 import { Cross2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
+
+import { Input } from '@first2apply/ui';
 
 /**
  * Search box component.
@@ -24,11 +25,11 @@ export function SearchBox({
         onChange={(e) => setInputValue(e.target.value)}
       />
 
-      <MagnifyingGlassIcon className="text-muted-foreground absolute left-5 top-3.5 h-5 w-fit" />
+      <MagnifyingGlassIcon className="absolute left-5 top-3.5 h-5 w-fit text-muted-foreground" />
 
       {inputValue && (
         <Cross2Icon
-          className="text-muted-foreground absolute right-3.5 top-3.5 h-5 w-5 cursor-pointer"
+          className="absolute right-3.5 top-3.5 h-5 w-5 cursor-pointer text-muted-foreground"
           onClick={handleClearInput}
         />
       )}

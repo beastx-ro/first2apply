@@ -1,13 +1,14 @@
-import { TabsContent } from '@first2apply/ui';
-import { toast } from '@first2apply/ui';
+import { useEffect, useRef, useState } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+
 import { useAppState } from '@/hooks/appState';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
 import { getJobById, listJobs, scanJob, updateJobLabels, updateJobStatus } from '@/lib/electronMainSdk';
 import { Job, JobLabel, JobStatus } from '@first2apply/core';
-import { useEffect, useRef, useState } from 'react';
-import { useHotkeys } from 'react-hotkeys-hook';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { TabsContent } from '@first2apply/ui';
+import { toast } from '@first2apply/ui';
 
 import { BrowserWindow, BrowserWindowHandle } from '../browserWindow';
 import { JobDetails } from './jobDetails';
@@ -307,7 +308,7 @@ export function JobTabsContent({
                 id="jobsList"
                 className="no-scrollbar h-[calc(100vh-100px)] w-1/2 space-y-3 overflow-y-scroll lg:w-2/5"
               >
-                <div className="bg-background sticky top-0 z-50 pb-2">
+                <div className="sticky top-0 z-50 bg-background pb-2">
                   <JobFilters
                     search={search}
                     siteIds={siteIds}
@@ -347,14 +348,14 @@ export function JobTabsContent({
 
               {/* Job description side */}
               {listing.isLoading || statusItem !== status ? (
-                <div className="no-scrollbar border-muted h-[calc(100vh-100px)] w-1/2 animate-pulse space-y-4 overflow-scroll border-l-[1px] pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4">
+                <div className="no-scrollbar h-[calc(100vh-100px)] w-1/2 animate-pulse space-y-4 overflow-scroll border-l-[1px] border-muted pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4">
                   <JobSummarySkeleton />
                   <JobDetailsSkeleton />
                 </div>
               ) : listing.jobs.length > 0 ? (
                 <div
                   ref={jobDescriptionRef}
-                  className="no-scrollbar border-muted h-[calc(100vh-100px)] w-1/2 space-y-4 overflow-y-scroll border-l-[1px] pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4"
+                  className="no-scrollbar h-[calc(100vh-100px)] w-1/2 space-y-4 overflow-y-scroll border-l-[1px] border-muted pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4"
                 >
                   {selectedJob && (
                     <>
@@ -366,7 +367,7 @@ export function JobTabsContent({
                         onOpenUrl={onOpenUrl}
                       />
                       <JobDetails job={selectedJob} isScrapingDescription={!!selectedJob.isLoadingJD}></JobDetails>
-                      <hr className="border-muted border-t" />
+                      <hr className="border-t border-muted" />
                       <JobNotes jobId={selectedJobId} />
                     </>
                   )}
@@ -374,7 +375,7 @@ export function JobTabsContent({
               ) : (
                 <div
                   ref={jobDescriptionRef}
-                  className="border-muted flex h-[calc(100vh-100px)] w-1/2 items-center justify-center space-y-4 overflow-scroll border-l-[1px] pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4"
+                  className="flex h-[calc(100vh-100px)] w-1/2 items-center justify-center space-y-4 overflow-scroll border-l-[1px] border-muted pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4"
                 >
                   {/* Light mode svg */}
                   <svg

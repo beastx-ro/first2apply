@@ -1,3 +1,12 @@
+import { InfoCircledIcon } from '@radix-ui/react-icons/dist';
+import { useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+
+import { useError } from '@/hooks/error';
+import { useLinks } from '@/hooks/links';
+import { useSites } from '@/hooks/sites';
+import { OverlayBrowserViewResult } from '@/lib/types';
+import { JobSite, Link } from '@first2apply/core';
 import {
   Dialog,
   DialogContent,
@@ -8,24 +17,16 @@ import {
   DialogTrigger,
 } from '@first2apply/ui';
 import { useToast } from '@first2apply/ui';
-import { useError } from '@/hooks/error';
-import { useLinks } from '@/hooks/links';
-import { useSites } from '@/hooks/sites';
-import { OverlayBrowserViewResult } from '@/lib/types';
-import { JobSite, Link } from '@first2apply/core';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { InfoCircledIcon } from '@radix-ui/react-icons/dist';
-import { useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-
-import { BrowserWindow, BrowserWindowHandle } from './browserWindow';
-import { Icons } from './icons';
 import { Alert, AlertDescription, AlertTitle } from '@first2apply/ui';
 import { Badge } from '@first2apply/ui';
 import { Button } from '@first2apply/ui';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@first2apply/ui';
 import { Input } from '@first2apply/ui';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+import { BrowserWindow, BrowserWindowHandle } from './browserWindow';
+import { Icons } from './icons';
 
 export function CreateLink() {
   const [jobBoardModalResponse, setJobBoardModalResponse] = useState<OverlayBrowserViewResult>();

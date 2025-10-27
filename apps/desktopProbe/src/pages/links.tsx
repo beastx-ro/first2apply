@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react';
+
 import { BrowserWindow, BrowserWindowHandle } from '@/components/browserWindow';
 import { CreateLink } from '@/components/createLink';
 import { LinksList } from '@/components/linksList';
@@ -8,7 +10,6 @@ import { useLinks } from '@/hooks/links';
 import { scanLink } from '@/lib/electronMainSdk';
 import { throwError } from '@first2apply/core';
 import { toast } from '@first2apply/ui';
-import { useEffect, useRef, useState } from 'react';
 
 import { DefaultLayout } from './defaultLayout';
 

@@ -1,6 +1,7 @@
+import React, { createContext, useContext, useEffect, useState } from 'react';
+
 import { getAppState } from '@/lib/electronMainSdk';
 import { NewAppVersion } from '@/lib/types';
-import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import { useError } from './error';
 

@@ -1,7 +1,8 @@
+import { createContext, useContext, useEffect, useState } from 'react';
+
 import { useError } from '@/hooks/error';
 import { getProbeSettings, updateProbeSettings } from '@/lib/electronMainSdk';
 import { JobScannerSettings } from '@/lib/types';
-import { createContext, useContext, useEffect, useState } from 'react';
 
 import { useSession } from './session';
 

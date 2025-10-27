@@ -1,13 +1,14 @@
-import { useSites } from '@/hooks/sites';
-import { Link } from '@first2apply/core';
 import { CopyIcon, Pencil1Icon, QuestionMarkCircledIcon, TrashIcon } from '@radix-ui/react-icons';
 import { useMemo, useState } from 'react';
 import ReactTimeAgo from 'react-time-ago';
 
-import { EditLink } from './editLink';
+import { useSites } from '@/hooks/sites';
+import { Link } from '@first2apply/core';
 import { Avatar, AvatarFallback, AvatarImage } from '@first2apply/ui';
 import { Button } from '@first2apply/ui';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';
+
+import { EditLink } from './editLink';
 
 const scrapeFailureThreshold = 3;
 
@@ -36,7 +37,7 @@ export function LinksList({
           return (
             <li
               key={link.id}
-              className={`bg-card flex cursor-pointer flex-col gap-4 rounded-lg border px-6 pb-6 pt-8 shadow-sm ${isInFailureState(link) ? 'border-destructive' : 'border-border'}`}
+              className={`flex cursor-pointer flex-col gap-4 rounded-lg border bg-card px-6 pb-6 pt-8 shadow-sm ${isInFailureState(link) ? 'border-destructive' : 'border-border'}`}
               onClick={() => {
                 onDebugLink(link.id);
               }}
@@ -53,7 +54,7 @@ export function LinksList({
                 </Avatar>
 
                 <div>
-                  <p className="text-muted-foreground p-0 text-sm">{sitesMap.get(link.site_id)?.name}</p>
+                  <p className="p-0 text-sm text-muted-foreground">{sitesMap.get(link.site_id)?.name}</p>
                   <p className="text-balance text-lg leading-6">{link.title}</p>
                 </div>
               </div>
@@ -64,11 +65,11 @@ export function LinksList({
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-foreground/40 text-xs font-light">
+                  <p className="text-xs font-light text-foreground/40">
                     {'Last checked '}
                     <ReactTimeAgo date={new Date(link.last_scraped_at)} locale="en-US" />
                   </p>
-                  <p className="text-foreground/40 text-xs font-light">
+                  <p className="text-xs font-light text-foreground/40">
                     {'Added '}
                     <ReactTimeAgo date={new Date(link.created_at)} locale="en-US" />
                   </p>
@@ -86,7 +87,7 @@ export function LinksList({
                         onDebugLink(link.id);
                       }}
                     >
-                      <QuestionMarkCircledIcon className="text-primary h-5 w-5" />
+                      <QuestionMarkCircledIcon className="h-5 w-5 text-primary" />
                     </Button>
                   )}
 
@@ -97,7 +98,7 @@ export function LinksList({
                         <Button
                           variant="secondary"
                           size="default"
-                          className="bg-secondary/50 hover:bg-secondary focus:bg-secondary ml-2 rounded-full px-[9px] py-2 text-sm transition-colors duration-200 ease-in-out"
+                          className="ml-2 rounded-full bg-secondary/50 px-[9px] py-2 text-sm transition-colors duration-200 ease-in-out hover:bg-secondary focus:bg-secondary"
                           onClick={(evt) => {
                             evt.stopPropagation();
                             navigator.clipboard.writeText(link.url);
@@ -118,7 +119,7 @@ export function LinksList({
                         <Button
                           variant="secondary"
                           size="default"
-                          className="bg-secondary/50 hover:bg-secondary focus:bg-secondary ml-2 rounded-full px-[9px] py-2 text-sm transition-colors duration-200 ease-in-out"
+                          className="ml-2 rounded-full bg-secondary/50 px-[9px] py-2 text-sm transition-colors duration-200 ease-in-out hover:bg-secondary focus:bg-secondary"
                           onClick={(evt) => {
                             evt.stopPropagation();
                             setEditedLink(link);
@@ -135,13 +136,13 @@ export function LinksList({
                   <Button
                     variant="destructive"
                     size="default"
-                    className="bg-destructive/10 hover:bg-destructive/20 focus:bg-destructive/20 ml-2 rounded-full px-2 py-1 text-sm transition-colors duration-200 ease-in-out"
+                    className="ml-2 rounded-full bg-destructive/10 px-2 py-1 text-sm transition-colors duration-200 ease-in-out hover:bg-destructive/20 focus:bg-destructive/20"
                     onClick={(evt) => {
                       evt.stopPropagation();
                       onDeleteLink(link.id);
                     }}
                   >
-                    <TrashIcon className="text-destructive h-5 w-5" />
+                    <TrashIcon className="h-5 w-5 text-destructive" />
                   </Button>
                 </div>
               </div>

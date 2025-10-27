@@ -1,5 +1,6 @@
-import { debounce } from 'lodash';
 import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { debounce } from 'lodash';
 
 import { JobFiltersMenu, JobFiltersType } from './jobFilters/jobFiltersMenu';
 import { SearchBox } from './jobFilters/searchBox';

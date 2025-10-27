@@ -1,9 +1,10 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { LoginCard } from '@/components/loginCard';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
 import { loginWithEmail } from '@/lib/electronMainSdk';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 /**
  * Component used to render the login page.

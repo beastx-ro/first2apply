@@ -49,7 +49,7 @@ export function JobsListSkeleton() {
  */
 export function JobSummarySkeleton() {
   return (
-    <div className="border-muted rounded-lg border p-4 lg:p-6">
+    <div className="rounded-lg border border-muted p-4 lg:p-6">
       <div className="flex items-start justify-between gap-4 lg:gap-6">
         <div className="flex-1">
           <Skeleton className="mt-3 h-7 w-full max-w-80 lg:mt-4" />

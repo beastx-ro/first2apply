@@ -1,3 +1,6 @@
+import { ArrowLeftIcon, ArrowRightIcon, Cross1Icon } from '@radix-ui/react-icons';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+
 import {
   closeOverlayBrowserView,
   finishOverlayBrowserView,
@@ -12,8 +15,6 @@ import { OverlayBrowserViewResult } from '@/lib/types';
 import { Button } from '@first2apply/ui';
 import { Input } from '@first2apply/ui';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';
-import { ArrowLeftIcon, ArrowRightIcon, Cross1Icon } from '@radix-ui/react-icons';
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 
 export type BrowserWindowProps = {
   onClose: () => void;
