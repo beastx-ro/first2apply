@@ -1,12 +1,12 @@
-'use client'
+'use client';
 
-import { KBarSearchProvider } from 'pliny/search/KBar'
-import { useRouter } from 'next/navigation'
-import { CoreContent } from 'pliny/utils/contentlayer'
-import { Blog } from 'contentlayer/generated'
+import { Blog } from 'contentlayer/generated';
+import { useRouter } from 'next/navigation';
+import { KBarSearchProvider } from 'pliny/search/KBar';
+import { CoreContent } from 'pliny/utils/contentlayer';
 
 export const SearchProvider = ({ children }) => {
-  const router = useRouter()
+  const router = useRouter();
   return (
     <KBarSearchProvider
       kbarConfig={{
@@ -29,11 +29,11 @@ export const SearchProvider = ({ children }) => {
             section: 'Blog',
             subtitle: post.tags.join(', '),
             perform: () => router.push(`/${post.slug}`),
-          }))
+          }));
         },
       }}
     >
       {children}
     </KBarSearchProvider>
-  )
-}
+  );
+};

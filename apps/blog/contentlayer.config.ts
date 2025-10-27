@@ -1,29 +1,25 @@
-import { defineDocumentType, ComputedFields, makeSource } from 'contentlayer/source-files'
-import { writeFileSync } from 'fs'
-import readingTime from 'reading-time'
-import { slug } from 'github-slugger'
-import path from 'path'
-// Remark packages
-import remarkGfm from 'remark-gfm'
-import remarkMath from 'remark-math'
-import {
-  remarkExtractFrontmatter,
-  remarkCodeTitles,
-  remarkImgToJsx,
-  extractTocHeadings,
-} from 'pliny/mdx-plugins'
+import { ComputedFields, defineDocumentType, makeSource } from 'contentlayer/source-files';
+import { writeFileSync } from 'fs';
+import { slug } from 'github-slugger';
+import path from 'path';
+import { extractTocHeadings, remarkCodeTitles, remarkExtractFrontmatter, remarkImgToJsx } from 'pliny/mdx-plugins';
+import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer';
+import readingTime from 'reading-time';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import rehypeCitation from 'rehype-citation';
+import rehypeKatex from 'rehype-katex';
+import rehypePresetMinify from 'rehype-preset-minify';
+import rehypePrismPlus from 'rehype-prism-plus';
 // Rehype packages
-import rehypeSlug from 'rehype-slug'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypeKatex from 'rehype-katex'
-import rehypeCitation from 'rehype-citation'
-import rehypePrismPlus from 'rehype-prism-plus'
-import rehypePresetMinify from 'rehype-preset-minify'
-import siteMetadata from './data/siteMetadata'
-import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer'
+import rehypeSlug from 'rehype-slug';
+// Remark packages
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
 
-const root = process.cwd()
-const isProduction = process.env.NODE_ENV === 'production'
+import siteMetadata from './data/siteMetadata';
+
+const root = process.cwd();
+const isProduction = process.env.NODE_ENV === 'production';
 
 const computedFields: ComputedFields = {
   readingTime: { type: 'json', resolve: (doc) => readingTime(doc.body.raw) },
@@ -40,35 +36,32 @@ const computedFields: ComputedFields = {
     resolve: (doc) => doc._raw.sourceFilePath,
   },
   toc: { type: 'string', resolve: (doc) => extractTocHeadings(doc.body.raw) },
-}
+};
 
 /**
  * Count the occurrences of all tags across blog posts and write to json file
  */
 function createTagCount(allBlogs) {
-  const tagCount: Record<string, number> = {}
+  const tagCount: Record<string, number> = {};
   allBlogs.forEach((file) => {
     if (file.tags && (!isProduction || file.draft !== true)) {
       file.tags.forEach((tag) => {
-        const formattedTag = slug(tag)
+        const formattedTag = slug(tag);
         if (formattedTag in tagCount) {
-          tagCount[formattedTag] += 1
+          tagCount[formattedTag] += 1;
         } else {
-          tagCount[formattedTag] = 1
+          tagCount[formattedTag] = 1;
         }
-      })
+      });
     }
-  })
-  writeFileSync('./app/tag-data.json', JSON.stringify(tagCount))
+  });
+  writeFileSync('./app/tag-data.json', JSON.stringify(tagCount));
 }
 
 function createSearchIndex(allBlogs) {
-  if (
-    siteMetadata?.search?.provider === 'kbar' &&
-    siteMetadata.search.kbarConfig.searchDocumentsPath
-  ) {
-    writeFileSync(`public/search.json`, JSON.stringify(allCoreContent(sortPosts(allBlogs))))
-    console.log('Local search index generated...')
+  if (siteMetadata?.search?.provider === 'kbar' && siteMetadata.search.kbarConfig.searchDocumentsPath) {
+    writeFileSync(`public/search.json`, JSON.stringify(allCoreContent(sortPosts(allBlogs))));
+    console.log('Local search index generated...');
   }
 }
 
@@ -105,7 +98,7 @@ export const Blog = defineDocumentType(() => ({
       }),
     },
   },
-}))
+}));
 
 export const Authors = defineDocumentType(() => ({
   name: 'Authors',
@@ -123,20 +116,14 @@ export const Authors = defineDocumentType(() => ({
     layout: { type: 'string' },
   },
   computedFields,
-}))
+}));
 
 export default makeSource({
   contentDirPath: 'data',
   documentTypes: [Blog, Authors],
   mdx: {
     cwd: process.cwd(),
-    remarkPlugins: [
-      remarkExtractFrontmatter,
-      remarkGfm,
-      remarkCodeTitles,
-      remarkMath,
-      remarkImgToJsx,
-    ],
+    remarkPlugins: [remarkExtractFrontmatter, remarkGfm, remarkCodeTitles, remarkMath, remarkImgToJsx],
     rehypePlugins: [
       rehypeSlug,
       rehypeAutolinkHeadings,
@@ -147,8 +134,8 @@ export default makeSource({
     ],
   },
   onSuccess: async (importData) => {
-    const { allBlogs } = await importData()
-    createTagCount(allBlogs)
-    createSearchIndex(allBlogs)
+    const { allBlogs } = await importData();
+    createTagCount(allBlogs);
+    createSearchIndex(allBlogs);
   },
-})
+});

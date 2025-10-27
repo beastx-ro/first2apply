@@ -1,31 +1,30 @@
-'use client'
+'use client';
 
-import siteMetadata from '@/data/siteMetadata'
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
+
+import siteMetadata from '@/data/siteMetadata';
 
 const ScrollTopAndComment = () => {
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
     const handleWindowScroll = () => {
-      if (window.scrollY > 50) setShow(true)
-      else setShow(false)
-    }
+      if (window.scrollY > 50) setShow(true);
+      else setShow(false);
+    };
 
-    window.addEventListener('scroll', handleWindowScroll)
-    return () => window.removeEventListener('scroll', handleWindowScroll)
-  }, [])
+    window.addEventListener('scroll', handleWindowScroll);
+    return () => window.removeEventListener('scroll', handleWindowScroll);
+  }, []);
 
   const handleScrollTop = () => {
-    window.scrollTo({ top: 0 })
-  }
+    window.scrollTo({ top: 0 });
+  };
   const handleScrollToComment = () => {
-    document.getElementById('comment')?.scrollIntoView()
-  }
+    document.getElementById('comment')?.scrollIntoView();
+  };
   return (
-    <div
-      className={`fixed bottom-8 right-8 hidden flex-col gap-3 ${show ? 'md:flex' : 'md:hidden'}`}
-    >
+    <div className={`fixed bottom-8 right-8 hidden flex-col gap-3 ${show ? 'md:flex' : 'md:hidden'}`}>
       {siteMetadata.comments?.provider && (
         <button
           aria-label="Scroll To Comment"
@@ -55,7 +54,7 @@ const ScrollTopAndComment = () => {
         </svg>
       </button>
     </div>
-  )
-}
+  );
+};
 
-export default ScrollTopAndComment
+export default ScrollTopAndComment;

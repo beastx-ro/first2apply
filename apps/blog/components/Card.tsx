@@ -1,5 +1,5 @@
-import Image from './Image'
-import Link from './Link'
+import Image from './Image';
+import Link from './Link';
 
 const Card = ({ title, description, imgSrc, href }) => (
   <div className="md max-w-[544px] p-4 md:w-1/2">
@@ -42,7 +42,7 @@ const Card = ({ title, description, imgSrc, href }) => (
         {href && (
           <Link
             href={href}
-            className="text-base font-medium leading-6 text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
+            className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 text-base font-medium leading-6"
             aria-label={`Link to ${title}`}
           >
             Learn more &rarr;
@@ -51,6 +51,6 @@ const Card = ({ title, description, imgSrc, href }) => (
       </div>
     </div>
   </div>
-)
+);
 
-export default Card
+export default Card;

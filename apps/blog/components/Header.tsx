@@ -1,10 +1,11 @@
-import siteMetadata from '@/data/siteMetadata'
-import headerNavLinks from '@/data/headerNavLinks'
-import Logo from '@/data/logo.svg'
-import Link from './Link'
-import MobileNav from './MobileNav'
-import ThemeSwitch from './ThemeSwitch'
-import SearchButton from './SearchButton'
+import headerNavLinks from '@/data/headerNavLinks';
+import Logo from '@/data/logo.svg';
+import siteMetadata from '@/data/siteMetadata';
+
+import Link from './Link';
+import MobileNav from './MobileNav';
+import SearchButton from './SearchButton';
+import ThemeSwitch from './ThemeSwitch';
 
 const Header = () => {
   return (
@@ -16,9 +17,7 @@ const Header = () => {
               <Logo className="h-6 w-6 dark:fill-white" />
             </div>
             {typeof siteMetadata.headerTitle === 'string' ? (
-              <div className="hidden h-6 text-2xl font-semibold sm:block">
-                {siteMetadata.headerTitle}
-              </div>
+              <div className="hidden h-6 text-2xl font-semibold sm:block">{siteMetadata.headerTitle}</div>
             ) : (
               siteMetadata.headerTitle
             )}
@@ -26,10 +25,7 @@ const Header = () => {
         </Link>
       </div>
       <div className="flex items-center space-x-4 leading-5 sm:space-x-6">
-        <a
-          href="https://first2apply.com"
-          className="hidden font-medium text-gray-900 dark:text-gray-100 sm:block"
-        >
+        <a href="https://first2apply.com" className="hidden font-medium text-gray-900 sm:block dark:text-gray-100">
           Product
         </a>
         {headerNavLinks
@@ -38,7 +34,7 @@ const Header = () => {
             <Link
               key={link.title}
               href={link.href}
-              className="hidden font-medium text-gray-900 dark:text-gray-100 sm:block"
+              className="hidden font-medium text-gray-900 sm:block dark:text-gray-100"
             >
               {link.title}
             </Link>
@@ -48,7 +44,7 @@ const Header = () => {
         <MobileNav />
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;
