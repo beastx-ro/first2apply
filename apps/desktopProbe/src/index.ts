@@ -7,6 +7,7 @@ import Storage from 'electron-store';
 import fs from 'fs';
 import path from 'path';
 
+import { AiAgent } from './server/aiAgent';
 import { AmplitudeAnalyticsClient } from './server/amplitude';
 import { F2aAutoUpdater } from './server/autoUpdater';
 import { promiseAllSequence } from './server/helpers';
@@ -177,6 +178,13 @@ const htmlDownloaders = [
 let jobScanner: JobScanner | undefined;
 let trayMenu: TrayMenu | undefined;
 const overlayBrowserView = new OverlayBrowserView();
+const aiAgent = new AiAgent();
+
+/**
+ * Make sure to install electron hooks needed by the AI agent
+ * before the app is ready.
+ */
+aiAgent.preBootSync({ logger });
 
 function navigate({ path }: { path: string }) {
   logger.info(`sending nav event to ${path}`);
@@ -303,6 +311,8 @@ async function bootstrap() {
     } else {
       logger.info(`no session found on disk`);
     }
+
+    await aiAgent.startAgent({ logger });
   } catch (error) {
     logger.error(getExceptionMessage(error));
   }
@@ -332,6 +342,9 @@ async function quit() {
   try {
     logger.info(`quitting...`);
     appIsRunning = false;
+
+    await aiAgent.destroy();
+    logger.info(`destroyed AI agent`);
 
     jobScanner?.close();
     logger.info(`closed job scanner`);
