@@ -7,7 +7,7 @@ import Storage from 'electron-store';
 import fs from 'fs';
 import path from 'path';
 
-import { AiAgent } from './server/aiAgent';
+import { AiAgent } from './server/aiAgent/aiAgent';
 import { AmplitudeAnalyticsClient } from './server/amplitude';
 import { F2aAutoUpdater } from './server/autoUpdater';
 import { promiseAllSequence } from './server/helpers';
@@ -312,7 +312,10 @@ async function bootstrap() {
       logger.info(`no session found on disk`);
     }
 
-    await aiAgent.startAgent({ logger });
+    await aiAgent.bringToLife({ logger });
+
+    const res = await aiAgent.use({ input: 'What tools can you use?' });
+    logger.info(`AI agent response: ${res.finalOutput}`);
   } catch (error) {
     logger.error(getExceptionMessage(error));
   }
