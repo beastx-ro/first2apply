@@ -5,7 +5,9 @@ import { createConnection } from '@playwright/mcp';
 import contentType from 'content-type';
 import express from 'express';
 import http from 'http';
+import { chromium } from 'playwright';
 import getRawBody from 'raw-body';
+import urljoin from 'url-join';
 
 import { ILogger } from '../logger';
 import { findFreePort } from '../netUtils';
@@ -21,11 +23,13 @@ export async function createFirst2ApplyMcpServers({
   logger: ILogger;
 }) {
   const port = await findFreePort();
+  const baseUrl = `http://127.0.0.1:${port}`;
   const sessions = new Map<string, SSEServerTransport>();
   const { router, knownMcpServers } = createHttpRouter({
-    sessions,
-    logger,
+    baseUrl,
     webSocketDebuggerUrl,
+    logger,
+    sessions,
   });
   const server = http.createServer(router);
   server.listen(port, () => {
@@ -39,7 +43,7 @@ export async function createFirst2ApplyMcpServers({
   });
 
   const mcpServers = knownMcpServers.map((mcpServerPath) => {
-    const url = `http://localhost:${port}${mcpServerPath}`;
+    const url = urljoin(baseUrl, mcpServerPath);
     const mcpServer = new MCPServerSSE({
       url,
       name: mcpServerPath,
@@ -53,10 +57,12 @@ export async function createFirst2ApplyMcpServers({
 }
 
 function createHttpRouter({
+  baseUrl,
   webSocketDebuggerUrl,
   sessions,
   logger,
 }: {
+  baseUrl: string;
   webSocketDebuggerUrl: string;
   sessions: Map<string, SSEServerTransport>;
   logger: ILogger;
@@ -66,35 +72,54 @@ function createHttpRouter({
   const playwrightSsePath = '/playwright';
   app.get(playwrightSsePath, async (req, res) => {
     try {
-      const connection = await createConnection({
-        browser: {
-          cdpEndpoint: webSocketDebuggerUrl, // Connect to the hidden window
+      const connection = await createConnection(
+        {
+          capabilities: ['core', 'vision', 'pdf'],
+          timeouts: {
+            action: 10000,
+            navigation: 30000,
+          },
         },
-      });
+        () => {
+          return createPlaywrightConnection({
+            webSocketDebuggerUrl,
+            logger,
+          });
+        },
+      );
       logger.info(`new Playwright MCP connection requested`);
 
-      const transport = new SSEServerTransport(playwrightSsePath, res);
+      const transportUrl = urljoin(baseUrl, playwrightSsePath);
+      const transport = new SSEServerTransport(transportUrl, res);
       sessions.set(transport.sessionId, transport);
       await connection.connect(transport);
 
       // Handle the connection close event
       res.on('close', () => {
         sessions.delete(transport.sessionId);
-        connection.close().catch((e) => {
-          logger.error(`Error closing connection: ${getExceptionMessage(e)}`);
-        });
+        connection
+          .close()
+          .then(() => {
+            logger.info(`Playwright MCP connection closed (transport.sessionId=${transport.sessionId})`);
+          })
+          .catch((e) => {
+            logger.error(`Error closing connection: ${getExceptionMessage(e)}`);
+          });
       });
       return;
     } catch (error) {
       res.status(500).end(`Error creating Playwright MCP server: ${getExceptionMessage(error)}`);
     }
   });
+
   app.post(playwrightSsePath, async (req, res) => {
     try {
+      logger.info(`Playwright MCP POST request received`);
       const url = new URL(`http://localhost${req.url}`);
       const sessionId = url.searchParams.get('sessionId');
       if (!sessionId) {
         res.statusCode = 400;
+        logger.error(`Missing sessionId`);
         return res.end('Missing sessionId');
       }
 
@@ -112,8 +137,9 @@ function createHttpRouter({
         }),
       );
       // const requestId = body.id;
+      // logger.info(body);
 
-      return await transport.handlePostMessage(req, res, body);
+      await transport.handlePostMessage(req, res, body);
     } catch (error) {
       res.status(500).end(`Error handling Playwright MCP POST: ${getExceptionMessage(error)}`);
     }
@@ -124,13 +150,38 @@ function createHttpRouter({
   return { router: app, knownMcpServers };
 }
 
-// export interface MCPServer {
-//   cacheToolsList: boolean;
-//   toolFilter?: MCPToolFilterCallable | MCPToolFilterStatic;
-//   connect(): Promise<void>;
-//   readonly name: string;
-//   close(): Promise<void>;
-//   listTools(): Promise<MCPTool[]>;
-//   callTool(toolName: string, args: Record<string, unknown> | null): Promise<CallToolResultContent>;
-//   invalidateToolsCache(): Promise<void>;
-// }
+async function createPlaywrightConnection({
+  webSocketDebuggerUrl,
+  logger,
+}: {
+  webSocketDebuggerUrl: string;
+  logger: ILogger;
+}) {
+  const browser = await chromium.connectOverCDP(webSocketDebuggerUrl);
+  const context = browser.contexts()[0];
+  const pages = context.pages();
+
+  // choose the non main window page
+  let targetPage;
+  for (const page of pages) {
+    const url = await page.url();
+    if (!url.includes('localhost') && !url.includes('main_window')) {
+      targetPage = page;
+      break;
+    }
+  }
+
+  // Optionally store this for debugging
+  logger.info(`🎯 Using MCP on page: ${await targetPage.title()} (${await targetPage.url()})`);
+
+  // MCP expects a BrowserContext, not a Page
+  // We just return the context; MCP will use context.pages()[0],
+  // so make sure targetPage is first in the array.
+  if (pages[0] !== targetPage) {
+    // reorder array in place (ugly but safe)
+    pages.splice(pages.indexOf(targetPage), 1);
+    pages.unshift(targetPage);
+  }
+
+  return context;
+}

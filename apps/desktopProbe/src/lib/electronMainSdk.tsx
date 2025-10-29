@@ -15,10 +15,8 @@ import { User } from '@supabase/supabase-js';
 import { JobScannerSettings, NewAppVersion, OverlayBrowserViewResult } from './types';
 
 async function _mainProcessApiCall<T>(channel: string, params?: object): Promise<T> {
-  // @ts-ignore
-  const { data, error } = await window.electron.invoke(channel, params);
+  const { data, error } = await window.electron.invoke<T>(channel, params);
   if (error) throw new Error(error);
-
   return data;
 }
 
@@ -464,4 +462,11 @@ export async function overlayBrowserViewGoForward(): Promise<void> {
  */
 export async function overlayBrowserViewNavigate(url: string): Promise<void> {
   await _mainProcessApiCall('overlay-browser-view-navigate', { url });
+}
+
+/**
+ * Run the AI agent with the given input.
+ */
+export async function aiAgentRun(input: string): Promise<{ response: string }> {
+  return await _mainProcessApiCall<{ response: string }>('ai-agent-run', { input });
 }

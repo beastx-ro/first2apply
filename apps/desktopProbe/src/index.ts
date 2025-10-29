@@ -255,7 +255,15 @@ async function bootstrap() {
     });
 
     // init the renderer IPC API
-    initRendererIpcApi({ supabaseApi, jobScanner, autoUpdater, overlayBrowserView, nodeEnv: ENV.nodeEnv });
+    initRendererIpcApi({
+      supabaseApi,
+      jobScanner,
+      autoUpdater,
+      overlayBrowserView,
+      nodeEnv: ENV.nodeEnv,
+      aiAgent,
+      logger,
+    });
 
     // init the tray menu
     trayMenu = new TrayMenu({ logger, onQuit: quit, onNavigate: navigate });
@@ -311,11 +319,6 @@ async function bootstrap() {
     } else {
       logger.info(`no session found on disk`);
     }
-
-    await aiAgent.bringToLife({ logger });
-
-    const res = await aiAgent.use({ input: 'What tools can you use?' });
-    logger.info(`AI agent response: ${res.finalOutput}`);
   } catch (error) {
     logger.error(getExceptionMessage(error));
   }
@@ -335,6 +338,13 @@ async function bootstrap() {
     handleDeepLink(commandLine[commandLine.length - 1]);
   });
 
+  // should be the very last thing to boot because it needs everything else ready
+  await aiAgent.bringToLife({ logger });
+
+  // aiAgent.use({ input: 'What is on the current page?' }).then((res) => {
+  //   logger.info(`AI agent response: ${res.finalOutput}`);
+  // });
+
   appIsRunning = true;
 }
 
@@ -348,6 +358,9 @@ async function quit() {
 
     await aiAgent.destroy();
     logger.info(`destroyed AI agent`);
+
+    overlayBrowserView.destroy();
+    logger.info(`destroyed overlay browser view`);
 
     jobScanner?.close();
     logger.info(`closed job scanner`);

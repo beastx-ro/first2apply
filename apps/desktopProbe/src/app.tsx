@@ -102,7 +102,13 @@ root.render(<App />);
 declare global {
   interface Window {
     electron: {
-      invoke: (channel: string, params?: object) => Promise<object>;
+      invoke: <T>(
+        channel: string,
+        params?: object,
+      ) => Promise<{
+        data: T;
+        error: string;
+      }>;
       on: (
         channel: string,
         callback: (event: Electron.IpcRendererEvent, ...args: unknown[]) => void,

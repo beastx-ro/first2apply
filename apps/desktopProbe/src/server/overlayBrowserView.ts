@@ -16,27 +16,25 @@ export class OverlayBrowserView {
    */
   setMainWindow(mainWindow: BrowserWindow) {
     this._mainWindow = mainWindow;
+    this._searchView = new WebContentsView();
+    this._searchView.webContents.debugger.attach('1.3');
+
+    // Add resize listener
+    this._resizeListener = this._updateSearchViewBounds.bind(this);
+    this._mainWindow.on('resize', this._resizeListener);
+    this.navigate('https://www.first2apply.com');
   }
 
   /**
    * Open the browser view.
    */
-  open(url: string) {
+  async open(url: string) {
     if (!this._mainWindow) {
       throw new Error('Main window is not set');
     }
-    if (this._searchView) {
-      throw new Error('Search view is already open');
-    }
-
-    this._searchView = new WebContentsView();
 
     // set the bounds of the view to be the same as the main window
     this._updateSearchViewBounds();
-
-    // Add resize listener
-    this._resizeListener = this._updateSearchViewBounds.bind(this);
-    this._mainWindow.on('resize', this._resizeListener);
 
     // Listen for navigation events and send the new URL to the renderer
     const sendUrlUpdate = (_event: Event, newUrl: string) => {
@@ -45,6 +43,7 @@ export class OverlayBrowserView {
     this._searchView.webContents.on('did-navigate', sendUrlUpdate);
     this._searchView.webContents.on('did-navigate-in-page', sendUrlUpdate);
 
+    // this actually adds the view to the window
     this._mainWindow.contentView.addChildView(this._searchView);
 
     this.navigate(url);
@@ -117,10 +116,14 @@ export class OverlayBrowserView {
     if (this._mainWindow && this._searchView) {
       const contentBounds = this._mainWindow.getContentBounds();
       // Start 50px from the top, maintain the width, and adjust the height accordingly
+
+      // width should be 2/3 of the content width
+      const searchViewWidth = (contentBounds.width * 2) / 3;
+
       this._searchView.setBounds({
         x: 0, // Start at left edge of content area
         y: 50, // 50px from top of content area
-        width: contentBounds.width,
+        width: searchViewWidth,
         height: contentBounds.height - 50,
       });
     }
@@ -152,6 +155,12 @@ export class OverlayBrowserView {
    * This is used when the user cancels the modal.
    */
   close() {
+    if (this._searchView) {
+      this._mainWindow.contentView.removeChildView(this._searchView);
+    }
+  }
+
+  destroy() {
     // Remove the resize listener
     if (this._resizeListener && this._mainWindow) {
       this._mainWindow.removeListener('resize', this._resizeListener);
@@ -159,7 +168,7 @@ export class OverlayBrowserView {
     }
 
     if (this._searchView) {
-      this._mainWindow.contentView.removeChildView(this._searchView);
+      // this._searchView.webContents.debugger.detach();
       this._searchView.webContents.close();
       this._searchView = undefined;
     }
