@@ -6,6 +6,7 @@ const ForkTsCheckerWebpackPlugin: typeof IForkTsCheckerWebpackPlugin = require('
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const webpack = require('webpack');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 export const plugins = [
@@ -18,6 +19,7 @@ export const plugins = [
     'SUPABASE_KEY',
     'MEZMO_API_KEY',
     'AMPLITUDE_API_KEY',
+    'OPENAI_API_KEY',
   ]),
   new CopyWebpackPlugin({
     patterns: [{ from: path.join(__dirname, 'images'), to: 'images' }],
