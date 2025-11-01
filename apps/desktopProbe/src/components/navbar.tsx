@@ -57,6 +57,11 @@ export function Navbar() {
       path: '/help',
       icon: <QuestionMarkCircledIcon className="h-7 w-7" />,
     },
+    {
+      name: 'Ai Agent',
+      path: '/ai-agent',
+      icon: <QuestionMarkCircledIcon className="h-7 w-7" />,
+    },
   ];
 
   const Logo = () =>

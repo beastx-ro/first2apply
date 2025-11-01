@@ -13,6 +13,7 @@ import { LinksProvider } from './hooks/links';
 import { SessionProvider } from './hooks/session';
 import { SettingsProvider } from './hooks/settings';
 import { SitesProvider } from './hooks/sites';
+import { AiAgentPage } from './pages/aiAgent';
 import { FeedbackPage } from './pages/feedback';
 import { FiltersPage } from './pages/filters';
 import { ForgotPasswordPage } from './pages/forgotPassword';
@@ -36,7 +37,7 @@ function AuthGuardedComponent({ component }: { component: ComponentType }) {
 const router = createMemoryRouter(
   createRoutesFromElements(
     <>
-      <Route path="/" element={<AuthGuardedComponent component={Home} />}></Route>
+      <Route path="/" element={<AuthGuardedComponent component={AiAgentPage} />}></Route>
       <Route path="/links" element={<AuthGuardedComponent component={LinksPage} />}></Route>
       <Route path="/filters" element={<AuthGuardedComponent component={FiltersPage} />}></Route>
       <Route path="/settings" element={<AuthGuardedComponent component={SettingsPage} />}></Route>
@@ -48,6 +49,7 @@ const router = createMemoryRouter(
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/ai-agent" element={<AiAgentPage />} />
     </>,
   ),
   { initialEntries: ['/'] },
