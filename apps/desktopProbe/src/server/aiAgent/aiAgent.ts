@@ -8,6 +8,7 @@ import { chromium } from 'playwright';
 import { ILogger } from '../logger';
 import { findFreePortSync } from '../netUtils';
 import { createFirst2ApplyMcpServers } from './mcpManager';
+import { GET_USER_RESUME_TOOL } from './tools';
 
 /**
  * Class managing an AI agent that can autoapply for jobs.
@@ -79,9 +80,11 @@ You can also use it to extract information from web pages.
 Your goal is to help the user apply for jobs on their behalf.
 The conversation with the user starts after he clicks the "Apply" button in the overlay browser window.
 So first thing to do is to read the currently opened page in the browser and understand what job application form needs to be filled.
+Then ask the user for his resume using the "get_user_resume" tool in order to extract relevant information to fill the application form.
 `,
       mcpServers,
       model,
+      tools: [GET_USER_RESUME_TOOL],
     });
 
     logger.info(`AI agent brought to life.`);
