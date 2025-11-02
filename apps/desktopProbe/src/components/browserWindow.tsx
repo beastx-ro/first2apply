@@ -20,6 +20,8 @@ import { Textarea } from '@first2apply/ui';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';
 import remarkGfm from 'remark-gfm';
 
+import { Icons } from './icons';
+
 export type BrowserWindowProps = {
   onClose: () => void;
   customActionButton: {
@@ -60,6 +62,7 @@ export const BrowserWindow = forwardRef<BrowserWindowHandle, BrowserWindowProps>
     const [chatReplies, setChatReplies] = useState<string[]>([]);
     const [isAiLoading, setIsAiLoading] = useState(false);
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
+    const [agentLatestActions, setAgentLatestActions] = useState<string[]>([]);
 
     useEffect(() => {
       // Listen for URL changes from the main process
@@ -68,6 +71,12 @@ export const BrowserWindow = forwardRef<BrowserWindowHandle, BrowserWindowProps>
           setCurrentUrl(newUrl);
         }
       });
+      const removeActionListener = window.electron.on(
+        'ai-agent-notify-ui-progress',
+        (_, { action }: { action: string }) => {
+          setAgentLatestActions((prev) => [action, ...prev]);
+        },
+      );
 
       return () => {
         // close the overlay browser view when the component unmounts
@@ -76,9 +85,32 @@ export const BrowserWindow = forwardRef<BrowserWindowHandle, BrowserWindowProps>
         });
 
         // @ts-expect-error -- cleanup ---
-        if (typeof removeListener === 'function') return removeListener();
+        if (typeof removeListener === 'function') removeListener();
+        // @ts-expect-error -- cleanup ---
+        if (typeof removeActionListener === 'function') removeActionListener();
       };
     }, []);
+
+    const makeAiAgentCall = async ({ input }: { input: string }) => {
+      try {
+        setChatReplies((prev) => [...prev, input]);
+        setIsAiLoading(true);
+        const fullContext = `${chatReplies.join('\n')}\nUser: ${aiInput}\nAI: `;
+
+        const { response } = await aiAgentRun(fullContext);
+
+        setIsAiLoading(false);
+        setChatReplies((prev) => [...prev, response]);
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description: `Failed to run AI agent: ${getExceptionMessage(error, true)}`,
+          variant: 'destructive',
+        });
+      } finally {
+        setIsAiLoading(false);
+      }
+    };
 
     // periodically check if we can go back/forward
     useEffect(() => {
@@ -99,6 +131,16 @@ export const BrowserWindow = forwardRef<BrowserWindowHandle, BrowserWindowProps>
         // check immediately and then start interval
         checkNavigationState();
         intervalId = setInterval(checkNavigationState, 300);
+
+        setIsAiLoading(true);
+        const initialPrompt = `Hello, help me apply to this job`;
+        makeAiAgentCall({ input: initialPrompt }).finally(() => {
+          setIsAiLoading(false);
+        });
+      } else {
+        // clear the saved chat when closing
+        setChatReplies([]);
+        setAiInput('');
       }
 
       return () => {
@@ -161,6 +203,8 @@ export const BrowserWindow = forwardRef<BrowserWindowHandle, BrowserWindowProps>
         setIsAiLoading(false);
       }
     };
+
+    const latestAction = agentLatestActions.length > 0 ? agentLatestActions[0] : undefined;
 
     return (
       <div className="fixed bottom-0 left-0 right-0 top-0 z-50">
@@ -244,6 +288,13 @@ export const BrowserWindow = forwardRef<BrowserWindowHandle, BrowserWindowProps>
                   </div>
                 </div>
               ))}
+
+              {isAiLoading && (
+                <div className="flex items-center justify-center py-2">
+                  <Icons.spinner2 className="h-4 w-4 animate-spin" />
+                  <span className="ml-2">{latestAction ? `AI is working: ${latestAction}` : 'AI is thinking...'}</span>
+                </div>
+              )}
 
               <div className="my-5"></div>
 

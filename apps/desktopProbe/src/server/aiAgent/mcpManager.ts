@@ -114,7 +114,13 @@ function createHttpRouter({
 
   app.post(playwrightSsePath, async (req, res) => {
     try {
-      logger.info(`Playwright MCP POST request received`);
+      const start = Date.now();
+      res.on('finish', () => {
+        const duration = Date.now() - start;
+        logger.info(`Playwright MCP POST request finished in ${duration}ms`);
+      });
+
+      // logger.info(`Playwright MCP POST request received`);
       const url = new URL(`http://localhost${req.url}`);
       const sessionId = url.searchParams.get('sessionId');
       if (!sessionId) {

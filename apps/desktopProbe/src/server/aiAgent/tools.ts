@@ -1,7 +1,6 @@
 import { getExceptionMessage } from '@first2apply/core/build';
 import { tool } from '@openai/agents';
 import { dialog } from 'electron';
-import fs from 'fs';
 import PDFParser from 'pdf2json';
 import { z } from 'zod';
 
