@@ -1,5 +1,5 @@
-import { Agent, run, tool } from '@openai/agents';
-import { dialog, ipcMain, shell } from 'electron';
+import { tool } from '@openai/agents';
+import { dialog } from 'electron';
 import fs from 'fs';
 import { PDFParse } from 'pdf-parse';
 import { z } from 'zod';
