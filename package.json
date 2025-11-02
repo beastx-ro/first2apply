@@ -144,7 +144,6 @@
     "next": "^14.2.33",
     "next-themes": "^0.2.1",
     "node-cron": "^3.0.3",
-    "pdf-parse": "^2.4.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.65.0",
