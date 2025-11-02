@@ -1,3 +1,6 @@
+import * as express from 'express';
+import { Logger } from 'pino';
+
 /**
  * Get an error string from an exception.
  */
@@ -25,4 +28,26 @@ export function getExceptionMessage(error: unknown, noStackTrace = false) {
  */
 export function throwError(message: string): never {
   throw new Error(message);
+}
+
+export function errorMiddleware({ logger }: { logger: Logger }) {
+  return function defaultErrorHandler(
+    error: unknown,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) {
+    try {
+      logger.error(
+        `${req.path}
+${getExceptionMessage(error)}
+Body: ${JSON.stringify(req.body ?? {})}
+Query: ${JSON.stringify(req.query ?? {})}
+`,
+      );
+      res.status(500).json({ errorMessage: getExceptionMessage(error, true) });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
