@@ -330,6 +330,7 @@ export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: stri
       externalUrl = `${prefix}/jobs/view/${urlParams.get('currentJobId')}`;
     }
     const title = (
+      externalUrlEl.querySelector(':scope > strong') ??
       externalUrlEl.querySelector(':scope > span > strong') ??
       externalUrlEl.querySelector('.job-card-job-posting-card-wrapper__title > span > strong')
     )?.textContent?.trim();
