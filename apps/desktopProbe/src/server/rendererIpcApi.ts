@@ -44,7 +44,7 @@ export function initRendererIpcApi({
   nodeEnv: string;
   analytics: IAnalyticsClient;
 }) {
-  ipcMain.handle('get-os-type', (event) =>
+  ipcMain.handle('get-os-type', () =>
     _apiCall(async () => {
       return os.platform();
     }),
@@ -59,9 +59,11 @@ export function initRendererIpcApi({
     }),
   );
 
-  ipcMain.handle('login-with-email', async (event, { email, password }) =>
-    _apiCall(() => supabaseApi.loginWithEmail({ email, password })),
-  );
+  ipcMain.handle('login-with-email', async (event, { email, password }) => {
+    const result = await _apiCall(() => supabaseApi.loginWithEmail({ email, password }));
+    analytics.trackEvent('user_logged_in', { method: 'email', email: email });
+    return result;
+  });
 
   ipcMain.handle('send-password-reset-email', async (event, { email }) =>
     _apiCall(() => supabaseApi.sendPasswordResetEmail({ email })),
@@ -88,38 +90,52 @@ export function initRendererIpcApi({
         console.error(getExceptionMessage(error));
       });
 
+      analytics.trackEvent('link_created', { link_id: link.id, user_id: link.user_id, site_id: link.site_id });
+
       return { link };
     }),
   );
 
-  ipcMain.handle('update-link', async (event, { linkId, title, url }) =>
-    _apiCall(() => supabaseApi.updateLink({ linkId, title, url })),
-  );
+  ipcMain.handle('update-link', async (event, { linkId, title, url }) => {
+    const res = await _apiCall(() => supabaseApi.updateLink({ linkId, title, url }));
+    analytics.trackEvent('link_updated', { link_id: linkId });
+    return res;
+  });
 
-  ipcMain.handle('list-links', async (event, { title, url }) => _apiCall(() => supabaseApi.listLinks()));
+  ipcMain.handle('list-links', async () => _apiCall(() => supabaseApi.listLinks()));
 
-  ipcMain.handle('delete-link', async (event, { linkId }) => _apiCall(() => supabaseApi.deleteLink(linkId)));
+  ipcMain.handle('delete-link', async (event, { linkId }) => {
+    const res = await _apiCall(() => supabaseApi.deleteLink(linkId));
+    analytics.trackEvent('link_deleted', { link_id: linkId });
+    return res;
+  });
 
   ipcMain.handle('list-jobs', async (event, { status, search, siteIds, linkIds, labels, limit, after }) =>
     _apiCall(() => supabaseApi.listJobs({ status, search, siteIds, linkIds, labels, limit, after })),
   );
 
-  ipcMain.handle('update-job-status', async (event, { jobId, status }) =>
-    _apiCall(() => supabaseApi.updateJobStatus({ jobId, status })),
-  );
+  ipcMain.handle('update-job-status', async (event, { jobId, status }) => {
+    const res = await _apiCall(() => supabaseApi.updateJobStatus({ jobId, status }));
+    analytics.trackEvent('job_status_updated', { jobId, status });
+    return res;
+  });
 
-  ipcMain.handle('update-job-labels', async (event, { jobId, labels }) =>
-    _apiCall(() => supabaseApi.updateJobLabels({ jobId, labels })),
-  );
+  ipcMain.handle('update-job-labels', async (event, { jobId, labels }) => {
+    const res = await _apiCall(() => supabaseApi.updateJobLabels({ jobId, labels }));
+    analytics.trackEvent('job_labels_updated', { jobId, labels: labels.join(',') });
+    return res;
+  });
 
-  ipcMain.handle('list-sites', async (event) => _apiCall(() => supabaseApi.listSites()));
+  ipcMain.handle('list-sites', async () => _apiCall(() => supabaseApi.listSites()));
 
-  ipcMain.handle('update-job-scanner-settings', async (event, { settings }) =>
-    _apiCall(async () => jobScanner.updateSettings(settings)),
-  );
+  ipcMain.handle('update-job-scanner-settings', async (event, { settings }) => {
+    const res = await _apiCall(async () => jobScanner.updateSettings(settings));
+    analytics.trackEvent('job_scanner_settings_updated', { settings: JSON.stringify(settings) });
+    return res;
+  });
 
   // handler used to fetch the cron schedule
-  ipcMain.handle('get-job-scanner-settings', async (event) => _apiCall(async () => jobScanner.getSettings()));
+  ipcMain.handle('get-job-scanner-settings', async () => _apiCall(async () => jobScanner.getSettings()));
 
   ipcMain.handle('open-external-url', async (event, { url }) => _apiCall(async () => shell.openExternal(url)));
 
@@ -139,15 +155,18 @@ export function initRendererIpcApi({
   ipcMain.handle('apply-app-update', async () =>
     _apiCall(async () => {
       await autoUpdater.applyUpdate();
+      analytics.trackEvent('app_update_applied');
       return {};
     }),
   );
 
-  ipcMain.handle('create-user-review', async (event, { title, description, rating }) =>
-    _apiCall(() => supabaseApi.createReview({ title, description, rating })),
-  );
+  ipcMain.handle('create-user-review', async (event, { title, description, rating }) => {
+    const res = await _apiCall(() => supabaseApi.createReview({ title, description, rating }));
+    analytics.trackEvent('user_review_created', { title, description, rating });
+    return res;
+  });
 
-  ipcMain.handle('get-user-review', async (event) => _apiCall(async () => supabaseApi.getUserReview()));
+  ipcMain.handle('get-user-review', async () => _apiCall(async () => supabaseApi.getUserReview()));
 
   ipcMain.handle('update-user-review', async (event, { id, title, description, rating }) =>
     _apiCall(async () => supabaseApi.updateReview({ id, title, description, rating })),
@@ -220,9 +239,11 @@ export function initRendererIpcApi({
     }),
   );
 
-  ipcMain.handle('create-note', async (event, { job_id, text, files }) =>
-    _apiCall(() => supabaseApi.createNote({ job_id, text, files })),
-  );
+  ipcMain.handle('create-note', async (event, { job_id, text, files }) => {
+    const res = await _apiCall(() => supabaseApi.createNote({ job_id, text, files }));
+    analytics.trackEvent('note_created', { job_id: job_id, note_id: res.data?.id });
+    return res;
+  });
 
   ipcMain.handle('list-notes', async (event, { job_id }) => _apiCall(() => supabaseApi.listNotes(job_id)));
 
@@ -234,13 +255,19 @@ export function initRendererIpcApi({
     _apiCall(() => supabaseApi.addFileToNote({ noteId, file })),
   );
 
-  ipcMain.handle('delete-note', async (event, { noteId }) => _apiCall(() => supabaseApi.deleteNote(noteId)));
+  ipcMain.handle('delete-note', async (event, { noteId }) => {
+    const res = await _apiCall(() => supabaseApi.deleteNote(noteId));
+    analytics.trackEvent('note_deleted', { note_id: noteId });
+    return res;
+  });
 
   ipcMain.handle('get-advanced-matching-config', async () => _apiCall(() => supabaseApi.getAdvancedMatchingConfig()));
 
-  ipcMain.handle('update-advanced-matching-config', async (event, { config }) =>
-    _apiCall(() => supabaseApi.updateAdvancedMatchingConfig(config)),
-  );
+  ipcMain.handle('update-advanced-matching-config', async (event, { config }) => {
+    const res = _apiCall(() => supabaseApi.updateAdvancedMatchingConfig(config));
+    analytics.trackEvent('advanced_matching_config_updated', { config: JSON.stringify(config) });
+    return res;
+  });
 
   ipcMain.handle('scan-link', async (event, { linkId }) => _apiCall(() => jobScanner.scanLink({ linkId })));
 
@@ -250,13 +277,13 @@ export function initRendererIpcApi({
   ipcMain.handle('close-overlay-browser-view', async () => {
     return _apiCall(async () => overlayBrowserView.close());
   });
-  ipcMain.handle('overlay-browser-can-view-go-back', async (event, { url }) => {
+  ipcMain.handle('overlay-browser-can-view-go-back', async () => {
     return _apiCall(async () => overlayBrowserView.canGoBack());
   });
   ipcMain.handle('overlay-browser-view-go-back', async () => {
     return _apiCall(async () => overlayBrowserView.goBack());
   });
-  ipcMain.handle('overlay-browser-can-view-go-forward', async (event, { url }) => {
+  ipcMain.handle('overlay-browser-can-view-go-forward', async () => {
     return _apiCall(async () => overlayBrowserView.canGoForward());
   });
   ipcMain.handle('overlay-browser-view-go-forward', async () => {
