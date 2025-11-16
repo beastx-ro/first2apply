@@ -3,6 +3,7 @@ import Markdown from 'react-markdown';
 import { useSites } from '@/hooks/sites';
 import { Job } from '@first2apply/core';
 import { Skeleton } from '@first2apply/ui';
+import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 
 /**
@@ -32,7 +33,7 @@ export function JobDetails({ job, isScrapingDescription }: { job: Job; isScrapin
     </div>
   ) : job.description ? (
     // Description has been fetched
-    <Markdown remarkPlugins={[remarkGfm]} className="job-description-md pl-[25px] pr-2">
+    <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} className="job-description-md pl-[25px] pr-2">
       {job.description}
     </Markdown>
   ) : (

@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "@first2apply/core": "workspace:*",
-    "@first2apply/ui": "workspace:*"
+    "@first2apply/ui": "workspace:*",
+    "rehype-raw": "^7.0.0"
   }
 }
