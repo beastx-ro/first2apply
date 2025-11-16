@@ -52,54 +52,58 @@ Deno.serve(async (req) => {
 
     const parseDescriptionAndSaveUpdates = async () => {
       let updatedJob: Job = { ...job, status: 'new' };
-      if (!job.description) {
-        // parse the job description
-        logger.info(`[${site.provider}] parsing job description for ${jobId} ...`);
 
-        // update the job with the description
-        const updates = await parseJobDescriptionUpdates({
-          site,
-          job,
-          html,
-          ...context,
-        });
-        const isLastRetry = retryCount === maxRetries;
-        updatedJob = {
-          ...updatedJob,
-          description: updates.description ?? job.description,
-          salary: !job.salary ? updates.salary : job.salary,
-          tags: Array.from(new Set((job.tags ?? []).concat(updates.tags ?? []))),
-        };
-        if (!updates.description && isLastRetry) {
-          logger.error(
-            `[${site.provider}] no JD details extracted from the html of job ${jobId}, this could be a problem with the parser`,
-            {
-              url: job.externalUrl,
-              site: site.provider,
-            },
-          );
+      // parse the job description
+      logger.info(`[${site.provider}] parsing job description for ${jobId} ...`);
 
-          await supabaseClient.from('html_dumps').insert([{ url: job.externalUrl, html }]);
-        }
-
-        if (updates.description) {
-          logger.info(`[${site.provider}] finished parsing job description for ${job.title}`, {
+      // update the job with the description
+      const updates = await parseJobDescriptionUpdates({
+        site,
+        job,
+        html,
+        ...context,
+      });
+      const isLastRetry = retryCount === maxRetries;
+      updatedJob = {
+        ...updatedJob,
+        description: updates.description ?? job.description,
+        salary: !job.salary ? updates.salary : job.salary,
+        tags: Array.from(new Set((job.tags ?? []).concat(updates.tags ?? []))),
+      };
+      if (!updates.description && isLastRetry) {
+        logger.error(
+          `[${site.provider}] no JD details extracted from the html of job ${jobId}, this could be a problem with the parser`,
+          {
+            url: job.externalUrl,
             site: site.provider,
-          });
-        }
+          },
+        );
 
-        const { newStatus, excludeReason } = await applyAdvancedMatchingFilters({
-          logger,
-          job: updatedJob,
-          supabaseClient,
-          supabaseAdminClient,
+        await supabaseClient.from('html_dumps').insert([{ url: job.externalUrl, html }]);
+      }
+
+      if (updates.description) {
+        logger.info(`[${site.provider}] finished parsing job description for ${job.title}`, {
+          site: site.provider,
         });
+      }
 
-        updatedJob = {
-          ...updatedJob,
-          status: newStatus,
-          exclude_reason: excludeReason,
-        };
+      const { newStatus, excludeReason } = await applyAdvancedMatchingFilters({
+        logger,
+        job: updatedJob,
+        supabaseClient,
+        supabaseAdminClient,
+      });
+
+      updatedJob = {
+        ...updatedJob,
+        status: newStatus,
+        exclude_reason: excludeReason,
+      };
+
+      if (!updatedJob.description) {
+        // use original description to avoid empty descriptions
+        updatedJob.description = job.description;
       }
 
       logger.info(`[${site.provider}] ${updatedJob.status} ${job.title}`);

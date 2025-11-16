@@ -1,4 +1,4 @@
-import { throwError } from '@first2apply/core';
+import { Job, throwError } from '@first2apply/core';
 import { DbSchema, User } from '@first2apply/core';
 import { SupabaseClient } from '@supabase/supabasefork';
 import { DOMParser, Element } from 'https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts';
@@ -73,7 +73,7 @@ Here are some rules for the required output:
 - The salary field should specify the offered salary or salary range, if available. Always try to extract it if present. If there are other benefits mentioned (e.g. stock options, bonuses), do not include them in the salary field, but put them as tags.
 - The tags field should include relevant tags or keywords associated with the job, if available. If you see "easy apply" on a job add it as a tag. Or if the job is sponsored.
 
-Limit the number of jobs extracted to a maximum of 20. If more jobs are present, prioritize the most recent ones.
+Limit the number of jobs extracted to a maximum of 30. If more jobs are present, prioritize the most recent ones.
 Try to extract all or as many jobs from the page as possible. And preserve the order of the jobs as they appear on the page.
 
 Here is the page header info:
@@ -127,6 +127,7 @@ ${htmlContent}
         externalId: await denoHashString(job.externalUrl),
         externalUrl: job.externalUrl,
         title: job.title,
+        description: job.description || undefined,
         companyName: job.companyName,
         companyLogo: job.companyLogo || undefined,
         jobType: job.jobType || undefined,
@@ -161,7 +162,7 @@ const JOB_SCHEMA = z.object({
   salary: z.string().max(100).optional().nullable(),
   tags: z.array(z.string().max(50)).optional().nullable(),
 
-  // description: z.string().min(20).optional().nullable(),
+  description: z.string().min(20).optional().nullable(),
 });
 const PARSE_JOBS_PAGE_SCHEMA = z.object({
   jobs: z.array(JOB_SCHEMA).min(0).max(50),
@@ -182,6 +183,16 @@ Here are some common examples of externalUrls from different popular job sites:
 - glassdoor.com: https://www.glassdoor.com/job-listing/software-engineer-google-JV_IC1234567_KO0,17_KE18,24.htm?jl=1234567890
 - monster.com: https://www.monster.com/jobs/search/?q=Software-Engineer&where=Remote&jobid=1234567890
 - google.com: https://www.google.com/about/careers/applications/jobs/results/132525933222339270-software-engineer-iii-aiml
+
+If the user is trying to scrape a page that is just a single job description, return an empty jobs array and an appropriate errorMessage.
+Here are some unsupported website:
+- hiringcafe.com. - their html pages don't allow scraping.
+
+Here are some other site specific notes:
+- hnhiring.com 
+  - this site is a forum, so the job posts are in forum post format.
+  - VERY IMPORTANT: extract the description as the post content exactly as is, the original post body.
+  - some posts are marked as "Multiple Roles", in that case extract the description as is, do not try to split into multiple jobs, each with their unique url (ATS sites preferred)
 `;
 
 /**
@@ -191,10 +202,12 @@ Here are some common examples of externalUrls from different popular job sites:
 export async function parseCustomJobDescription({
   html,
   user,
+  job,
   ...context
 }: {
   html: string;
   user: User;
+  job: Job;
 
   // dependencies
   logger: ILogger;
@@ -202,6 +215,17 @@ export async function parseCustomJobDescription({
 }): Promise<JobDescriptionUpdates> {
   const document = new DOMParser().parseFromString(html, 'text/html');
   if (!document) throw new Error('Could not parse html');
+
+  const { data: advancedMatchingRecord, error: getAdvancedMatchingRecordError } = await context.supabaseAdminClient
+    .from('advanced_matching')
+    .select('*')
+    .eq('user_id', user.id)
+    .single();
+  if (getAdvancedMatchingRecordError) {
+    context.logger.error(
+      `Failed to load advanced matching config for user ${user.id}: ${getAdvancedMatchingRecordError.message}`,
+    );
+  }
 
   // helper methods
   const generateUserPrompt = () => {
@@ -213,14 +237,21 @@ export async function parseCustomJobDescription({
     stripNodes(document.documentElement, nodesToRemove);
     stripAttributes(document.documentElement, /^(class|style|aria-.*|role)$/);
     const htmlContent = turndownService.turndown(document.documentElement?.outerHTML ?? '');
+    const withAdvancedMatchingPreferences = `Here are my job search preferences: ${advancedMatchingRecord?.chatgpt_prompt ?? 'nothing specific for the moment'}.`;
 
-    return `Extract the job description from the HTML page below. Return the result as a JSON object matching the provided schema.
+    const userPrompt = `Extract the job description from the HTML page below. Return the result as a JSON object matching the provided schema.
 Here is the HTML page turned into markdown:
 """
 ${htmlContent}
-"""`;
+"""
+
+${withAdvancedMatchingPreferences}
+`;
+
+    return { userPrompt, htmlContent };
   };
 
+  const { userPrompt, htmlContent } = generateUserPrompt();
   const { openAi, llmConfig } = buildOpenAiClient({
     modelName: 'gpt-4o-mini',
     ...context,
@@ -235,7 +266,7 @@ ${htmlContent}
       },
       {
         role: 'user',
-        content: generateUserPrompt(),
+        content: userPrompt,
       },
     ],
     max_completion_tokens: 10_000,
@@ -261,14 +292,39 @@ ${htmlContent}
   let updates: JobDescriptionUpdates = {};
   const parsingFailed = !!parseResult.errorMessage;
   if (parsingFailed) {
-    const errorMessage = parseResult.errorMessage ?? 'Unknown error';
+    const errorDescription = `
+### Original Description
+${job.description ?? 'No original description available.'}
+
+AI parser could not properly read this job description: 
+${parseResult.errorMessage ?? 'Unknown error'}
+
+<details>
+<summary>Original Description (for reference)</summary>
+
+${htmlContent}
+</details>
+`;
 
     updates = {
-      description: `Failed to parse job description: ${errorMessage}`,
+      description: errorDescription,
     };
   } else {
+    const formattedDescription = `
+## AI Generated Summary
+${parseResult.summary?.trim() ?? 'No summary extracted.'}
+
+## AI Extracted Job Description
+${parseResult.description?.trim() ?? 'No description extracted.'}
+
+<details>
+<summary>Original Description (for reference)</summary>
+${job.description ?? 'No original description available.'}
+</details>
+`;
+
     updates = {
-      description: parseResult.description?.trim(),
+      description: formattedDescription,
       salary: parseResult.salary?.trim(),
       tags: parseResult.tags?.map((tag) => tag.trim()),
     };
@@ -278,6 +334,7 @@ ${htmlContent}
 }
 const PARSE_JOB_DESCRIPTION_SCHEMA = z.object({
   description: z.string().min(20).optional().nullable(),
+  summary: z.string().max(1000).optional().nullable(),
   salary: z.string().optional().nullable(),
   tags: z.array(z.string().max(50)).optional().nullable(),
   errorMessage: z.string().max(500).optional().nullable(),
@@ -286,6 +343,10 @@ const JOB_DESCRIPTION_SYSTEM_PROMPT = `You are an expert web scraper specialized
 Your task is to analyze the provided HTML content and extract the job description.
 The output has to be markdown formatted text, suitable for display in a web application.
 If you cannot extract the information due to the HTML being a login page, CAPTCHA, or any other access restriction, respond with an empty result and an appropriate errorMessage.
+
+Generate a summary of the job description in maximum 1000 characters so that a user can quickly understand the role.
+If the user has any preferences mentioned in the prompt, try to highlight how the job matches those preferences in the summary. 
+You can use markdown formatting (bold, italics, lists) to improve readability.
 
 Here are some rules for the required output:
 - The description field should contain the full job description, including responsibilities, requirements, benefits, and any other relevant information.

@@ -88,6 +88,7 @@ const turndownService = new turndown({
 export async function parseJobDescriptionUpdates({
   site,
   html,
+  job,
   user,
   ...context
 }: {
@@ -136,7 +137,7 @@ export async function parseJobDescriptionUpdates({
     case SiteProvider.talent:
       return parseTalentJobDescription({ html });
     case SiteProvider.custom:
-      return await parseCustomJobDescription({ html, user, ...context });
+      return await parseCustomJobDescription({ html, user, job, ...context });
   }
 }
 
