@@ -130,7 +130,7 @@ export function JobNotes({ jobId }: { jobId: number }) {
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <div className="ml-[25px] pb-10">
+    <div className="pb-2">
       <div className="flex items-center">
         <h3 className="text-2xl">Your notes</h3>
 
@@ -152,7 +152,10 @@ export function JobNotes({ jobId }: { jobId: number }) {
         )}
 
         {!newNote && notes.length === 0 ? (
-          <p className="py-10 text-center">No notes available</p>
+          <p className="py-2 text-center">
+            You have not added any notes for this job yet. Click the <PlusIcon className="inline h-4 w-4" /> button to
+            add your first note.
+          </p>
         ) : (
           notes.map((note) =>
             editingNoteId === note.id ? (

@@ -372,7 +372,7 @@ export function JobTabsContent({
               ) : listing.jobs.length > 0 ? (
                 <div
                   ref={jobDescriptionRef}
-                  className="no-scrollbar h-[calc(100vh-100px)] w-1/2 space-y-4 overflow-y-scroll border-l-[1px] border-muted pl-2 lg:w-3/5 lg:space-y-5 lg:pl-4"
+                  className="no-scrollbar h-[calc(100vh-100px)] w-1/2 space-y-4 overflow-y-scroll border-l-[1px] border-muted px-2 lg:w-3/5 lg:space-y-5 lg:px-4"
                 >
                   {selectedJob && (
                     <>
@@ -383,9 +383,9 @@ export function JobTabsContent({
                         onUpdateLabels={onUpdateJobLabels}
                         onOpenUrl={onOpenUrl}
                       />
-                      <JobDetails job={selectedJob} isScrapingDescription={!!selectedJob.isLoadingJD}></JobDetails>
-                      <hr className="border-t border-muted" />
                       <JobNotes jobId={selectedJobId} />
+                      <hr className="border-t border-muted" />
+                      <JobDetails job={selectedJob} isScrapingDescription={!!selectedJob.isLoadingJD}></JobDetails>
                     </>
                   )}
                 </div>
