@@ -130,7 +130,7 @@ export function initRendererIpcApi({
 
   ipcMain.handle('update-job-scanner-settings', async (event, { settings }) => {
     const res = await _apiCall(async () => jobScanner.updateSettings(settings));
-    analytics.trackEvent('job_scanner_settings_updated', { settings: JSON.stringify(settings) });
+    analytics.trackEvent('job_scanner_settings_updated', { ...settings });
     return res;
   });
 

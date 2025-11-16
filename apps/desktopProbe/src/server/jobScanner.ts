@@ -360,7 +360,6 @@ export class JobScanner {
   updateSettings(settings: JobScannerSettings) {
     this._applySettings(settings);
     this._saveSettings();
-    this._analytics.trackEvent('update_settings', settings);
   }
 
   /**
