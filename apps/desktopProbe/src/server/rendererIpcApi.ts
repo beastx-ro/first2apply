@@ -5,6 +5,7 @@ import fs from 'fs';
 import { json2csv } from 'json-2-csv';
 import os from 'os';
 
+import { IAnalyticsClient } from '../lib/analytics';
 import { F2aAutoUpdater } from './autoUpdater';
 import { JobScanner } from './jobScanner';
 import { OverlayBrowserView } from './overlayBrowserView';
@@ -34,12 +35,14 @@ export function initRendererIpcApi({
   autoUpdater,
   overlayBrowserView,
   nodeEnv,
+  analytics,
 }: {
   supabaseApi: F2aSupabaseApi;
   jobScanner: JobScanner;
   autoUpdater: F2aAutoUpdater;
   overlayBrowserView: OverlayBrowserView;
   nodeEnv: string;
+  analytics: IAnalyticsClient;
 }) {
   ipcMain.handle('get-os-type', (event) =>
     _apiCall(async () => {
@@ -48,7 +51,12 @@ export function initRendererIpcApi({
   );
 
   ipcMain.handle('signup-with-email', async (event, { email, password }) =>
-    _apiCall(() => supabaseApi.signupWithEmail({ email, password })),
+    _apiCall(async () => {
+      const result = await supabaseApi.signupWithEmail({ email, password });
+      analytics.trackEvent('user_signed_up', { method: 'email', email: email });
+
+      return result;
+    }),
   );
 
   ipcMain.handle('login-with-email', async (event, { email, password }) =>
@@ -63,11 +71,11 @@ export function initRendererIpcApi({
     _apiCall(() => supabaseApi.updatePassword({ password })),
   );
 
-  ipcMain.handle('logout', async (event, {}) => _apiCall(() => supabaseApi.logout()));
+  ipcMain.handle('logout', async () => _apiCall(() => supabaseApi.logout()));
 
-  ipcMain.handle('get-user', async (event) => _apiCall(() => supabaseApi.getUser()));
+  ipcMain.handle('get-user', async () => _apiCall(() => supabaseApi.getUser()));
 
-  ipcMain.handle('create-link', async (event, { title, url, html }) =>
+  ipcMain.handle('create-link', async (_, { title, url, html }) =>
     _apiCall(async () => {
       const { link, newJobs } = await supabaseApi.createLink({
         title,
@@ -121,14 +129,14 @@ export function initRendererIpcApi({
       return { job: updatedJob };
     }),
   );
-  ipcMain.handle('get-app-state', async (event, {}) =>
+  ipcMain.handle('get-app-state', async () =>
     _apiCall(async () => {
       const isScanning = await jobScanner.isScanning();
       const newUpdate = await autoUpdater.getNewUpdate();
       return { isScanning, newUpdate };
     }),
   );
-  ipcMain.handle('apply-app-update', async (event, {}) =>
+  ipcMain.handle('apply-app-update', async () =>
     _apiCall(async () => {
       await autoUpdater.applyUpdate();
       return {};
@@ -198,14 +206,14 @@ export function initRendererIpcApi({
     }),
   );
 
-  ipcMain.handle('get-profile', async (event, {}) =>
+  ipcMain.handle('get-profile', async () =>
     _apiCall(async () => {
       const profile = await supabaseApi.getProfile();
       return { profile };
     }),
   );
 
-  ipcMain.handle('get-stripe-config', async (event, {}) =>
+  ipcMain.handle('get-stripe-config', async () =>
     _apiCall(async () => {
       const config = await getStripeConfig(nodeEnv);
       return { config };
@@ -228,9 +236,7 @@ export function initRendererIpcApi({
 
   ipcMain.handle('delete-note', async (event, { noteId }) => _apiCall(() => supabaseApi.deleteNote(noteId)));
 
-  ipcMain.handle('get-advanced-matching-config', async (event, {}) =>
-    _apiCall(() => supabaseApi.getAdvancedMatchingConfig()),
-  );
+  ipcMain.handle('get-advanced-matching-config', async () => _apiCall(() => supabaseApi.getAdvancedMatchingConfig()));
 
   ipcMain.handle('update-advanced-matching-config', async (event, { config }) =>
     _apiCall(() => supabaseApi.updateAdvancedMatchingConfig(config)),
