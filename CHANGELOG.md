@@ -1,5 +1,17 @@
 
 
+## [2.3.0](https://github.com/beastx-ro/first2apply/compare/desktop-v2.2.0...2.3.0) (2025-11-16)
+
+
+### Features
+
+* **supabase:** overhaul custom job board format ([0b0b623](https://github.com/beastx-ro/first2apply/commit/0b0b623d2ff628aac6f6937e1dd47b0f427a415f))
+
+
+### Bug Fixes
+
+* enable html content in markdown renderer ([5ef9613](https://github.com/beastx-ro/first2apply/commit/5ef961319a5440b6f6f86295fb6cc5d2af48fcfb))
+
 ## [2.2.0](https://github.com/beastx-ro/first2apply/compare/2.1.3...2.2.0) (2025-11-16)
 
 
