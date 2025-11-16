@@ -1,5 +1,20 @@
 
 
+## [2.2.0](https://github.com/beastx-ro/first2apply/compare/2.1.3...2.2.0) (2025-11-16)
+
+
+### Features
+
+* **analytics:** log user_registered events ([fb08eef](https://github.com/beastx-ro/first2apply/commit/fb08eef475de60c87b1024481c60e0a9c5054474))
+* make notes feature more visible ([34c34d6](https://github.com/beastx-ro/first2apply/commit/34c34d679911981432e28a4c21124dfc0378ee09))
+
+
+### Bug Fixes
+
+* **backend:** dice parser ([20f932d](https://github.com/beastx-ro/first2apply/commit/20f932dc5d79895185aa55cc2285aa4994aa6adb))
+* **backend:** linkedin parser ([db0a3e8](https://github.com/beastx-ro/first2apply/commit/db0a3e8c6cf787d69688de440905d84ab9ae91c6))
+* **landing:** stop carousel on mouse hover ([49ceecb](https://github.com/beastx-ro/first2apply/commit/49ceecb02b2a4b2bcde2ef8cb8bcbd9574c5f71d))
+
 ## [2.1.3](https://github.com/beastx-ro/first2apply/compare/desktop-v2.1.2...2.1.3) (2025-11-05)
 
 
