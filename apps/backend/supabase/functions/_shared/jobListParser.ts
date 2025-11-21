@@ -146,7 +146,15 @@ export async function parseJobsListUrl({
   });
 
   const { url } = link;
-  const site = getJobSite({ allJobSites, url, hasCustomJobsParsing });
+  const site = allJobSites.find((s) => s.id === link.site_id) ?? throwError('Job site not found');
+
+  if (site.provider === SiteProvider.custom && !hasCustomJobsParsing) {
+    context.logger.info(
+      `User ${context.user.id} tried to parse a custom job site without having the required subscription.`,
+    );
+    // don't throw an error here, just return no jobs
+    return { jobs: [], site, parseFailed: false };
+  }
 
   const { jobs, listFound, elementsCount, llmApiCallCost } = await parseSiteJobsList({
     site,
