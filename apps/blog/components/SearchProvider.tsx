@@ -27,7 +27,7 @@ export const SearchProvider = ({ children }) => {
             name: post.title,
             keywords: post?.summary || '',
             section: 'Blog',
-            subtitle: post.tags.join(', '),
+            subtitle: post.tags?.join(', '),
             perform: () => router.push(`/${post.slug}`),
           }));
         },
