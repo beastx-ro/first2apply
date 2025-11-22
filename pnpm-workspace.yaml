@@ -6,6 +6,7 @@ onlyBuiltDependencies:
   - '@parcel/watcher'
   - aws-sdk
   - contentlayer
+  - contentlayer2
   - core-js
   - electron
   - electron-forge

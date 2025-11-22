@@ -21,7 +21,8 @@ const layouts = {
 };
 
 export async function generateMetadata({ params }: { params: { slug: string[] } }): Promise<Metadata | undefined> {
-  const slug = decodeURI(params.slug.join('/'));
+  const { slug: slugArray } = await params;
+  const slug = decodeURI(slugArray.join('/'));
   const post = allBlogs.find((p) => p.slug === slug);
   const authorList = post?.authors || ['default'];
   const authorDetails = authorList.map((author) => {
@@ -76,7 +77,9 @@ export const generateStaticParams = async () => {
 };
 
 export default async function Page({ params }: { params: { slug: string[] } }) {
-  const slug = decodeURI(params.slug.join('/'));
+  const { slug: slugArray } = await params;
+  const slug = decodeURI(slugArray.join('/'));
+
   // Filter out drafts in production
   const sortedCoreContents = allCoreContent(sortPosts(allBlogs));
   const postIndex = sortedCoreContents.findIndex((p) => p.slug === slug);
