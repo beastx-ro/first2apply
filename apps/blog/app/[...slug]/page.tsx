@@ -1,5 +1,4 @@
 import { components } from '@/components/MDXComponents';
-import PageTitle from '@/components/PageTitle';
 import siteMetadata from '@/data/siteMetadata';
 import PostBanner from '@/layouts/PostBanner';
 import PostLayout from '@/layouts/PostLayout';
@@ -20,7 +19,11 @@ const layouts = {
   PostBanner,
 };
 
-export async function generateMetadata({ params }: { params: { slug: string[] } }): Promise<Metadata | undefined> {
+type PageProps = {
+  params: Promise<{ slug: string[] }>;
+};
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata | undefined> {
   const { slug: slugArray } = await params;
   const slug = decodeURI(slugArray.join('/'));
   const post = allBlogs.find((p) => p.slug === slug);
@@ -76,7 +79,7 @@ export const generateStaticParams = async () => {
   return paths;
 };
 
-export default async function Page({ params }: { params: { slug: string[] } }) {
+export default async function Page({ params }: PageProps) {
   const { slug: slugArray } = await params;
   const slug = decodeURI(slugArray.join('/'));
 

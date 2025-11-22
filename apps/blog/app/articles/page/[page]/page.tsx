@@ -4,6 +4,10 @@ import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer';
 
 const POSTS_PER_PAGE = 5;
 
+type PageProps = {
+  params: Promise<{ page: string }>;
+};
+
 export const generateStaticParams = async () => {
   const totalPages = Math.ceil(allBlogs.length / POSTS_PER_PAGE);
   const paths = Array.from({ length: totalPages }, (_, i) => ({ page: (i + 1).toString() }));
@@ -11,7 +15,7 @@ export const generateStaticParams = async () => {
   return paths;
 };
 
-export default async function Page({ params }: { params: { page: string } }) {
+export default async function Page({ params }: PageProps) {
   const { page } = await params;
   const posts = allCoreContent(sortPosts(allBlogs));
   const pageNumber = parseInt(page as string);
