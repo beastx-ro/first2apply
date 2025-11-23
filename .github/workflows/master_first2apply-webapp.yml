@@ -69,6 +69,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: f2a-webapp
+          path: apps/webapp/.next
 
       - name: Login to Azure
         uses: azure/login@v2
