@@ -46,6 +46,9 @@ jobs:
         run: pnpm run build
         working-directory: apps/webapp
 
+      - name: List build output
+        run: ls -la apps/webapp/.next
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
