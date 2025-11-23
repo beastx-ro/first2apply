@@ -56,7 +56,7 @@ jobs:
           action: 'upload'
           app_location: 'apps/webapp' # Path to the webapp source code
           api_location: '' # Path to the API source code (if applicable)
-          output_location: 'apps/webapp/.next' # Path to the built webapp content directory
+          output_location: '' # Path to the built webapp content directory
           skip_app_build: true # Skip Oryx build process
 
   close_pull_request_job:
