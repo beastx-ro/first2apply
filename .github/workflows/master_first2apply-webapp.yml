@@ -28,11 +28,18 @@ jobs:
         uses: pnpm/action-setup@v4
 
       # Cache pnpm dependencies
+      - name: Resolve pnpm store path
+        id: pnpm-store
+        run: echo "store=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: Init pnpm store dir
+        run: mkdir -p "${{ steps.pnpm-store.outputs.store }}"
+
       - name: Cache pnpm store
         uses: actions/cache@v3
         with:
-          path: ~/.pnpm-store # Cache the pnpm store directory
-          key: pnpm-${{ runner.os }}-${{ hashFiles('./pnpm-lock.yaml') }}
+          path: ${{ steps.pnpm-store.outputs.store }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
             pnpm-${{ runner.os }}-
 
