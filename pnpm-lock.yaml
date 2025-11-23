@@ -89,6 +89,9 @@ importers:
       axios:
         specifier: ^1.7.7
         version: 1.12.2
+      babel-plugin-react-compiler:
+        specifier: 1.0.0
+        version: 1.0.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -525,12 +528,6 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.1.17
-      babel-plugin-react-compiler:
-        specifier: 1.0.0
-        version: 1.0.0
-      eslint:
-        specifier: ^9
-        version: 9.38.0(jiti@2.6.1)
       tailwindcss:
         specifier: ^4
         version: 4.1.17

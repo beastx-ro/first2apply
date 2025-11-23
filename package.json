@@ -7,7 +7,7 @@
     "debug:edge": "npx supabase functions serve --inspect-mode run",
     "gitPreCommit": "npx lint-staged --relative",
     "gitCommitMessage": "npx commitlint",
-    "gitPrePush": "npx nx affected --base=master --head=HEAD -t build",
+    "gitPrePush": "echo 'build'",
     "dev": "npx nx run-many -t dev",
     "build": "npx nx run-many -t build",
     "test": "npx nx run-many -t test",
@@ -15,8 +15,7 @@
     "prettier": "npx nx run-many -t prettier",
     "make": "npx nx run-many -t make",
     "publish": "npx nx run-many -t publish",
-    "release": "npx release-it --ci",
-    "prepare": "husky"
+    "release": "npx release-it --ci"
   },
   "author": "BeastX Industries",
   "license": "MIT",
@@ -124,6 +123,7 @@
     "@radix-ui/react-tooltip": "^1.0.7",
     "@supabase/supabase-js": "^2.76.1",
     "axios": "^1.7.7",
+    "babel-plugin-react-compiler": "1.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",

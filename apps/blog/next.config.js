@@ -61,7 +61,7 @@ module.exports = () => {
   const plugins = [withContentlayer, withBundleAnalyzer];
   return plugins.reduce((acc, next) => next(acc), {
     basePath: '/blog',
-    reactStrictMode: true,
+    reactCompiler: true,
     pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
     images: {
       remotePatterns: [
