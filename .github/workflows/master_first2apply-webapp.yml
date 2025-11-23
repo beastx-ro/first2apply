@@ -58,7 +58,7 @@ jobs:
           mkdir -p deploy
           cp -r apps/webapp/.next/* deploy/
           cp apps/webapp/package.json deploy/
-          cp node_modules/next deploy/node_modules/next
+          cp -r node_modules/next deploy/node_modules/next
           ls -R deploy
 
       - name: Upload artifact for deployment job
