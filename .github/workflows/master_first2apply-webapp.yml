@@ -69,10 +69,9 @@ jobs:
       - name: Prepare deployment bundle
         run: |
           mkdir -p deploy
-          cp -r apps/webapp/.next/* deploy/
-          cp apps/webapp/package.json deploy/
-          mkdir -p deploy/node_modules/next
-          cp -r node_modules/next deploy/node_modules/next
+          cp -r apps/webapp/.next/standalone/* deploy/
+          cp -r apps/webapp/.next/static deploy/.next/static
+          cp -r apps/webapp/public deploy/public
           ls -R deploy
 
       - name: Upload artifact for deployment job
