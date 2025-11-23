@@ -72,6 +72,9 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_CC4670B8769A4029B8729477F3133146 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FB633ED21FFD4C4884DF3336EBB0DE20 }}
 
+      - name: List build output
+        run: ls -la apps/webapp/.next
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
