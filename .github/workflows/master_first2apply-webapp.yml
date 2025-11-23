@@ -32,7 +32,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.pnpm-store # Cache the pnpm store directory
-          key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('./pnpm-lock.yaml') }}
           restore-keys: |
             pnpm-${{ runner.os }}-
 
@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: f2a-webapp
-          path: ./apps/webapp/.next/
+          path: ./apps/webapp/
 
   deploy:
     runs-on: ubuntu-latest
@@ -78,4 +78,4 @@ jobs:
         with:
           app-name: 'first2apply-webapp'
           slot-name: 'Production'
-          package: .
+          package: ./apps/webapp/.next/
