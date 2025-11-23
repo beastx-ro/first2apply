@@ -1,7 +1,7 @@
 import { DbSchema, Job, JobSite, SiteProvider, User } from '@first2apply/core';
 import { SupabaseClient } from '@supabase/supabasefork';
 import { DOMParser, Element } from 'https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts';
-import turndown from 'npm:turndown@7.1.2';
+import turndown from 'turndown';
 
 import { parseCustomJobDescription } from './customJobsParser.ts';
 import { ILogger } from './logger.ts';
