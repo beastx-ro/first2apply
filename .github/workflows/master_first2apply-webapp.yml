@@ -68,8 +68,10 @@ jobs:
 
       - name: Prepare deployment bundle
         run: |
-          cp -r apps/webapp/public/** apps/webapp/.next/standalone/public
-          cp -r apps/webapp/.next/static apps/webapp/.next/standalone/.next/static
+          mkdir -p apps/webapp/.next/standalone/apps/webapp/.next/public
+          cp -r apps/webapp/public/** apps/webapp/.next/standalone/apps/webapp/.next/public
+          mkdir -p apps/webapp/.next/standalone/apps/webapp/.next/static
+          cp -r apps/webapp/.next/static apps/webapp/.next/standalone/apps/webapp/.next/static
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
