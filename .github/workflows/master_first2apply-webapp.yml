@@ -48,6 +48,19 @@ jobs:
         run: pnpm install
         working-directory: apps/webapp
 
+      # nextjs cache
+      - name: Cache nextjs build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ${{ github.workspace }}/apps/webapp/.next/cache
+          # Generate a new cache whenever packages or source files change.
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          # If source files changed but packages didn't, rebuild from a prior cache.
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
+
       # Build the webapp
       - name: Build the webapp
         run: pnpm run build
@@ -90,9 +103,6 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_65DC82FDFDD2450294C3F8944B65B24B }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_CC4670B8769A4029B8729477F3133146 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FB633ED21FFD4C4884DF3336EBB0DE20 }}
-
-      - name: List build output
-        run: ls -la apps/webapp/.next
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
