@@ -68,16 +68,14 @@ jobs:
 
       - name: Prepare deployment bundle
         run: |
-          mkdir -p deploy
-          mkdir -p deploy/.next
-          cp -r apps/webapp/.next/** deploy/
-          ls -R deploy
+          cp -r apps/webapp/public/** apps/webapp/.next/standalone/public
+          cp -r apps/webapp/.next/static apps/webapp/.next/standalone/.next/static
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: f2a-webapp
-          path: deploy
+          path: apps/webapp/.next/standalone
           include-hidden-files: true
           if-no-files-found: error
 
@@ -108,4 +106,4 @@ jobs:
         with:
           app-name: 'first2apply-webapp'
           slot-name: 'Production'
-          package: deploy
+          package: .
