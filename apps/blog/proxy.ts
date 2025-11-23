@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const allowIndex = request.headers.get('x-f2a-allowindex') === 'yes';
 
   // Check if the referrer contains "vercel"

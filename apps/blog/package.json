@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "start": "next dev",
-    "dev": "next dev --port=3001",
-    "build": "next build && NODE_OPTIONS='--experimental-json-modules' node ./scripts/postbuild.mjs",
+    "dev": "next dev --webpack --port=3001",
+    "build": "next build --webpack && NODE_OPTIONS='--experimental-json-modules' node ./scripts/postbuild.mjs",
     "serve": "next start",
     "analyze": "cross-env ANALYZE=true next build",
     "lint": "next lint --fix --dir pages --dir app --dir components --dir lib --dir layouts --dir scripts",
