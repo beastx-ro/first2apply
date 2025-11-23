@@ -28,6 +28,15 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
+      # Cache pnpm dependencies
+      - name: Cache pnpm store
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store # Cache the pnpm store directory
+          key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
       # Install dependencies
       - name: Install dependencies
         run: pnpm install
