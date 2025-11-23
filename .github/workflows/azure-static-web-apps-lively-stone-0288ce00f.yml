@@ -30,7 +30,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 8.0.0 # Specify the pnpm version you want to use
+          version: 10.19.0 # Specify the pnpm version you want to use
 
       # Install dependencies
       - name: Install dependencies
