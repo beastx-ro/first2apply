@@ -8,6 +8,7 @@
     "npm:stripe": "npm:stripe@15.1.0",
     "@supabase/supabasefork": "npm:@supabase/supabase-js@2.48.1",
     "turndown": "npm:turndown@7.1.2",
-    "zod": "npm:zod@3.25.1"
+    "zod": "npm:zod@3.25.1",
+    "deno-dom-wasm": "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts"
   }
 }
