@@ -53,7 +53,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: f2a-webapp
-          path: apps/webapp/.next
+          path: apps/webapp/.next/**
 
   deploy:
     runs-on: ubuntu-latest
