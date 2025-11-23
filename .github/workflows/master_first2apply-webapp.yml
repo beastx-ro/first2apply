@@ -45,7 +45,7 @@ jobs:
 
       # Install dependencies
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
         working-directory: apps/webapp
 
       # nextjs cache
