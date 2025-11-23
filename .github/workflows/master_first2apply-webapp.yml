@@ -53,14 +53,19 @@ jobs:
         run: pnpm run build
         working-directory: apps/webapp
 
-      - name: List build output
-        run: ls -la apps/webapp/.next
+      - name: Prepare deployment bundle
+        run: |
+          mkdir -p deploy
+          cp -r apps/webapp/.next/* deploy/
+          cp apps/webapp/package.json deploy/
+          cp node_modules/next deploy/node_modules/next
+          ls -R deploy
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: f2a-webapp
-          path: apps/webapp/.next
+          path: deploy
           include-hidden-files: true
           if-no-files-found: error
 
@@ -76,7 +81,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: f2a-webapp
-          path: apps/webapp/.next
+          path: deploy
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -94,4 +99,4 @@ jobs:
         with:
           app-name: 'first2apply-webapp'
           slot-name: 'Production'
-          package: apps/webapp/.next
+          package: deploy
