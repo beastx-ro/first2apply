@@ -61,11 +61,8 @@ module.exports = () => {
   const plugins = [withContentlayer, withBundleAnalyzer];
   return plugins.reduce((acc, next) => next(acc), {
     basePath: '/blog',
-    reactStrictMode: true,
+    reactCompiler: true,
     pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
-    eslint: {
-      dirs: ['app', 'components', 'layouts', 'scripts'],
-    },
     images: {
       remotePatterns: [
         {
@@ -82,7 +79,9 @@ module.exports = () => {
         },
       ];
     },
-    webpack: (config, options) => {
+    // Add empty turbopack config to silence the warning
+    turbopack: {},
+    webpack: (config) => {
       config.module.rules.push({
         test: /\.svg$/,
         use: ['@svgr/webpack'],

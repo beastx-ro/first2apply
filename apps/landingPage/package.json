@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "next dev --port=3000 --webpack",
+    "build": "next build --webpack",
+    "start": "next start --webpack",
     "lint": "next lint",
     "prettier": "npx prettier --check \"src/**/*.{ts,tsx}\""
   },

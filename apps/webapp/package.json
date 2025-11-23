@@ -1,0 +1,19 @@
+{
+  "name": "@first2apply/webapp",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port=3002",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "prettier": "npx prettier --check \"src/**/*.{ts,tsx}\""
+  },
+  "dependencies": {
+    "@first2apply/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4"
+  }
+}

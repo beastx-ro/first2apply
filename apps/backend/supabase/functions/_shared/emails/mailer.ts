@@ -1,5 +1,5 @@
 import { getExceptionMessage } from '@first2apply/core';
-import { EmailParams, MailerSend, Recipient, Sender } from 'npm:mailersend';
+import { EmailParams, MailerSend, Recipient, Sender } from 'mailersend';
 
 import { EmailTemplate } from '../emails/emailTemplates.ts';
 import { ILogger } from '../logger.ts';

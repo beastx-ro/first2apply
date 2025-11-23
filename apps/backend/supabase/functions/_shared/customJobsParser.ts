@@ -1,16 +1,16 @@
 import { Job, throwError } from '@first2apply/core';
 import { DbSchema, User } from '@first2apply/core';
 import { SupabaseClient } from '@supabase/supabasefork';
-import { DOMParser, Element } from 'https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts';
-import { zodResponseFormat } from 'npm:openai/helpers/zod';
-import turndown from 'npm:turndown';
-import { z } from 'npm:zod';
+import { DOMParser, Element } from 'deno-dom-wasm';
+import { zodResponseFormat } from 'openai/helpers/zod';
+import turndown from 'turndown';
+import { z } from 'zod';
 
 import { denoHashString } from './deno.ts';
 import { JobDescriptionUpdates } from './jobDescriptionParser.ts';
-import { JobSiteParseResult, ParsedJob } from './jobListParser.ts';
 import { ILogger } from './logger.ts';
 import { buildOpenAiClient, logAiUsage } from './openAI.ts';
+import { JobSiteParseResult, ParsedJob } from './parsers/parserTypes.ts';
 
 /**
  * Method used to parse jobs from custom pages.

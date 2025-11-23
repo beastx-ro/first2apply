@@ -26,6 +26,23 @@ export function genPageMetadata({ title, description, image, ...rest }: PageSEOP
       card: 'summary_large_image',
       images: image ? [image] : [siteMetadata.socialBanner],
     },
+    icons: {
+      icon: [
+        { url: '/favicons/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+        { url: '/favicons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      ],
+      apple: [{ url: '/favicons/apple-touch-icon.png', sizes: '76x76' }],
+      shortcut: [{ url: '/favicons/favicon.ico' }],
+    },
+    themeColor: [
+      { media: '(prefers-color-scheme: light)', color: '#fff' },
+      { media: '(prefers-color-scheme: dark)', color: '#000' },
+    ],
+    other: {
+      'msapplication-TileColor': '#000000',
+      manifest: '/favicons/site.webmanifest',
+      maskIcon: '<link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" color="#5bbad5" />',
+    },
     ...rest,
   };
 }
