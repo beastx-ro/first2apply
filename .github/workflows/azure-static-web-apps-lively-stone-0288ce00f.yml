@@ -27,12 +27,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
-      # Install dependencies
-      - name: Install dependencies
-        run: pnpm install
-        working-directory: apps/webapp
-
-      # Build and Deploy Static Web App
+      # Get Id Token
       - name: Get Id Token
         uses: actions/github-script@v6
         id: idtoken
@@ -41,6 +36,13 @@ jobs:
             const coredemo = require('@actions/core')
             return await coredemo.getIDToken()
           result-encoding: string
+
+      # Install dependencies
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: apps/webapp
+
+      # Build and Deploy Static Web App
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
