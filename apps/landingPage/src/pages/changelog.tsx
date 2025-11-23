@@ -1,3 +1,4 @@
+import { JSX } from 'react';
 import ReactTimeAgo from 'react-time-ago';
 
 import { DefaultLayout } from '@/components/defaultLayout';
@@ -167,7 +168,7 @@ export default function Changelog() {
               <div className="px-10">
                 <h2 className="mb-4 pt-16 text-[40px] font-medium leading-[48px]">{release.version}</h2>
 
-                <p className="text-muted-foreground my-4 text-sm leading-7 tracking-wide">
+                <p className="my-4 text-sm leading-7 tracking-wide text-muted-foreground">
                   <ReactTimeAgo date={release.date} locale="en-US" /> &nbsp; • &nbsp;
                   {new Intl.DateTimeFormat('en-US', {
                     weekday: 'long',
