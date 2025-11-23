@@ -6,7 +6,7 @@
     "build": "cd supabase/functions && deno check --config deno.json **/*.ts",
     "stop": "npx supabase stop",
     "start": "npx supabase start",
-    "dev": "npx supabase functions serve",
+    "dev:local": "npx supabase functions serve",
     "prettier": "npx prettier --check \"supabase/functions/**/*.ts\""
   },
   "author": "BeastX Industries",
