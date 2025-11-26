@@ -4,7 +4,7 @@ const siteMetadata = {
   author: 'BeastX Industries',
   headerTitle: 'Job Search Hacks (by First 2 Apply)',
   description:
-    'Smarter, faster, technical job-search hacks for 2025 — powered by automation, data, and developer thinking.',
+    'Job Search Hacks — tactical, technical, automation-powered strategies to job search smarter in 2025. Boolean search tricks, early-apply advantage, scraping, ATS insights, and dev-friendly workflows.',
   language: 'en-us',
   theme: 'system', // system, dark or light
   siteUrl: 'https://first2apply.com/blog',
