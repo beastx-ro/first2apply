@@ -1,10 +1,10 @@
 /** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
-  title: 'First 2 Apply Blog | Empowering Your Job Search Journey',
+  title: 'Job Search Hacks (by First 2 Apply)',
   author: 'BeastX Industries',
-  headerTitle: 'First 2 Apply Blog',
+  headerTitle: 'Job Search Hacks (by First 2 Apply)',
   description:
-    'Welcome to the First 2 Apply Blog - your ultimate resource for navigating the job market with ease. Discover expert tips, success stories, and the latest features of First 2 Apply, designed to put your job hunt on autopilot. Stay ahead in your career with our insights and updates.',
+    'Smarter, faster, technical job-search hacks for 2025 — powered by automation, data, and developer thinking.',
   language: 'en-us',
   theme: 'system', // system, dark or light
   siteUrl: 'https://first2apply.com/blog',
@@ -19,7 +19,7 @@ const siteMetadata = {
   // youtube: 'https://youtube.com',
   linkedin: 'https://www.linkedin.com/company/first2apply',
   // threads: 'https://www.threads.net',
-  // instagram: 'https://www.instagram.com',
+  instagram: 'https://www.instagram.com/first2apply',
   locale: 'en-US',
   analytics: {
     // If you want to use an analytics provider you have to add it to the
@@ -92,6 +92,6 @@ const siteMetadata = {
     //   indexName: 'docsearch',
     // },
   },
-}
+};
 
-module.exports = siteMetadata
+module.exports = siteMetadata;
