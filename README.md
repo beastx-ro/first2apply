@@ -32,14 +32,24 @@ This project is organized as a monorepo using [Nx](https://nx.dev).
 pnpm install
 ```
 
-### 2. Environment Setup
+### 2. Start Docker Services (Optional)
+
+If you want to run the apps in Docker:
+
+```bash
+pnpm up
+```
+
+This will start all services defined in `docker-compose.yml` in detached mode.
+
+### 3. Environment Setup
 
 Create `.env` files in the application directories by copying the examples:
 
 - **Backend:** `apps/backend/.env` (copy from `.env.example` if available, or set up Supabase env vars)
 - **Desktop Probe:** `apps/desktopProbe/.env` (copy from `apps/desktopProbe/.env.example`)
 
-### 3. Supabase Setup
+### 4. Supabase Setup
 
 Navigate to the backend app directory:
 
@@ -64,7 +74,7 @@ Import the [sites_rows.csv](./apps/backend/supabase/sites_rows.csv) file into th
 pnpm supabase functions serve
 ```
 
-### 4. Run Applications
+### 5. Run Applications
 
 You can use `nx` to run applications from the root directory.
 
