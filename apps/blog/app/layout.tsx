@@ -5,17 +5,17 @@ import SectionContainer from '@/components/SectionContainer';
 import siteMetadata from '@/data/siteMetadata';
 import 'css/tailwind.css';
 import { Metadata } from 'next';
-import { Space_Grotesk } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { Analytics, AnalyticsConfig } from 'pliny/analytics';
 import { SearchConfig } from 'pliny/search';
 import 'pliny/search/algolia.css';
 
 import { ThemeProviders } from './theme-providers';
 
-const space_grotesk = Space_Grotesk({
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-space-grotesk',
+  variable: '--font-inter',
 });
 
 export const metadata: Metadata = {
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang={siteMetadata.language} className={`${space_grotesk.variable} scroll-smooth`} suppressHydrationWarning>
+    <html lang={siteMetadata.language} className={`${inter.variable} scroll-smooth`} suppressHydrationWarning>
       <link rel="apple-touch-icon" sizes="76x76" href="/blog/static/favicons/apple-touch-icon.png" />
       <link rel="icon" type="image/png" sizes="32x32" href="/blog/static/favicons/favicon-32x32.png" />
       <link rel="icon" type="image/png" sizes="16x16" href="/blog/static/favicons/favicon-16x16.png" />
