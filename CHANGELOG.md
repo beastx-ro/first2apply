@@ -1,5 +1,32 @@
 
 
+## [2.4.0](https://github.com/beastx-ro/first2apply/compare/desktop-v2.3.0...2.4.0) (2025-12-01)
+
+
+### Features
+
+* add blog post on using ChatGPT for resume tailoring ([a6e6a79](https://github.com/beastx-ro/first2apply/commit/a6e6a797b4066a830f5f88e8b3e6c231aeef0c39))
+* add pnpm up script for Docker services and update README documentation ([50fe347](https://github.com/beastx-ro/first2apply/commit/50fe34795e66aaeaac3fc591d7e9f5a73f47dba3))
+* **blog:** new angle ([5aa31a7](https://github.com/beastx-ro/first2apply/commit/5aa31a7d2398f4c1031d56de1a9287ea14f496bf))
+* update blog post title, summary, and content to focus on rapid resume tailoring, and add/reorder associated tags ([b130659](https://github.com/beastx-ro/first2apply/commit/b130659a8f2dea618c8baf297c9920425c367469))
+* **webapp:** initial project ([#58](https://github.com/beastx-ro/first2apply/issues/58)) ([c87494b](https://github.com/beastx-ro/first2apply/commit/c87494ba651afcf151e4e39600d228855ec2ec69))
+
+
+### Bug Fixes
+
+* **backend:** add v2 parser for linkedin ([38fe3c7](https://github.com/beastx-ro/first2apply/commit/38fe3c739cc4b8089f32176cfd4efa49ccc8442d))
+* **backend:** don't throw error on custom job board parsing ([908228f](https://github.com/beastx-ro/first2apply/commit/908228f5bf49f359ab16ee109665570b6c7a696c))
+* **backend:** flexjobs parser ([57615e9](https://github.com/beastx-ro/first2apply/commit/57615e92ce624b8db9dfcf1927a53bdd2a20f18f))
+* **blog:** await params ([f26223c](https://github.com/beastx-ro/first2apply/commit/f26223cf60852eb8b4f486915c924093c4ec7984))
+* **blog:** crash ([d4d4b2b](https://github.com/beastx-ro/first2apply/commit/d4d4b2b37b36ea5947edc23665c0ff00d27ec050))
+* **blog:** make build running again ([7e5f677](https://github.com/beastx-ro/first2apply/commit/7e5f677fed15c9881e6d7e2ebcea694c09ce354b))
+* **blog:** make the next build working again ([e7deef1](https://github.com/beastx-ro/first2apply/commit/e7deef14ec61344574468fbee2921213da3fc69f))
+* **blog:** use different font ([ece8362](https://github.com/beastx-ro/first2apply/commit/ece836256b64afeaaddecf8671fe8c6295e0f026))
+* **desktop:** create link form was defaulting to cancel button ([20366ae](https://github.com/beastx-ro/first2apply/commit/20366ae7bb8b7b3c1001fe53b36e394dc1abf8a3))
+* fix artefact ([2cfbde6](https://github.com/beastx-ro/first2apply/commit/2cfbde6a73067afe6a52f4cc369706e892dc6e7b))
+* next config ([f0a21a8](https://github.com/beastx-ro/first2apply/commit/f0a21a8999a9333f2b5ab451aff82d78135c9e09))
+* paths ([a2e2b70](https://github.com/beastx-ro/first2apply/commit/a2e2b700461ccb9d2dc5ce115cfc8908f4ed37a5))
+
 ## [2.3.0](https://github.com/beastx-ro/first2apply/compare/desktop-v2.2.0...2.3.0) (2025-11-16)
 
 
