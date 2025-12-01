@@ -706,9 +706,10 @@ export function parseFlexjobsJobs({ siteId, html }: { siteId: number; html: stri
       elementsCount: 0,
     };
 
-  const jobElements = Array.from(jobsList.querySelectorAll('div.sc-14nyru2-3.ijOZYM > div')) as Element[];
+  const jobElements = Array.from(jobsList.querySelectorAll(':scope > div')) as Element[];
 
   const jobs = jobElements.map((el): ParsedJob | null => {
+    el = el.querySelector(':scope > div') as Element;
     const externalId = el?.getAttribute('id')?.trim();
     if (!externalId) return null;
 
