@@ -290,7 +290,7 @@ const JobSearchSubmitDialog = ({
 
             <div className="flex flex-row items-center justify-between pt-3">
               {/* Cancel button */}
-              <Button variant="outline" onClick={onCancel} disabled={isSubmitting}>
+              <Button variant="outline" type="button" onClick={onCancel} disabled={isSubmitting}>
                 Cancel
               </Button>
               {/* Submit button */}
