@@ -68,7 +68,7 @@ jobs:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
         run: |
           # Get the version from package.json
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=$(node -p "require('./apps/desktopProbe/package.json').version")
           
           # Upload DMG file (Intel)
           INTEL_DMG_PATH="apps/desktopProbe/out/make/First 2 Apply-${VERSION}-x64.dmg"
@@ -102,7 +102,7 @@ jobs:
         env:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=$(node -p "require('./apps/desktopProbe/package.json').version")
           
           # Create "latest" versions for easy linking
           
@@ -138,7 +138,7 @@ jobs:
         env:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=$(node -p "require('./apps/desktopProbe/package.json').version")
           PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           RELEASES_JSON="RELEASES.json"
 

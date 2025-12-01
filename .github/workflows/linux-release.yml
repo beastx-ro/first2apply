@@ -54,7 +54,7 @@ jobs:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
         run: |
           # Get the version from package.json
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=$(node -p "require('./apps/desktopProbe/package.json').version")
           
           # Upload DEB file
           aws s3 cp apps/desktopProbe/out/make/deb/x64/*.deb \
@@ -65,7 +65,7 @@ jobs:
         env:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=$(node -p "require('./apps/desktopProbe/package.json').version")
           
           # Create "latest" versions for easy linking
           aws s3 cp s3://${S3_BUCKET_NAME}/releases/linux/x64/first2apply-${VERSION}-amd64.deb \
@@ -76,7 +76,7 @@ jobs:
         env:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=$(node -p "require('./apps/desktopProbe/package.json').version")
           PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           RELEASES_JSON="RELEASES.json"
 

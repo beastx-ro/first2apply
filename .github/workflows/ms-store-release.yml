@@ -50,7 +50,7 @@ jobs:
         env:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
         run: |
-          $VERSION = node -p "require('./package.json').version"
+          $VERSION = node -p "require('./apps/desktopProbe/package.json').version"
           $src = "apps/desktopProbe/out/make/appx/x64/BeastXIndustries.First2Apply.appx"
           $dest = "s3://${env:S3_BUCKET_NAME}/releases/win32/x64/first2apply-$VERSION-x64.appx"
           aws s3 cp $src $dest --acl public-read
@@ -59,7 +59,7 @@ jobs:
         env:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
         run: |
-          $VERSION = node -p "require('./package.json').version"
+          $VERSION = node -p "require('./apps/desktopProbe/package.json').version"
           
           # Create "latest" version for easy linking
           $src = "s3://${env:S3_BUCKET_NAME}/releases/win32/x64/first2apply-$VERSION-x64.appx"
@@ -91,7 +91,7 @@ jobs:
         env:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=$(node -p "require('./apps/desktopProbe/package.json').version")
           PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           RELEASES_JSON="RELEASES.json"
 
