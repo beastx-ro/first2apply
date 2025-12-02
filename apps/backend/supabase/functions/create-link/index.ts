@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
       (link) => allJobSites.find((site) => site.id === link.site_id)?.provider === 'custom',
     );
     const existingCustomParsedLinksCount = existingCustomParsedLinks?.length ?? 0;
-    const CUSTOM_PARSING_MAX_LINKS_PER_USER = 5;
+    const CUSTOM_PARSING_MAX_LINKS_PER_USER = 10;
     if (site.provider === 'custom' && existingCustomParsedLinksCount >= CUSTOM_PARSING_MAX_LINKS_PER_USER) {
       throw new Error(
         `You have reached the maximum number of links (${CUSTOM_PARSING_MAX_LINKS_PER_USER}) with custom jobs parsing allowed per user. Please delete some links before creating new ones with custom parsing. If you think this is a mistake, please contact our support team.`,
