@@ -645,7 +645,9 @@ export function parseDiceJobs({ siteId, html }: { siteId: number; html: string }
     const externalId = el?.getAttribute('data-id')?.trim();
     if (!externalId) return null;
 
-    const externalUrl = `https://www.dice.com/job-detail/${externalId}`.trim();
+    const jobGuid = el?.getAttribute('data-job-guid')?.trim();
+    if (!jobGuid) return null;
+    const externalUrl = `https://www.dice.com/job-detail/${jobGuid}`.trim();
 
     const title = el.querySelector('.content > div')?.textContent?.trim();
     if (!title) return null;
