@@ -2,7 +2,7 @@
   "name": "@beastx/first2apply",
   "version": "2.4.0",
   "description": "",
-  "packageManager": "pnpm@10.19.0",
+  "packageManager": "pnpm@10.24.0",
   "scripts": {
     "up": "docker compose up -d",
     "debug:edge": "npx supabase functions serve --inspect-mode run",
