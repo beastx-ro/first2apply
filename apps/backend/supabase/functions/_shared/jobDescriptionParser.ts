@@ -38,7 +38,7 @@ const SITE_PROVIDER_QUERY_SELECTORS: Record<SiteProvider, SiteProviderQuerySelec
     description: ['#job-description'], // paywalled
   },
   [SiteProvider.dice]: {
-    description: [`h3 + div`],
+    description: [`#jobDescription`, '.job-description'],
   },
   [SiteProvider.bestjobs]: {
     description: ['div.relative.bg-surface div.p-4 div.mt-8.pt-8.border-t.border-input.prose'],
