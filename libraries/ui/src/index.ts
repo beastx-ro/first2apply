@@ -32,6 +32,7 @@ export * from "./components/themeProvider"
 export * from "./hooks/use-toast"
 export * from "./hooks/use-error"
 export * from "./hooks/use-scroll-to-section"
+export * from "./hooks/use-sdk"
 
 // Re-export utilities
 export * from "./lib/utils"

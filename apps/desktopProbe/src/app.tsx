@@ -2,7 +2,7 @@ import { ComponentType, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Route, RouterProvider, createMemoryRouter, createRoutesFromElements } from 'react-router-dom';
 
-import { Toaster } from '@first2apply/ui';
+import { SdkProvider, Toaster } from '@first2apply/ui';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 
@@ -13,6 +13,7 @@ import { LinksProvider } from './hooks/links';
 import { SessionProvider } from './hooks/session';
 import { SettingsProvider } from './hooks/settings';
 import { SitesProvider } from './hooks/sites';
+import { electronApiSdk } from './lib/electronMainSdk';
 import { FeedbackPage } from './pages/feedback';
 import { FiltersPage } from './pages/filters';
 import { ForgotPasswordPage } from './pages/forgotPassword';
@@ -71,24 +72,26 @@ function App() {
 
   return (
     <>
-      <AppStateProvider>
-        <SessionProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme={window.electron?.theme || 'light'}
-            // defaultTheme={"light"}
-            disableTransitionOnChange
-          >
-            <SettingsProvider>
-              <SitesProvider>
-                <LinksProvider>
-                  <RouterProvider router={router}></RouterProvider>
-                </LinksProvider>
-              </SitesProvider>
-            </SettingsProvider>
-          </ThemeProvider>
-        </SessionProvider>
-      </AppStateProvider>
+      <SdkProvider sdk={electronApiSdk}>
+        <AppStateProvider>
+          <SessionProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme={window.electron?.theme || 'light'}
+              // defaultTheme={"light"}
+              disableTransitionOnChange
+            >
+              <SettingsProvider>
+                <SitesProvider>
+                  <LinksProvider>
+                    <RouterProvider router={router}></RouterProvider>
+                  </LinksProvider>
+                </SitesProvider>
+              </SettingsProvider>
+            </ThemeProvider>
+          </SessionProvider>
+        </AppStateProvider>
+      </SdkProvider>
 
       <Toaster />
     </>

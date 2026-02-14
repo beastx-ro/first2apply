@@ -1,3 +1,5 @@
+import { webappApiSdk } from '@/lib/sdk';
+import { SdkProvider } from '@first2apply/ui';
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
@@ -45,7 +47,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <SdkProvider sdk={webappApiSdk}>{children}</SdkProvider>
+      </body>
     </html>
   );
 }
