@@ -6,9 +6,9 @@ import { LinksList } from '@/components/linksList';
 import { LinksListSkeleton } from '@/components/skeletons/linksListSkeleton';
 import { useAppState } from '@/hooks/appState';
 import { useError } from '@/hooks/error';
-import { useLinks } from '@/hooks/links';
 import { scanLink } from '@/lib/electronMainSdk';
 import { throwError } from '@first2apply/core';
+import { useLinks } from '@first2apply/ui';
 import { toast } from '@first2apply/ui';
 
 import { DefaultLayout } from './defaultLayout';

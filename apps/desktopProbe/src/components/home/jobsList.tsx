@@ -4,11 +4,11 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { Icons } from '@/components/icons';
-import { useLinks } from '@/hooks/links';
-import { useSites } from '@/hooks/sites';
 import { LABEL_COLOR_CLASSES } from '@/lib/labels';
 import { cn } from '@/lib/utils';
 import { Job } from '@first2apply/core';
+import { useSites } from '@first2apply/ui';
+import { useLinks } from '@first2apply/ui';
 import { Avatar, AvatarFallback, AvatarImage } from '@first2apply/ui';
 import { Button } from '@first2apply/ui';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';

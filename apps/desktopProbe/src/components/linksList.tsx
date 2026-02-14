@@ -2,8 +2,8 @@ import { CopyIcon, Pencil1Icon, QuestionMarkCircledIcon, TrashIcon } from '@radi
 import { useMemo, useState } from 'react';
 import ReactTimeAgo from 'react-time-ago';
 
-import { useSites } from '@/hooks/sites';
 import { Link } from '@first2apply/core';
+import { useSites } from '@first2apply/ui';
 import { Avatar, AvatarFallback, AvatarImage } from '@first2apply/ui';
 import { Button } from '@first2apply/ui';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';

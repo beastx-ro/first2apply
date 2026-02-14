@@ -3,16 +3,16 @@ import { createRoot } from 'react-dom/client';
 import { Route, RouterProvider, createMemoryRouter, createRoutesFromElements } from 'react-router-dom';
 
 import { SdkProvider, Toaster } from '@first2apply/ui';
+import { LinksProvider } from '@first2apply/ui';
+import { SitesProvider } from '@first2apply/ui';
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 
 import { withAuthGuard } from './components/authGuard';
 import { ThemeProvider } from './components/themeProvider';
 import { AppStateProvider } from './hooks/appState';
-import { LinksProvider } from './hooks/links';
 import { SessionProvider } from './hooks/session';
 import { SettingsProvider } from './hooks/settings';
-import { SitesProvider } from './hooks/sites';
 import { electronApiSdk } from './lib/electronMainSdk';
 import { FeedbackPage } from './pages/feedback';
 import { FiltersPage } from './pages/filters';

@@ -11,10 +11,10 @@ import {
 } from '@radix-ui/react-icons';
 import React, { useMemo } from 'react';
 
-import { useLinks } from '@/hooks/links';
-import { useSites } from '@/hooks/sites';
 import { LABEL_COLOR_CLASSES } from '@/lib/labels';
 import { JOB_LABELS, Job, JobLabel, JobStatus } from '@first2apply/core';
+import { useSites } from '@first2apply/ui';
+import { useLinks } from '@first2apply/ui';
 import { Avatar, AvatarImage } from '@first2apply/ui';
 import { Button } from '@first2apply/ui';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@first2apply/ui';

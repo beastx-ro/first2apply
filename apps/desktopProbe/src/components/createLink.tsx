@@ -3,10 +3,10 @@ import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { useError } from '@/hooks/error';
-import { useLinks } from '@/hooks/links';
-import { useSites } from '@/hooks/sites';
 import { OverlayBrowserViewResult } from '@/lib/types';
 import { JobSite, Link } from '@first2apply/core';
+import { useSites } from '@first2apply/ui';
+import { useLinks } from '@first2apply/ui';
 import {
   Dialog,
   DialogContent,

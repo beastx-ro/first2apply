@@ -1,10 +1,10 @@
 import { FilterIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { useLinks } from '@/hooks/links';
-import { useSites } from '@/hooks/sites';
 import { LABEL_COLOR_CLASSES } from '@/lib/labels';
 import { JOB_LABELS } from '@first2apply/core';
+import { useSites } from '@first2apply/ui';
+import { useLinks } from '@first2apply/ui';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
