@@ -545,6 +545,9 @@ importers:
 
   libraries/ui:
     dependencies:
+      '@first2apply/core':
+        specifier: workspace:*
+        version: link:../core
       '@hookform/resolvers':
         specifier: ^3.10.0
         version: 3.10.0(react-hook-form@7.65.0(react@19.2.0))

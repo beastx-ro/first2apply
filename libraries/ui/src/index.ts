@@ -30,6 +30,8 @@ export * from "./components/themeProvider"
 
 // Re-export hooks
 export * from "./hooks/use-toast"
+export * from "./hooks/use-error"
+export * from "./hooks/use-scroll-to-section"
 
 // Re-export utilities
 export * from "./lib/utils"
