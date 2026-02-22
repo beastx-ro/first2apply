@@ -45,6 +45,8 @@ export * from "./lib/supabaseApi"
 export * from "./components/icons"
 export * from "./components/jobs/deleteJobDialog"
 export * from "./components/jobs/jobsList"
+export * from "./components/jobs/jobSummary"
+export * from "./components/jobs/jobDescription"
 
 // Re-export auth components
 export * from "./auth/loginCard"
