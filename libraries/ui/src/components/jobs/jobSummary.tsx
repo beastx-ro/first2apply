@@ -12,7 +12,13 @@ import {
 import React, { useMemo } from "react"
 
 import { LABEL_COLOR_CLASSES } from "../../lib/labels"
-import { JOB_LABELS, Job, JobLabel, JobStatus } from "@first2apply/core"
+import {
+  JOB_LABELS,
+  Job,
+  JobLabel,
+  JobStatus,
+  getRelativeTimeString,
+} from "@first2apply/core"
 import { useSites } from "../../hooks/useSites"
 import { useLinks } from "../../hooks/useLinks"
 import { Avatar, AvatarImage } from "../ui/avatar"
@@ -151,7 +157,7 @@ export function JobSummary({
 
       {/* Action buttons */}
       <div
-        className={`mt-6 flex flex-col gap-2 sm:flex-row ${job.status !== "excluded_by_advanced_matching" && "lg:mt-10"}`}
+        className={`mt-6 flex flex-col gap-2 sm:flex-row sm:justify-between ${job.status !== "excluded_by_advanced_matching" && "lg:mt-10"}`}
       >
         <div className="flex justify-between gap-2">
           {/* Open button */}
@@ -289,11 +295,16 @@ export function JobSummary({
 
         {/* Label selector */}
         <JobLabelSelector
-          className="w-full sm:ml-auto sm:w-auto"
+          className="w-full sm:ml-16"
           job={job}
           onUpdateLabels={onUpdateLabels}
         />
       </div>
+
+      {/* Timestamp */}
+      <p className="mt-2 text-xs text-foreground/80">
+        detected {getRelativeTimeString(new Date(job.created_at))}
+      </p>
     </div>
   )
 }
