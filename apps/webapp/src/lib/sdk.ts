@@ -17,16 +17,18 @@ import type {
 import { throwError } from '@first2apply/core';
 import type { User } from '@supabase/supabase-js';
 
+import { getJobById, listJobs, listLinks, listSites } from '../app/actions';
+
 export class WebappApiSdk implements First2ApplyApiSdk {
   // Auth
   async getUser(): Promise<User | null> {
-    return throwError('getUser not implemented');
+    throw new Error('getUser not implemented');
   }
-  async loginWithEmail(_: { email: string; password: string }): Promise<User> {
-    return throwError('loginWithEmail not implemented');
+  async loginWithEmail({ email, password }: { email: string; password: string }): Promise<User> {
+    throw new Error('loginWithEmail not implemented');
   }
   async logout(): Promise<void> {
-    return throwError('logout not implemented');
+    throw new Error('logout not implemented');
   }
   async signupWithEmail(_: { email: string; password: string }): Promise<User> {
     return throwError('signupWithEmail not implemented');
@@ -47,11 +49,31 @@ export class WebappApiSdk implements First2ApplyApiSdk {
   }
 
   // Jobs
-  async listJobs(_: ListJobsParams): Promise<ListJobsResult> {
-    return throwError('listJobs not implemented');
+  async listJobs({
+    status,
+    search,
+    siteIds,
+    linkIds,
+    labels,
+    limit = 50,
+    after,
+  }: ListJobsParams): Promise<ListJobsResult> {
+    const formData = new FormData();
+    formData.set('status', status);
+    if (search) formData.set('search', search);
+    if (siteIds) formData.set('siteIds', siteIds.join(','));
+    if (linkIds) formData.set('linkIds', linkIds.join(','));
+    if (labels) formData.set('labels', labels.join(','));
+    formData.set('limit', String(limit));
+    if (after) formData.set('after', after);
+
+    return listJobs(formData);
   }
   async getJobById(jobId: number): Promise<Job> {
-    return throwError('getJobById not implemented');
+    const formData = new FormData();
+    formData.set('jobId', String(jobId));
+
+    return getJobById(formData);
   }
   async updateJobStatus(_: { jobId: number; status: JobStatus }): Promise<void> {
     return throwError('updateJobStatus not implemented');
@@ -68,7 +90,7 @@ export class WebappApiSdk implements First2ApplyApiSdk {
 
   // Links
   async listLinks(): Promise<Link[]> {
-    return throwError('listLinks not implemented');
+    return listLinks();
   }
   async createLink(_: { title: string; url: string; html: string }): Promise<Link> {
     return throwError('createLink not implemented');
@@ -82,7 +104,7 @@ export class WebappApiSdk implements First2ApplyApiSdk {
 
   // Sites
   async listSites(): Promise<JobSite[]> {
-    return throwError('listSites not implemented');
+    return listSites();
   }
 
   // Notes
@@ -123,5 +145,3 @@ export class WebappApiSdk implements First2ApplyApiSdk {
     return throwError('updateAdvancedMatchingConfig not implemented');
   }
 }
-
-export const webappApiSdk = new WebappApiSdk();

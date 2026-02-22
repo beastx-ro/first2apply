@@ -20,7 +20,7 @@ export default function LoginPage() {
     formData.set('email', email);
     formData.set('password', password);
 
-    const result = await login({ error: null }, formData);
+    const result = await login(formData);
 
     if (result?.error) {
       setError(result.error);
