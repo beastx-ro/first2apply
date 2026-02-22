@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useState } from "react"
 import type { Link } from "@first2apply/core"
 
 import { useError } from "./use-error"
