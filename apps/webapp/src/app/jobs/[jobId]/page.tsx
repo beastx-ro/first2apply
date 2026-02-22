@@ -1,6 +1,6 @@
 'use server';
 
-import { getJobById } from '@/app/actions';
+import { getJobById, listLinks, listSites } from '@/app/actions';
 import { SmallNavbar } from '@/app/components/smallNavbar';
 
 import { WithClientProviders } from '../../components/clientProviders';
@@ -11,11 +11,12 @@ export default async function JobsPage({ params }: { params: Promise<{ jobId: st
 
   const formData = new FormData();
   formData.set('jobId', jobId);
-  const job = await getJobById(formData);
+
+  const [sites, links, job] = await Promise.all([listSites(), listLinks(), getJobById(formData)]);
 
   return (
     <>
-      <WithClientProviders>
+      <WithClientProviders sites={sites} links={links}>
         <JobDetails job={job} />
       </WithClientProviders>
       <SmallNavbar />

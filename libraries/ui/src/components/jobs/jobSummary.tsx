@@ -13,8 +13,8 @@ import React, { useMemo } from "react"
 
 import { LABEL_COLOR_CLASSES } from "../../lib/labels"
 import { JOB_LABELS, Job, JobLabel, JobStatus } from "@first2apply/core"
-import { useSites } from "../../hooks/use-sites"
-import { useLinks } from "../../hooks/use-links"
+import { useSites } from "../../hooks/useSites"
+import { useLinks } from "../../hooks/useLinks"
 import { Avatar, AvatarImage } from "../ui/avatar"
 import { Button } from "../ui/button"
 import {
@@ -30,9 +30,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip"
-import { toast } from "../../hooks/use-toast"
+import { toast } from "../../hooks/useToast"
 
 import { DeleteJobDialog } from "./deleteJobDialog"
+import clsx from "clsx"
 
 function isJobLabel(value: JobLabel): value is JobLabel {
   return Object.values(JOB_LABELS).includes(value)
@@ -64,7 +65,7 @@ export function JobSummary({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
 
   return (
-    <div className="rounded-lg border border-muted p-4 lg:p-6">
+    <div className="w-full rounded-lg border border-muted p-4 lg:p-6">
       <div className="flex items-start justify-between gap-4 lg:gap-6">
         <div>
           {/* search site */}
@@ -150,21 +151,87 @@ export function JobSummary({
 
       {/* Action buttons */}
       <div
-        className={`mt-6 flex flex-wrap gap-2 ${job.status !== "excluded_by_advanced_matching" && "lg:mt-10"}`}
+        className={`mt-6 flex flex-col gap-2 sm:flex-row ${job.status !== "excluded_by_advanced_matching" && "lg:mt-10"}`}
       >
-        {/* Open button */}
-        <Button
-          size="lg"
-          className="w-24 text-sm"
-          onClick={() => {
-            onView(job)
-          }}
-        >
-          Open
-        </Button>
+        <div className="flex justify-between gap-2">
+          {/* Open button */}
+          <Button
+            size="lg"
+            className="w-24 text-sm"
+            onClick={() => {
+              onView(job)
+            }}
+          >
+            Open
+          </Button>
 
-        {/* Apply button */}
-        {job.status !== "applied" && (
+          {/* Apply button */}
+          {job.status !== "applied" && (
+            <TooltipProvider delayDuration={500}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    className="w-10 border-none bg-border px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/15 focus:bg-foreground/15"
+                    onClick={() => onUpdateJobStatus(job.id, "applied")}
+                  >
+                    <CheckIcon className="h-5 w-auto" />
+                  </Button>
+                </TooltipTrigger>
+
+                <TooltipContent side="bottom" className="text-base">
+                  Mark job as Applied
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+
+          {/* Back to new button */}
+          {job.status !== "new" && (
+            <TooltipProvider delayDuration={500}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    className="w-10 border-none bg-border px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/15 focus:bg-foreground/15"
+                    onClick={() => onUpdateJobStatus(job.id, "new")}
+                  >
+                    <ResetIcon className="h-4 w-auto" />
+                  </Button>
+                </TooltipTrigger>
+
+                <TooltipContent side="bottom" className="text-base">
+                  Move job back to New
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+
+          {/* Archive button */}
+          {job.status !== "archived" && (
+            <TooltipProvider delayDuration={500}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    className="w-10 border-none bg-border px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/15 focus:bg-foreground/15"
+                    onClick={() => onUpdateJobStatus(job.id, "archived")}
+                  >
+                    <ArchiveIcon className="h-4 w-auto" />
+                  </Button>
+                </TooltipTrigger>
+
+                <TooltipContent side="bottom" className="text-base">
+                  Archive
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+
+          {/* Copy url button */}
           <TooltipProvider delayDuration={500}>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -172,122 +239,60 @@ export function JobSummary({
                   size="lg"
                   variant="secondary"
                   className="w-10 border-none bg-border px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/15 focus:bg-foreground/15"
-                  onClick={() => onUpdateJobStatus(job.id, "applied")}
+                  onClick={(evt) => {
+                    evt.stopPropagation()
+                    navigator.clipboard.writeText(job.externalUrl)
+                    toast({
+                      title: "Job URL copied to clipboard",
+                      description: "You can now paste it anywhere.",
+                      variant: "success",
+                    })
+                  }}
                 >
-                  <CheckIcon className="h-5 w-auto" />
+                  <CopyIcon className="h-4 w-auto" />
                 </Button>
               </TooltipTrigger>
 
               <TooltipContent side="bottom" className="text-base">
-                Mark job as Applied
+                Copy URL
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        )}
 
-        {/* Back to new button */}
-        {job.status !== "new" && (
+          {/* Delete button */}
           <TooltipProvider delayDuration={500}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   size="lg"
-                  variant="secondary"
-                  className="w-10 border-none bg-border px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/15 focus:bg-foreground/15"
-                  onClick={() => onUpdateJobStatus(job.id, "new")}
+                  variant="destructive"
+                  className="w-10 bg-destructive/10 px-0 transition-colors duration-200 ease-in-out hover:bg-destructive/20 focus:bg-destructive/20"
+                  onClick={() => setIsDeleteDialogOpen(true)}
                 >
-                  <ResetIcon className="h-4 w-auto" />
+                  <TrashIcon className="h-5 w-auto text-destructive" />
                 </Button>
               </TooltipTrigger>
 
               <TooltipContent side="bottom" className="text-base">
-                Move job back to New
+                Delete
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        )}
 
-        {/* Archive button */}
-        {job.status !== "archived" && (
-          <TooltipProvider delayDuration={500}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="lg"
-                  variant="secondary"
-                  className="w-10 border-none bg-border px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/15 focus:bg-foreground/15"
-                  onClick={() => onUpdateJobStatus(job.id, "archived")}
-                >
-                  <ArchiveIcon className="h-4 w-auto" />
-                </Button>
-              </TooltipTrigger>
-
-              <TooltipContent side="bottom" className="text-base">
-                Archive
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
-
-        {/* Copy url button */}
-        <TooltipProvider delayDuration={500}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="lg"
-                variant="secondary"
-                className="w-10 border-none bg-border px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/15 focus:bg-foreground/15"
-                onClick={(evt) => {
-                  evt.stopPropagation()
-                  navigator.clipboard.writeText(job.externalUrl)
-                  toast({
-                    title: "Job URL copied to clipboard",
-                    description: "You can now paste it anywhere.",
-                    variant: "success",
-                  })
-                }}
-              >
-                <CopyIcon className="h-4 w-auto" />
-              </Button>
-            </TooltipTrigger>
-
-            <TooltipContent side="bottom" className="text-base">
-              Copy URL
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        {/* Delete button */}
-        <TooltipProvider delayDuration={500}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="lg"
-                variant="destructive"
-                className="w-10 bg-destructive/10 px-0 transition-colors duration-200 ease-in-out hover:bg-destructive/20 focus:bg-destructive/20"
-                onClick={() => setIsDeleteDialogOpen(true)}
-              >
-                <TrashIcon className="h-5 w-auto text-destructive" />
-              </Button>
-            </TooltipTrigger>
-
-            <TooltipContent side="bottom" className="text-base">
-              Delete
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        <DeleteJobDialog
-          isOpen={isDeleteDialogOpen}
-          job={job}
-          onClose={() => setIsDeleteDialogOpen(false)}
-          onDelete={() => onUpdateJobStatus(job.id, "deleted")}
-        />
+          <DeleteJobDialog
+            isOpen={isDeleteDialogOpen}
+            job={job}
+            onClose={() => setIsDeleteDialogOpen(false)}
+            onDelete={() => onUpdateJobStatus(job.id, "deleted")}
+          />
+        </div>
 
         {/* Label selector */}
-        <div className="lg:ml-auto">
-          <JobLabelSelector job={job} onUpdateLabels={onUpdateLabels} />
-        </div>
+        <JobLabelSelector
+          className="w-full sm:ml-auto sm:w-auto"
+          job={job}
+          onUpdateLabels={onUpdateLabels}
+        />
       </div>
     </div>
   )
@@ -299,9 +304,11 @@ export function JobSummary({
 function JobLabelSelector({
   job,
   onUpdateLabels,
+  className,
 }: {
   job: Job
   onUpdateLabels: (jobId: number, labels: JobLabel[]) => void
+  className?: string
 }) {
   const label = job.labels[0] ?? ""
 
@@ -328,7 +335,7 @@ function JobLabelSelector({
         onUpdateLabels(job.id, newLabels)
       }}
     >
-      <SelectTrigger className="h-10 w-[148px]">
+      <SelectTrigger className={clsx("h-10 w-[148px]", className)}>
         <SelectValue placeholder="Add Label" />
       </SelectTrigger>
       <SelectContent>

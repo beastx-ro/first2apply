@@ -5,7 +5,7 @@ import InfiniteScroll from "react-infinite-scroll-component"
 
 import { Job } from "@first2apply/core"
 
-import { useSites } from "../../hooks/use-sites"
+import { useSites } from "../../hooks/useSites"
 import { cn } from "../../lib/utils"
 import { DeleteJobDialog } from "./deleteJobDialog"
 import { Icons } from "../icons"
@@ -136,7 +136,7 @@ export function JobsList({
               <li
                 key={job.id}
                 className={cn(
-                  "-mt-px rounded-lg px-5 pt-6",
+                  "rounded-lg px-5 pt-6",
                   selectedJobId === job.id && "bg-muted"
                 )}
                 ref={itemRefs[index]}

@@ -41,13 +41,13 @@ export function JobCard({
                 <TooltipTrigger asChild>
                   <Button
                     variant="secondary"
-                    className="h-4 w-4 rounded-sm bg-transparent px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/10 focus:bg-foreground/10"
+                    className="h-6 w-6 rounded-sm bg-transparent px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/10 focus:bg-foreground/10"
                     onClick={(evt) => {
                       onArchive(job)
                       evt.stopPropagation()
                     }}
                   >
-                    <ArchiveIcon className="min-h-4 w-fit text-foreground" />
+                    <ArchiveIcon className="p-1 text-foreground" />
                   </Button>
                 </TooltipTrigger>
 
@@ -64,17 +64,20 @@ export function JobCard({
               <TooltipTrigger asChild>
                 <Button
                   variant="destructive"
-                  className="h-4 w-4 rounded-sm bg-transparent px-0 transition-colors duration-200 ease-in-out hover:bg-destructive/20 focus:bg-destructive/20"
+                  className="h-6 w-6 rounded-sm bg-transparent px-0 transition-colors duration-200 ease-in-out hover:bg-foreground/10 focus:bg-foreground/10"
                   onClick={(evt) => {
                     onDelete(job)
                     evt.stopPropagation()
                   }}
                 >
-                  <TrashIcon className="h-5 w-auto text-destructive" />
+                  <TrashIcon className="p-1 text-destructive" />
                 </Button>
               </TooltipTrigger>
 
-              <TooltipContent side="bottom" className="text-base">
+              <TooltipContent
+                side="bottom"
+                className="bg-destructive text-base text-white"
+              >
                 Delete
               </TooltipContent>
             </Tooltip>

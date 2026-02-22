@@ -1,6 +1,6 @@
 'use server';
 
-import { listJobs } from '@/app/actions';
+import { listJobs, listLinks, listSites } from '@/app/actions';
 import { JobStatus, throwError } from '@first2apply/core';
 
 import { WithClientProviders } from '../../../components/clientProviders';
@@ -36,10 +36,10 @@ export default async function JobsPage({
   const limit = 30;
   formData.set('limit', String(limit));
 
-  const listJobsResult = await listJobs(formData);
+  const [sites, links, listJobsResult] = await Promise.all([listSites(), listLinks(), listJobs(formData)]);
 
   return (
-    <WithClientProviders>
+    <WithClientProviders sites={sites} links={links}>
       <ListJobsFeed listJobsResult={listJobsResult} batchSize={limit} status={currentStatus} />
     </WithClientProviders>
   );

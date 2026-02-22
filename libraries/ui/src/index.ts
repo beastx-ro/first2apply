@@ -29,12 +29,12 @@ export * from "./components/ui/tooltip"
 export * from "./components/themeProvider"
 
 // Re-export hooks
-export * from "./hooks/use-toast"
-export * from "./hooks/use-error"
-export * from "./hooks/use-scroll-to-section"
-export * from "./hooks/use-sdk"
-export * from "./hooks/use-links"
-export * from "./hooks/use-sites"
+export * from "./hooks/useToast"
+export * from "./hooks/useError"
+export * from "./hooks/useScrollToSection"
+export * from "./hooks/useSdk"
+export * from "./hooks/useLinks"
+export * from "./hooks/useSites"
 
 // Re-export utilities
 export * from "./lib/utils"
@@ -47,6 +47,7 @@ export * from "./components/jobs/deleteJobDialog"
 export * from "./components/jobs/jobsList"
 export * from "./components/jobs/jobSummary"
 export * from "./components/jobs/jobDescription"
+export * from "./components/jobs/jobCard"
 
 // Re-export auth components
 export * from "./auth/loginCard"

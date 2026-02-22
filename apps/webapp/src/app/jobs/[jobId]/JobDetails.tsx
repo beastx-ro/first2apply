@@ -16,7 +16,10 @@ export function JobDetails({ job }: JobDetailsProps) {
         onUpdateLabels={() => {}}
         onView={() => {}}
       />
-      <JobDescription job={job} />
+
+      <div className="mt-6 px-2">
+        <JobDescription job={job} />
+      </div>
     </div>
   );
 }
