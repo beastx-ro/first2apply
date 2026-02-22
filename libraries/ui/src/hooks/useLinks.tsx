@@ -3,8 +3,8 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react"
 import type { Link } from "@first2apply/core"
 
-import { useError } from "./use-error"
-import { useSdk } from "./use-sdk"
+import { useError } from "./useError"
+import { useSdk } from "./useSdk"
 
 // Define the shape of the context data
 type LinksContextType = {
@@ -53,12 +53,17 @@ export const useLinks = () => {
 }
 
 // Provider component
-export const LinksProvider = ({ children }: React.PropsWithChildren) => {
+export const LinksProvider = ({
+  links: initialLinks,
+  children,
+}: React.PropsWithChildren<{
+  links: Link[]
+}>) => {
   const { handleError } = useError()
   const sdk = useSdk()
 
-  const [isLoading, setIsLoading] = useState(true)
-  const [links, setLinks] = useState<Link[]>([])
+  const [isLoading, setIsLoading] = useState(initialLinks.length === 0)
+  const [links, setLinks] = useState<Link[]>(initialLinks)
 
   const fetchLinks = async () => {
     try {
@@ -115,11 +120,6 @@ export const LinksProvider = ({ children }: React.PropsWithChildren) => {
   const onReloadLinks = async () => {
     await fetchLinks()
   }
-
-  // Fetch links on component mount
-  useEffect(() => {
-    fetchLinks()
-  }, [])
 
   return (
     <LinksContext.Provider

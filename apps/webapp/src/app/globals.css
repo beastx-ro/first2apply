@@ -99,4 +99,12 @@
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
+
+  .job-description-md > * {
+    @apply mb-4;
+  }
+
+  .job-description-md ul {
+    @apply list-disc pl-6;
+  }
 }

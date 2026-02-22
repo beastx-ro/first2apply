@@ -94,7 +94,7 @@ export function LinksList({
                   {/* Copy URL */}
                   <TooltipProvider delayDuration={200}>
                     <Tooltip>
-                      <TooltipTrigger>
+                      <TooltipTrigger asChild>
                         <Button
                           variant="secondary"
                           size="default"
@@ -115,7 +115,7 @@ export function LinksList({
                   {/* edit search */}
                   <TooltipProvider delayDuration={200}>
                     <Tooltip>
-                      <TooltipTrigger>
+                      <TooltipTrigger asChild>
                         <Button
                           variant="secondary"
                           size="default"

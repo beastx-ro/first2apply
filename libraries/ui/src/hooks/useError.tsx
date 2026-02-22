@@ -4,7 +4,7 @@ import { useState } from "react"
 
 import { getExceptionMessage } from "@first2apply/core"
 
-import { useToast } from "./use-toast"
+import { useToast } from "./useToast"
 
 /**
  * Hook used to handle errors.
