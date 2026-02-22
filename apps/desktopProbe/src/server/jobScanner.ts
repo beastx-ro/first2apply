@@ -1,6 +1,7 @@
 import { IAnalyticsClient } from '@/lib/analytics';
 import { getExceptionMessage, throwError } from '@first2apply/core';
 import { Job, Link } from '@first2apply/core';
+import { F2aSupabaseApi } from '@first2apply/ui';
 import { Notification, app, powerSaveBlocker } from 'electron';
 import fs from 'fs';
 import { ScheduledTask, schedule } from 'node-cron';
@@ -10,7 +11,6 @@ import { AVAILABLE_CRON_RULES, JobScannerSettings } from '../lib/types';
 import { chunk, promiseAllSequence, waitRandomBetween } from './helpers';
 import { HtmlDownloader } from './htmlDownloader';
 import { ILogger } from './logger';
-import { F2aSupabaseApi } from './supabaseApi';
 
 const userDataPath = app.getPath('userData');
 const settingsPath = path.join(userDataPath, 'settings.json');

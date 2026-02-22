@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useEffect, useMemo, useState } from "react"
 import type { Link } from "@first2apply/core"
 
 import { useError } from "./use-error"
@@ -10,6 +10,7 @@ import { useSdk } from "./use-sdk"
 type LinksContextType = {
   isLoading: boolean
   links: Link[]
+  linkMap: Record<number, Link>
   createLink: (
     newLink: Pick<Link, "title" | "url"> & {
       html: string
@@ -27,6 +28,7 @@ type LinksContextType = {
 export const LinksContext = createContext<LinksContextType>({
   isLoading: true,
   links: [],
+  linkMap: {},
   createLink: async () => {
     throw new Error("createLink not implemented")
   },
@@ -67,6 +69,11 @@ export const LinksProvider = ({ children }: React.PropsWithChildren) => {
       handleError({ error })
     }
   }
+
+  const linkMap = useMemo(
+    () => Object.fromEntries(links.map((link) => [link.id, link])),
+    [links]
+  )
 
   // Create a new link
   const onCreateLink = async (
@@ -109,11 +116,17 @@ export const LinksProvider = ({ children }: React.PropsWithChildren) => {
     await fetchLinks()
   }
 
+  // Fetch links on component mount
+  useEffect(() => {
+    fetchLinks()
+  }, [])
+
   return (
     <LinksContext.Provider
       value={{
         isLoading,
         links,
+        linkMap,
         createLink: onCreateLink,
         updateLink: onUpdateLink,
         removeLink: onRemoveLink,

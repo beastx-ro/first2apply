@@ -38,6 +38,13 @@ export * from "./hooks/use-sites"
 
 // Re-export utilities
 export * from "./lib/utils"
+export * from "./lib/labels"
+export * from "./lib/supabaseApi"
+
+// Re-export components
+export * from "./components/icons"
+export * from "./components/jobs/deleteJobDialog"
+export * from "./components/jobs/jobsList"
 
 // Re-export auth components
 export * from "./auth/loginCard"
