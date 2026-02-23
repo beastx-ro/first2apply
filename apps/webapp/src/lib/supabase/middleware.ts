@@ -37,8 +37,7 @@ export async function updateSession(request: NextRequest) {
   // Already logged in on login page → redirect to jobs
   if (user && isAuthPage) {
     const url = request.nextUrl.clone();
-    url.pathname = '/jobs';
-    url.searchParams.set('status', 'new');
+    url.pathname = '/jobs/list/new';
     return NextResponse.redirect(url);
   }
 
