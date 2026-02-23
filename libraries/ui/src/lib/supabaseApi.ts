@@ -9,6 +9,7 @@ import {
 import {
   FunctionsHttpError,
   PostgrestError,
+  AuthError,
   SupabaseClient,
   User,
 } from "@supabase/supabase-js"
@@ -24,10 +25,19 @@ export class F2aSupabaseApi {
   /**
    * Create a new user account using an email and password.
    */
-  signupWithEmail({ email, password }: { email: string; password: string }) {
-    return this._supabaseApiCall(() =>
-      this._supabase.auth.signUp({ email, password })
-    )
+  async signupWithEmail({
+    email,
+    password,
+  }: {
+    email: string
+    password: string
+  }) {
+    const { error, data } = await this._supabase.auth.signUp({
+      email,
+      password,
+    })
+    if (error) throw error
+    return data
   }
 
   /**
@@ -71,7 +81,8 @@ export class F2aSupabaseApi {
    * Logout the current user.
    */
   async logout() {
-    return this._supabaseApiCall(async () => this._supabase.auth.signOut())
+    const { error } = await this._supabase.auth.signOut()
+    if (error) throw error
   }
 
   /**
@@ -139,7 +150,7 @@ export class F2aSupabaseApi {
         .single()
     )
 
-    return updatedLink
+    return updatedLink as unknown as Link
   }
 
   /**
@@ -386,12 +397,15 @@ export class F2aSupabaseApi {
    */
   private async _supabaseApiCall<
     T,
-    E extends Error | PostgrestError | FunctionsHttpError,
-  >(method: () => Promise<{ data?: T | null; error: E | null }>) {
+    E extends Error | PostgrestError | FunctionsHttpError | AuthError,
+  >(
+    method: () => Promise<
+      { data: T | null; error: null } | { data: null; error: E }
+    >
+  ) {
     const { data, error } = await backOff(
       async () => {
         const result = await method()
-        if (result.error) throw result.error
 
         return result
       },
@@ -401,6 +415,8 @@ export class F2aSupabaseApi {
         startingDelay: 300,
       }
     )
+
+    if (error) throw error
 
     // edge functions don't throw errors, instead they return an errorMessage field in the data object
     // work around for this issue https://github.com/supabase/functions-js/issues/45
@@ -413,13 +429,7 @@ export class F2aSupabaseApi {
       throw new Error(data.errorMessage)
     }
 
-    if (error) throw error
-
-    if (data === undefined || data === null) {
-      throw new Error("API call succeeded but no data returned")
-    }
-
-    return data
+    return data as T
   }
 
   /**
