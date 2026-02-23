@@ -121,6 +121,12 @@ export const LinksProvider = ({
     await fetchLinks()
   }
 
+  useEffect(() => {
+    if (initialLinks.length === 0) {
+      fetchLinks()
+    }
+  }, [])
+
   return (
     <LinksContext.Provider
       value={{

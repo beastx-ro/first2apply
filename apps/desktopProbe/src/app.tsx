@@ -82,8 +82,8 @@ function App() {
               disableTransitionOnChange
             >
               <SettingsProvider>
-                <SitesProvider>
-                  <LinksProvider>
+                <SitesProvider sites={[]}>
+                  <LinksProvider links={[]}>
                     <RouterProvider router={router}></RouterProvider>
                   </LinksProvider>
                 </SitesProvider>

@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useEffect, useState } from "react"
 import type { JobSite } from "@first2apply/core"
 
 import { useError } from "./useError"
@@ -64,6 +64,12 @@ export const SitesProvider = ({
   const onReloadSites = async () => {
     await fetchSites()
   }
+
+  useEffect(() => {
+    if (initialSites.length === 0) {
+      fetchSites()
+    }
+  }, [])
 
   return (
     <SitesContext.Provider
