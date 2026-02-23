@@ -78,6 +78,19 @@ export async function getJobById(formData: FormData) {
   }
 }
 
+export async function updateJobStatus(formData: FormData) {
+  try {
+    const jobId = Number(formData.get('jobId'));
+    const status = formData.get('status') as JobStatus;
+    if (isNaN(jobId)) throw new Error('invalid job id');
+
+    const api = await buildApi();
+    await api.updateJobStatus({ jobId, status });
+  } catch (error) {
+    throw new Error(`failed to update job status: ${getExceptionMessage(error, true)}`);
+  }
+}
+
 async function buildApi() {
   const supabase = await createClient();
   const api = new F2aSupabaseApi(supabase);

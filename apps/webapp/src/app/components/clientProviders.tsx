@@ -1,7 +1,7 @@
 'use client';
 
 import { JobSite, Link } from '@first2apply/core';
-import { LinksProvider, SdkProvider, SitesProvider, ThemeProvider } from '@first2apply/ui';
+import { LinksProvider, SdkProvider, SitesProvider, ThemeProvider, Toaster } from '@first2apply/ui';
 
 import { WebappApiSdk } from '../../lib/sdk';
 
@@ -21,6 +21,7 @@ export function WithClientProviders({
           <LinksProvider links={links}>{children}</LinksProvider>
         </SitesProvider>
       </SdkProvider>
+      <Toaster />
     </ThemeProvider>
   );
 }
