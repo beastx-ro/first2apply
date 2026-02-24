@@ -133,7 +133,7 @@ ${htmlContent}
         jobType: job.jobType || undefined,
         location: job.location || undefined,
         salary: job.salary || undefined,
-        tags: job.tags || undefined,
+        tags: job.tags || [],
         // associate with the site
         siteId,
         labels: [],
@@ -185,6 +185,8 @@ Here are some common examples of externalUrls from different popular job sites:
 - google.com: https://www.google.com/about/careers/applications/jobs/results/132525933222339270-software-engineer-iii-aiml
 
 If the user is trying to scrape a page that is just a single job description, return an empty jobs array and an appropriate errorMessage.
+IMPORTANT: if the page is a job results page, but there are no jobs matching the filters, DON'T return an error, just return an empty jobs array and no errorMessage.
+
 Here are some unsupported website:
 - hiringcafe.com. - their html pages don't allow scraping.
 
