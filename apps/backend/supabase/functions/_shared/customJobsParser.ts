@@ -185,7 +185,9 @@ Here are some common examples of externalUrls from different popular job sites:
 - google.com: https://www.google.com/about/careers/applications/jobs/results/132525933222339270-software-engineer-iii-aiml
 
 If the user is trying to scrape a page that is just a single job description, return an empty jobs array and an appropriate errorMessage.
+
 IMPORTANT: if the page is a job results page, but there are no jobs matching the filters, DON'T return an error, just return an empty jobs array and no errorMessage.
+This is also valid for Google search results where the user might be looking for jobs from ATS sites (using the last 24h filter in Google search might return no results, but it's not an error, just that there are no jobs matching the criteria).
 
 Here are some unsupported website:
 - hiringcafe.com. - their html pages don't allow scraping.
