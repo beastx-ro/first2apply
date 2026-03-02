@@ -115,7 +115,7 @@ ${htmlContent}
     ...context,
   });
 
-  const listFound = !parseResult.errorMessage && parseResult.jobs.length > 0;
+  const listFound = !parseResult.errorMessage;
   if (!listFound) {
     logger.error(`Site ${siteId} - OpenAI reported an error: ${parseResult.errorMessage}`);
   }
