@@ -27,6 +27,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
+          sudo apt-get install -y rpm flatpak flatpak-builder
           
       - name: Install dependencies
         run: |
@@ -60,6 +61,16 @@ jobs:
           aws s3 cp apps/desktopProbe/out/make/deb/x64/*.deb \
             s3://${S3_BUCKET_NAME}/releases/linux/x64/first2apply-${VERSION}-amd64.deb \
             --acl public-read
+
+          # Upload RPM file
+          aws s3 cp apps/desktopProbe/out/make/rpm/x64/*.rpm \
+            s3://${S3_BUCKET_NAME}/releases/linux/x64/first2apply-${VERSION}-x86_64.rpm \
+            --acl public-read || echo "No RPM built"
+
+          # Upload Flatpak file
+          aws s3 cp apps/desktopProbe/out/make/flatpak/x64/*.flatpak \
+            s3://${S3_BUCKET_NAME}/releases/linux/x64/first2apply-${VERSION}-x86_64.flatpak \
+            --acl public-read || echo "No Flatpak built"
           
       - name: Update latest symlinks
         env:
@@ -71,6 +82,14 @@ jobs:
           aws s3 cp s3://${S3_BUCKET_NAME}/releases/linux/x64/first2apply-${VERSION}-amd64.deb \
             s3://${S3_BUCKET_NAME}/releases/linux/x64/first2apply-latest-amd64.deb \
             --acl public-read
+            
+          aws s3 cp s3://${S3_BUCKET_NAME}/releases/linux/x64/first2apply-${VERSION}-x86_64.rpm \
+            s3://${S3_BUCKET_NAME}/releases/linux/x64/first2apply-latest-x86_64.rpm \
+            --acl public-read || echo "No RPM found"
+            
+          aws s3 cp s3://${S3_BUCKET_NAME}/releases/linux/x64/first2apply-${VERSION}-x86_64.flatpak \
+            s3://${S3_BUCKET_NAME}/releases/linux/x64/first2apply-latest-x86_64.flatpak \
+            --acl public-read || echo "No Flatpak found"
             
       - name: Update RELEASES.json
         env:
