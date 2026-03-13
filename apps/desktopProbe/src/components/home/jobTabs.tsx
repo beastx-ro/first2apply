@@ -254,14 +254,16 @@ function TabActions({
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger
-          className="h-6 w-6 focus-visible:outline-none focus-visible:ring-0"
-          onClick={(evt) => {
-            evt.preventDefault();
-            evt.stopPropagation();
-          }}
-        >
-          <DotsVerticalIcon className="m-auto h-5 w-auto text-muted-foreground transition-all duration-200 ease-in-out hover:h-6" />
+        <DropdownMenuTrigger asChild>
+          <span
+            className="inline-flex h-6 w-6 items-center justify-center focus-visible:outline-none focus-visible:ring-0"
+            onClick={(evt) => {
+              evt.preventDefault();
+              evt.stopPropagation();
+            }}
+          >
+            <DotsVerticalIcon className="m-auto h-5 w-auto text-muted-foreground transition-all duration-200 ease-in-out hover:h-6" />
+          </span>
         </DropdownMenuTrigger>
         <DropdownMenuContent side="bottom" className="space-y-1">
           <DropdownMenuItem className="cursor-pointer focus:bg-secondary/40" onClick={() => onTabChange(tab)}>

@@ -15,7 +15,7 @@ import {
   updateJobStatus,
 } from '@/lib/electronMainSdk';
 import { Job, JobLabel, JobStatus } from '@first2apply/core';
-import { TabsContent } from '@first2apply/ui';
+import { JobSummary, TabsContent } from '@first2apply/ui';
 import { toast } from '@first2apply/ui';
 
 import { BrowserWindow, BrowserWindowHandle } from '../browserWindow';
@@ -23,7 +23,6 @@ import { JobDetails } from './jobDetails';
 import { JobFilters } from './jobFilters';
 import { JobFiltersType } from './jobFilters/jobFiltersMenu';
 import { JobNotes } from './jobNotes';
-import { JobSummary } from './jobSummary';
 import { JobListing } from './jobTabs';
 import { JobsList } from './jobsList';
 import { JobDetailsSkeleton, JobSummarySkeleton, JobsListSkeleton } from './jobsSkeleton';

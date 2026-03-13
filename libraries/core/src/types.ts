@@ -80,7 +80,7 @@ export type Job = {
   jobType?: JobType;
   location?: string;
   salary?: string;
-  tags?: string[];
+  tags: string[];
 
   description?: string;
 

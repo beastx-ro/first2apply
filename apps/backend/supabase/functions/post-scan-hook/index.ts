@@ -51,6 +51,7 @@ Deno.serve(async (req) => {
       areEmailAlertsEnabled,
       context,
       mailer,
+      webappUrl: env.webappUrl,
     });
 
     logger.info('finished running post scan hook');
@@ -134,11 +135,13 @@ async function sendNewJobLinksEmail({
   areEmailAlertsEnabled,
   context,
   mailer,
+  webappUrl,
 }: {
   newJobIds: number[];
   areEmailAlertsEnabled: boolean;
   context: EdgeFunctionAuthorizedContext;
   mailer: IMailer;
+  webappUrl: string;
 }) {
   const { logger, supabaseClient, user } = context;
   logger.info(`sending email for new job links ...`);
@@ -176,7 +179,7 @@ async function sendNewJobLinksEmail({
         new_jobs_count: newJobs.length,
         new_jobs: newJobs.map((job) => ({
           title: job.title,
-          url: job.externalUrl,
+          url: `${new URL(`/jobs/${job.id}`, webappUrl).href}`,
           description: job.description?.slice(0, 200) ?? '',
           company: job.companyName,
           location: job.location,

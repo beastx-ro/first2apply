@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 
 import { useError } from '@/hooks/error';
 import { Link } from '@first2apply/core';
@@ -7,6 +6,7 @@ import { Button } from '@first2apply/ui';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@first2apply/ui';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@first2apply/ui';
 import { Input } from '@first2apply/ui';
+import { useForm } from '@first2apply/ui';
 import { useToast } from '@first2apply/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';

@@ -12,6 +12,7 @@ export type First2ApplyBackendEnv = {
   f2aWebhookSecret: string;
   stripeSecretKey: string;
   stripeWebhookSigningSecret: string;
+  webappUrl: string;
 };
 
 export function parseEnv(): First2ApplyBackendEnv {
@@ -28,5 +29,6 @@ export function parseEnv(): First2ApplyBackendEnv {
     f2aWebhookSecret: Deno.env.get('F2A_WEBHOOK_SECRET') ?? throwError('F2A_WEBHOOK_SECRET is not set'),
     stripeSecretKey: Deno.env.get('STRIPE_SECRET_KEY') ?? '',
     stripeWebhookSigningSecret: Deno.env.get('STRIPE_WEBHOOK_SIGNING_SECRET') ?? '',
+    webappUrl: Deno.env.get('WEBAPP_URL') ?? '',
   };
 }

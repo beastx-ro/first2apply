@@ -1,10 +1,13 @@
 import {
   AdvancedMatchingConfig,
+  First2ApplyApiSdk,
   Job,
   JobLabel,
   JobSite,
   JobStatus,
   Link,
+  ListJobsParams,
+  ListJobsResult,
   Note,
   Profile,
   Review,
@@ -15,7 +18,7 @@ import { User } from '@supabase/supabase-js';
 import { JobScannerSettings, NewAppVersion, OverlayBrowserViewResult } from './types';
 
 async function _mainProcessApiCall<T>(channel: string, params?: object): Promise<T> {
-  // @ts-ignore
+  // @ts-expect-error Electron preload injects window.electron
   const { data, error } = await window.electron.invoke(channel, params);
   if (error) throw new Error(error);
 
@@ -465,3 +468,57 @@ export async function overlayBrowserViewGoForward(): Promise<void> {
 export async function overlayBrowserViewNavigate(url: string): Promise<void> {
   await _mainProcessApiCall('overlay-browser-view-navigate', { url });
 }
+
+/**
+ * Electron IPC implementation of the First2Apply API SDK.
+ */
+export class ElectronApiSdk implements First2ApplyApiSdk {
+  // Auth
+  getUser = getUser;
+  loginWithEmail = loginWithEmail;
+  logout = logout;
+  signupWithEmail = signupWithEmail;
+  sendPasswordResetEmail = sendPasswordResetEmail;
+  changePassword = changePassword;
+
+  // Profile & Billing
+  getProfile = getProfile;
+  getStripeConfig = getStripeConfig;
+
+  // Jobs
+  listJobs = (params: ListJobsParams): Promise<ListJobsResult> => listJobs(params);
+  getJobById = getJobById;
+  updateJobStatus = updateJobStatus;
+  updateJobLabels = updateJobLabels;
+  exportJobsToCsv = exportJobsToCsv;
+  changeAllJobsStatus = changeAllJobsStatus;
+  scanJob = scanJob;
+
+  // Links
+  listLinks = listLinks;
+  createLink = createLink;
+  updateLink = updateLink;
+  deleteLink = deleteLink;
+
+  // Sites
+  listSites = listSites;
+
+  // Notes
+  createNote = createNote;
+  listNotes = listNotes;
+  updateNote = updateNote;
+  addFileToNote = addFileToNote;
+  deleteNote = deleteNote;
+
+  // Reviews
+  createReview = createReview;
+  getUserReview = getUserReview;
+  updateReview = updateReview;
+
+  // Advanced Matching
+  getAdvancedMatchingConfig = getAdvancedMatchingConfig;
+  updateAdvancedMatchingConfig = updateAdvancedMatchingConfig;
+}
+
+/** Singleton instance of the Electron API SDK */
+export const electronApiSdk = new ElectronApiSdk();

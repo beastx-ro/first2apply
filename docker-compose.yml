@@ -18,6 +18,8 @@ services:
   packages:
     image: node:22-trixie
     init: true
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     # depends_on:
     #   - rabbitmq
     #   - mysql

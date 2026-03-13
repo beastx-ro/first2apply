@@ -83,7 +83,7 @@ export function Navbar() {
         {navItems.map((item) => (
           <TooltipProvider delayDuration={500} key={item.name}>
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <Link
                   key={item.name}
                   to={item.path}
@@ -107,7 +107,7 @@ export function Navbar() {
       {/* theme toggle */}
       <TooltipProvider delayDuration={500}>
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger asChild>
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className="flex items-center gap-3 p-1 hover:text-primary"

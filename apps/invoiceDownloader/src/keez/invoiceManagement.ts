@@ -104,7 +104,7 @@ async function upsertKeezItems({
 }) {
   // check if we have items in keez for the invoices
   console.log('checking if keez has all required items ...');
-  let keezItems = await keez.listItems();
+  const keezItems = await keez.listItems();
 
   const stripeItems: Stripe.InvoiceLineItem[] = [];
   for (const invoice of stripeInvoices) {
@@ -177,8 +177,9 @@ async function createKeezInvoices({
 }) {
   const newKeezInvoices: KeezInvoice[] = [];
   const existingKeezInvoices: KeezInvoice[] = [];
+  let index = 1;
   for (const invoice of stripeInvoicesOrdered) {
-    console.log(`Creating invoice ${invoice.number} ...`);
+    console.log(`Creating invoice ${invoice.number} (${index++}/${stripeInvoicesOrdered.length}) ...`);
     // check if the invoice is already uploaded
     const { series, number } = getInvoiceSeriesAndNumber(invoice);
     const existingInvoice = await keez.getInvoiceBySeriesAndNumber(series, parseInt(number));
@@ -240,7 +241,10 @@ async function createKeezInvoiceFromStripeInvoice({
     countryName,
     cityName: stripeInvoice.customer_address?.city || countryName,
     countyName,
-    addressDetails: `${stripeInvoice.customer_address?.line1} ${stripeInvoice.customer_address?.line2 || ''}`,
+    addressDetails:
+      stripeInvoice.customer_address?.line1?.trim() || stripeInvoice.customer_address?.line2?.trim()
+        ? `${stripeInvoice.customer_address?.line1?.trim()} ${stripeInvoice.customer_address?.line2?.trim() || ''}`
+        : 'Unknown Address',
   };
 
   const comments: string[] = [];

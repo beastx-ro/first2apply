@@ -1,0 +1,59 @@
+'use client';
+
+import { useState } from 'react';
+
+import { Job, JobLabel, JobStatus } from '@first2apply/core';
+import { JobDescription, JobSummary, toast, useError, useSdk } from '@first2apply/ui';
+
+export type JobDetailsProps = {
+  job: Job;
+};
+export function JobDetails({ job: initialJob }: JobDetailsProps) {
+  const { handleError } = useError();
+  const sdk = useSdk();
+
+  const [job, setJob] = useState<Job>(initialJob);
+
+  const onOpenUrl = (url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const onUpdateJobStatus = async (jobId: number, status: JobStatus) => {
+    try {
+      await sdk.updateJobStatus({ jobId, status });
+      setJob((prevJob) => ({ ...prevJob, status }));
+      toast({
+        title: 'Job status updated',
+        variant: 'success',
+        description: `Job status has been updated to ${status}.`,
+      });
+    } catch (error) {
+      handleError({ error, title: 'Failed to update job status' });
+    }
+  };
+
+  const onUpdateLabels = async (jobId: number, labels: JobLabel[]) => {
+    try {
+      await sdk.updateJobLabels({ jobId, labels });
+      setJob((prevJob) => ({ ...prevJob, labels }));
+    } catch (error) {
+      handleError({ error, title: 'Failed to update job labels' });
+    }
+  };
+
+  return (
+    <div className="px-2 py-4">
+      <JobSummary
+        job={job}
+        onOpenUrl={onOpenUrl}
+        onUpdateJobStatus={onUpdateJobStatus}
+        onUpdateLabels={onUpdateLabels}
+        onView={(job: Job) => onOpenUrl(job.externalUrl)}
+      />
+
+      <div className="mt-6 px-2">
+        <JobDescription job={job} />
+      </div>
+    </div>
+  );
+}

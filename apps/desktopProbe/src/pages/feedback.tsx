@@ -1,8 +1,8 @@
 import { Item } from '@radix-ui/react-radio-group';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 
 import { Review } from '@first2apply/core';
+import { useForm } from '@first2apply/ui';
 import { Card, CardContent, CardHeader } from '@first2apply/ui';
 import { RadioGroup } from '@first2apply/ui';
 import { Button } from '@first2apply/ui';

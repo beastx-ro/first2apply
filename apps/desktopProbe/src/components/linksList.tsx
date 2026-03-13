@@ -2,8 +2,8 @@ import { CopyIcon, Pencil1Icon, QuestionMarkCircledIcon, TrashIcon } from '@radi
 import { useMemo, useState } from 'react';
 import ReactTimeAgo from 'react-time-ago';
 
-import { useSites } from '@/hooks/sites';
 import { Link } from '@first2apply/core';
+import { useSites } from '@first2apply/ui';
 import { Avatar, AvatarFallback, AvatarImage } from '@first2apply/ui';
 import { Button } from '@first2apply/ui';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@first2apply/ui';
@@ -94,7 +94,7 @@ export function LinksList({
                   {/* Copy URL */}
                   <TooltipProvider delayDuration={200}>
                     <Tooltip>
-                      <TooltipTrigger>
+                      <TooltipTrigger asChild>
                         <Button
                           variant="secondary"
                           size="default"
@@ -115,7 +115,7 @@ export function LinksList({
                   {/* edit search */}
                   <TooltipProvider delayDuration={200}>
                     <Tooltip>
-                      <TooltipTrigger>
+                      <TooltipTrigger asChild>
                         <Button
                           variant="secondary"
                           size="default"

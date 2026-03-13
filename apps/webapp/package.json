@@ -10,6 +10,7 @@
     "prettier": "npx prettier --check \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
+    "@first2apply/core": "workspace:*",
     "@first2apply/ui": "workspace:*"
   },
   "devDependencies": {

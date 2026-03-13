@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
 import './globals.css';
@@ -24,15 +24,18 @@ export const metadata: Metadata = {
     apple: [{ url: '/favicons/apple-touch-icon.png', sizes: '76x76' }],
     shortcut: [{ url: '/favicons/favicon.ico' }],
   },
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#fff' },
-    { media: '(prefers-color-scheme: dark)', color: '#000' },
-  ],
   other: {
     'msapplication-TileColor': '#000000',
     manifest: '/favicons/site.webmanifest',
     maskIcon: '<link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" color="#5bbad5" />',
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#fff' },
+    { media: '(prefers-color-scheme: dark)', color: '#000' },
+  ],
 };
 
 export default function RootLayout({
@@ -41,8 +44,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen min-w-screen antialiased`}>
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,5 +1,6 @@
 import { getExceptionMessage } from '@first2apply/core';
 import { Job } from '@first2apply/core';
+import { F2aSupabaseApi } from '@first2apply/ui';
 import { dialog, ipcMain, shell } from 'electron';
 import fs from 'fs';
 import { json2csv } from 'json-2-csv';
@@ -10,7 +11,6 @@ import { F2aAutoUpdater } from './autoUpdater';
 import { JobScanner } from './jobScanner';
 import { OverlayBrowserView } from './overlayBrowserView';
 import { getStripeConfig } from './stripeConfig';
-import { F2aSupabaseApi } from './supabaseApi';
 
 /**
  * Helper methods used to centralize error handling.
