@@ -51,3 +51,6 @@ export * from "./components/jobs/jobCard"
 
 // Re-export auth components
 export * from "./auth/loginCard"
+
+// Re-export form primitives/hooks from shared RHF instance
+export { useForm } from "react-hook-form"
