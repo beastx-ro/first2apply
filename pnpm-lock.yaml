@@ -164,6 +164,9 @@ importers:
       react-time-ago:
         specifier: ^7.4.1
         version: 7.4.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      rehype-raw:
+        specifier: ^7.0.0
+        version: 7.0.0
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
@@ -451,9 +454,6 @@ importers:
       '@first2apply/ui':
         specifier: workspace:*
         version: link:../../libraries/ui
-      rehype-raw:
-        specifier: ^7.0.0
-        version: 7.0.0
     devDependencies:
       '@electron-forge/cli':
         specifier: ^7.10.2
@@ -10656,6 +10656,7 @@ packages:
   tar@7.5.7:
     resolution: {integrity: sha512-fov56fJiRuThVFXD6o6/Q354S7pnWMJIVlDBYijsTNx6jKSE4pvrDTs6lUnmGvNyfJwFQQwWy3owKz1ucIhveQ==}
     engines: {node: '>=18'}
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   temp@0.9.4:
     resolution: {integrity: sha512-yYrrsWnrXMcdsnu/7YMYAofM1ktpL5By7vZhf15CrXijWWrEYZks5AXBudalfSWJLlnen/QUJUB5aoB0kqZUGA==}
@@ -13382,7 +13383,7 @@ snapshots:
       '@listr2/prompt-adapter-inquirer': 2.0.22(@inquirer/prompts@6.0.1)
       chalk: 4.1.2
       commander: 11.1.0
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       fs-extra: 10.1.0
       listr2: 7.0.2
       log-symbols: 4.1.0
@@ -13402,7 +13403,7 @@ snapshots:
       '@electron/rebuild': 3.7.2
       '@malept/cross-spawn-promise': 2.0.0
       chalk: 4.1.2
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       find-up: 5.0.0
       fs-extra: 10.1.0
       log-symbols: 4.1.0
@@ -13431,7 +13432,7 @@ snapshots:
       '@malept/cross-spawn-promise': 2.0.0
       '@vscode/sudo-prompt': 9.3.1
       chalk: 4.1.2
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       fast-glob: 3.3.3
       filenamify: 4.3.0
       find-up: 5.0.0
@@ -13564,7 +13565,7 @@ snapshots:
       '@electron-forge/shared-types': 7.10.2
       '@electron-forge/web-multi-logger': 7.10.2
       chalk: 4.1.2
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       fast-glob: 3.3.3
       fs-extra: 10.1.0
       html-webpack-plugin: 5.6.4(webpack@5.102.1)
@@ -13597,7 +13598,7 @@ snapshots:
       '@aws-sdk/types': 3.914.0
       '@electron-forge/publisher-static': 7.10.2
       '@electron-forge/shared-types': 7.10.2
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
     transitivePeerDependencies:
       - aws-crt
       - bluebird
@@ -13626,7 +13627,7 @@ snapshots:
       '@electron-forge/core-utils': 7.10.2
       '@electron-forge/shared-types': 7.10.2
       '@malept/cross-spawn-promise': 2.0.0
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       fs-extra: 10.1.0
       semver: 7.7.4
       username: 5.1.0
@@ -13706,7 +13707,7 @@ snapshots:
 
   '@electron/get@2.0.3':
     dependencies:
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       env-paths: 2.2.1
       fs-extra: 8.1.0
       got: 11.8.6
@@ -13720,7 +13721,7 @@ snapshots:
 
   '@electron/get@3.1.0':
     dependencies:
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       env-paths: 2.2.1
       fs-extra: 8.1.0
       got: 11.8.6
@@ -13750,7 +13751,7 @@ snapshots:
 
   '@electron/notarize@2.5.0':
     dependencies:
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       fs-extra: 9.1.0
       promise-retry: 2.0.1
     transitivePeerDependencies:
@@ -13759,7 +13760,7 @@ snapshots:
   '@electron/osx-sign@1.3.3':
     dependencies:
       compare-version: 0.1.2
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       fs-extra: 10.1.0
       isbinaryfile: 4.0.10
       minimist: 1.2.8
@@ -13776,7 +13777,7 @@ snapshots:
       '@electron/universal': 2.0.3
       '@electron/windows-sign': 1.2.2
       '@malept/cross-spawn-promise': 2.0.0
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       extract-zip: 2.0.1
       filenamify: 4.3.0
       fs-extra: 11.3.3
@@ -13798,7 +13799,7 @@ snapshots:
       '@electron/node-gyp': https://codeload.github.com/electron/node-gyp/tar.gz/06b29aafb7708acef8b3669835c8a7857ebc92d2
       '@malept/cross-spawn-promise': 2.0.0
       chalk: 4.1.2
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       detect-libc: 2.1.2
       fs-extra: 10.1.0
       got: 11.8.6
@@ -13817,7 +13818,7 @@ snapshots:
     dependencies:
       '@electron/asar': 3.4.1
       '@malept/cross-spawn-promise': 2.0.0
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       dir-compare: 4.2.0
       fs-extra: 11.3.3
       minimatch: 9.0.5
@@ -13828,7 +13829,7 @@ snapshots:
   '@electron/windows-sign@1.2.2':
     dependencies:
       cross-dirname: 0.1.0
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       fs-extra: 11.3.3
       minimist: 1.2.8
       postject: 1.0.0-alpha.6
@@ -14614,7 +14615,7 @@ snapshots:
       unified: 11.0.5
       unist-util-position-from-estree: 2.0.0
       unist-util-stringify-position: 4.0.0
-      unist-util-visit: 5.0.0
+      unist-util-visit: 5.1.0
       vfile: 6.0.3
     transitivePeerDependencies:
       - supports-color
@@ -16933,7 +16934,7 @@ snapshots:
 
   agent-base@6.0.2:
     dependencies:
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -18099,6 +18100,10 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
+  debug@4.4.3:
+    dependencies:
+      ms: 2.1.3
+
   debug@4.4.3(supports-color@5.5.0):
     dependencies:
       ms: 2.1.3
@@ -18308,7 +18313,7 @@ snapshots:
     dependencies:
       '@electron/asar': 3.4.1
       '@malept/cross-spawn-promise': 1.1.1
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       fs-extra: 9.1.0
       glob: 7.2.3
       lodash: 4.17.23
@@ -18324,7 +18329,7 @@ snapshots:
   electron-installer-debian@3.2.0:
     dependencies:
       '@malept/cross-spawn-promise': 1.1.1
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       electron-installer-common: 0.10.4
       fs-extra: 9.1.0
       get-folder-size: 2.0.1
@@ -18338,7 +18343,7 @@ snapshots:
   electron-installer-dmg@5.0.1:
     dependencies:
       '@types/appdmg': 0.5.5
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       minimist: 1.2.8
     optionalDependencies:
       appdmg: 0.6.6
@@ -18349,7 +18354,7 @@ snapshots:
   electron-installer-redhat@3.4.0:
     dependencies:
       '@malept/cross-spawn-promise': 1.1.1
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       electron-installer-common: 0.10.4
       fs-extra: 9.1.0
       lodash: 4.17.23
@@ -18376,7 +18381,7 @@ snapshots:
     dependencies:
       chalk: 2.4.2
       commander: 2.20.3
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       fs-extra: 7.0.1
       inquirer: 6.5.2
       lodash.defaults: 4.2.0
@@ -18390,7 +18395,7 @@ snapshots:
   electron-winstaller@5.4.0:
     dependencies:
       '@electron/asar': 3.4.1
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       fs-extra: 7.0.1
       lodash: 4.17.23
       temp: 0.9.4
@@ -19038,7 +19043,7 @@ snapshots:
 
   extract-zip@2.0.1:
     dependencies:
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       get-stream: 5.2.0
       yauzl: 2.10.0
     optionalDependencies:
@@ -19204,7 +19209,7 @@ snapshots:
 
   flora-colossus@2.0.0:
     dependencies:
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       fs-extra: 10.1.0
     transitivePeerDependencies:
       - supports-color
@@ -19216,7 +19221,7 @@ snapshots:
 
   follow-redirects@1.15.11(debug@4.4.3):
     optionalDependencies:
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
 
   for-each@0.3.5:
     dependencies:
@@ -19346,7 +19351,7 @@ snapshots:
 
   galactus@1.0.0:
     dependencies:
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       flora-colossus: 2.0.0
       fs-extra: 10.1.0
     transitivePeerDependencies:
@@ -19764,7 +19769,7 @@ snapshots:
       nth-check: 2.1.1
       property-information: 7.1.0
       space-separated-tokens: 2.0.2
-      unist-util-visit: 5.0.0
+      unist-util-visit: 5.1.0
       zwitch: 2.0.4
 
   hast-util-to-estree@3.1.3:
@@ -19948,7 +19953,7 @@ snapshots:
     dependencies:
       '@tootallnate/once': 2.0.0
       agent-base: 6.0.2
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -19987,7 +19992,7 @@ snapshots:
   https-proxy-agent@5.0.1:
     dependencies:
       agent-base: 6.0.2
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -21443,7 +21448,7 @@ snapshots:
       mdast-util-to-string: 4.0.0
       micromark-util-classify-character: 2.0.1
       micromark-util-decode-string: 2.0.1
-      unist-util-visit: 5.0.0
+      unist-util-visit: 5.1.0
       zwitch: 2.0.4
 
   mdast-util-to-string@2.0.0: {}
@@ -23013,7 +23018,7 @@ snapshots:
 
   read-binary-file-arch@1.0.6:
     dependencies:
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -23990,7 +23995,7 @@ snapshots:
   socks-proxy-agent@7.0.0:
     dependencies:
       agent-base: 6.0.2
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       socks: 2.8.7
     transitivePeerDependencies:
       - supports-color
@@ -24050,7 +24055,7 @@ snapshots:
 
   spdy-transport@3.0.0:
     dependencies:
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       detect-node: 2.1.0
       hpack.js: 2.1.6
       obuf: 1.1.2
@@ -24061,7 +24066,7 @@ snapshots:
 
   spdy@4.0.2:
     dependencies:
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
       handle-thing: 2.0.1
       http-deceiver: 1.2.7
       select-hose: 2.0.0
@@ -24306,7 +24311,7 @@ snapshots:
 
   sumchecker@3.0.1:
     dependencies:
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 

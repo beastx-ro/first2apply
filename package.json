@@ -151,6 +151,7 @@
     "react-router-dom": "^6.30.3",
     "react-textarea-autosize": "^8.5.9",
     "react-time-ago": "^7.4.1",
+    "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
     "semver": "^7.7.4",
     "tailwind-merge": "^2.6.1",
