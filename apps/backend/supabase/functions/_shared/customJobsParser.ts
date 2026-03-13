@@ -35,7 +35,7 @@ export async function parseCustomJobs({
   const { logger } = context;
 
   const { openAi, llmConfig } = buildOpenAiClient({
-    modelName: 'gpt-5.2',
+    modelName: 'gpt-5.4',
     ...context,
   });
 
