@@ -104,7 +104,8 @@ export function ListJobsFeed({ listJobsResult, status, batchSize }: ListJobsFeed
   };
 
   return (
-    <>
+    <div>
+      <h1 className="m-4 text-2xl">{PageHeaderNameMap[status]}</h1>
       <JobsList
         jobs={jobListing.jobs}
         selectedJobId={undefined}
@@ -115,6 +116,15 @@ export function ListJobsFeed({ listJobsResult, status, batchSize }: ListJobsFeed
         onDelete={onDelete}
         onLoadMore={onLoadMore}
       />
-    </>
+    </div>
   );
 }
+
+const PageHeaderNameMap: Record<JobStatus, string> = {
+  new: 'New Jobs',
+  applied: 'Applied Jobs',
+  archived: 'Archived Jobs',
+  excluded_by_advanced_matching: 'Excluded by Advanced Matching',
+  deleted: 'Deleted Jobs',
+  processing: 'Processing Jobs',
+};
