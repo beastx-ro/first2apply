@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 import { Job, JobStatus } from '@first2apply/core';
-import { JobDescription, JobSummary, useError, useSdk } from '@first2apply/ui';
+import { JobDescription, JobSummary, toast, useError, useSdk } from '@first2apply/ui';
 
 export type JobDetailsProps = {
   job: Job;
@@ -22,6 +22,11 @@ export function JobDetails({ job: initialJob }: JobDetailsProps) {
     try {
       await sdk.updateJobStatus({ jobId, status });
       setJob((prevJob) => ({ ...prevJob, status }));
+      toast({
+        title: 'Job status updated',
+        variant: 'success',
+        description: `Job status has been updated to ${status}.`,
+      });
     } catch (error) {
       handleError({ error, title: 'Failed to update job status' });
     }
