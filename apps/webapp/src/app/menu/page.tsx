@@ -15,3 +15,5 @@ export default async function MenuPage() {
     </WithClientProviders>
   );
 }
+
+export const dynamic = 'force-dynamic';
