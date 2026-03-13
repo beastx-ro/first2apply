@@ -1,5 +1,3 @@
-'use server';
-
 import { listJobs, listLinks, listSites } from '@/app/actions';
 import { JobStatus, throwError } from '@first2apply/core';
 

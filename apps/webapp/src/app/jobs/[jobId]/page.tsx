@@ -1,5 +1,3 @@
-'use server';
-
 import { getJobById, listLinks, listSites } from '@/app/actions';
 import { SmallNavbar } from '@/app/components/smallNavbar';
 

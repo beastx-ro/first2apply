@@ -1,5 +1,3 @@
-'use server';
-
 import { listLinks, listSites } from '../actions';
 import { WithClientProviders } from '../components/clientProviders';
 import { MenuItems } from './Menu';
