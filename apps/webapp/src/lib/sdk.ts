@@ -17,7 +17,7 @@ import type {
 import { throwError } from '@first2apply/core';
 import type { User } from '@supabase/supabase-js';
 
-import { getJobById, listJobs, listLinks, listSites, updateJobStatus } from '../app/actions';
+import { getJobById, listJobs, listLinks, listSites, updateJobLabels, updateJobStatus } from '../app/actions';
 
 export class WebappApiSdk implements First2ApplyApiSdk {
   // Auth
@@ -81,8 +81,12 @@ export class WebappApiSdk implements First2ApplyApiSdk {
     formData.set('status', status);
     return updateJobStatus(formData);
   }
-  async updateJobLabels(_: { jobId: number; labels: JobLabel[] }): Promise<Job> {
-    return throwError('updateJobLabels not implemented');
+  async updateJobLabels({ jobId, labels }: { jobId: number; labels: JobLabel[] }): Promise<Job> {
+    const formData = new FormData();
+    formData.set('jobId', String(jobId));
+    formData.set('labels', labels.join(','));
+    await updateJobLabels(formData);
+    return this.getJobById(jobId);
   }
   async changeAllJobsStatus(_: { from: JobStatus; to: JobStatus }): Promise<void> {
     return throwError('changeAllJobsStatus not implemented');

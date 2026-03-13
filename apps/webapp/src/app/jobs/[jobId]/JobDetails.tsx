@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { Job, JobStatus } from '@first2apply/core';
+import { Job, JobLabel, JobStatus } from '@first2apply/core';
 import { JobDescription, JobSummary, toast, useError, useSdk } from '@first2apply/ui';
 
 export type JobDetailsProps = {
@@ -32,13 +32,22 @@ export function JobDetails({ job: initialJob }: JobDetailsProps) {
     }
   };
 
+  const onUpdateLabels = async (jobId: number, labels: JobLabel[]) => {
+    try {
+      await sdk.updateJobLabels({ jobId, labels });
+      setJob((prevJob) => ({ ...prevJob, labels }));
+    } catch (error) {
+      handleError({ error, title: 'Failed to update job labels' });
+    }
+  };
+
   return (
     <div className="px-2 py-4">
       <JobSummary
         job={job}
         onOpenUrl={onOpenUrl}
         onUpdateJobStatus={onUpdateJobStatus}
-        onUpdateLabels={() => {}}
+        onUpdateLabels={onUpdateLabels}
         onView={(job: Job) => onOpenUrl(job.externalUrl)}
       />
 

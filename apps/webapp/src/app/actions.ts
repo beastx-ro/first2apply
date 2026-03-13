@@ -1,7 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import { JobStatus, ListJobsParams, getExceptionMessage } from '@first2apply/core';
+import { JobLabel, JobStatus, ListJobsParams, getExceptionMessage } from '@first2apply/core';
 import { F2aSupabaseApi } from '@first2apply/ui';
 import { redirect } from 'next/navigation';
 
@@ -88,6 +88,19 @@ export async function updateJobStatus(formData: FormData) {
     await api.updateJobStatus({ jobId, status });
   } catch (error) {
     throw new Error(`failed to update job status: ${getExceptionMessage(error, true)}`);
+  }
+}
+
+export async function updateJobLabels(formData: FormData) {
+  try {
+    const jobId = Number(formData.get('jobId'));
+    const labels = (formData.get('labels') as string)?.split(',').map((label) => label.trim()) || [];
+    if (isNaN(jobId)) throw new Error('invalid job id');
+
+    const api = await buildApi();
+    await api.updateJobLabels({ jobId, labels: labels as JobLabel[] });
+  } catch (error) {
+    throw new Error(`failed to update job labels: ${getExceptionMessage(error, true)}`);
   }
 }
 

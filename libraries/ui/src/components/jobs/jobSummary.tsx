@@ -346,7 +346,7 @@ function JobLabelSelector({
         onUpdateLabels(job.id, newLabels)
       }}
     >
-      <SelectTrigger className={clsx("h-10 w-[148px]", className)}>
+      <SelectTrigger className={clsx("h-10 w-[148px] focus:ring-0", className)}>
         <SelectValue placeholder="Add Label" />
       </SelectTrigger>
       <SelectContent>
