@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useError } from '@/hooks/error';
 import { useSession } from '@/hooks/session';
 import { loginWithEmail } from '@/lib/electronMainSdk';
-import { LoginCard } from '@first2apply/ui';
+import { LoginCard, useLinks, useSites } from '@first2apply/ui';
 
 /**
  * Component used to render the login page.
@@ -13,6 +13,8 @@ export function LoginPage() {
   const { login } = useSession();
   const navigate = useNavigate();
   const { handleError } = useError();
+  const { reloadLinks } = useLinks();
+  const { reloadSites } = useSites();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -21,6 +23,7 @@ export function LoginPage() {
       setIsSubmitting(true);
       const user = await loginWithEmail({ email, password });
       await login(user);
+      await Promise.all([reloadSites(), reloadLinks()]);
       navigate('/');
     } catch (error) {
       handleError({ error });
