@@ -18,6 +18,7 @@ const env = parseEnv();
 
 // o3* classes seems to have been superseded by gpt-5* models.
 const SUPPORTED_MODELS = [
+  'gpt-5.4',
   'gpt-5.2',
   'gpt-5-mini',
   'gpt-5-nano',
@@ -35,6 +36,7 @@ const SUPPORTED_MODELS = [
 type SupportedModel = (typeof SUPPORTED_MODELS)[number];
 
 const COST_PER_MODEL: Record<SupportedModel, { input: number; output: number }> = {
+  'gpt-5.4': { input: 2.5, output: 15 },
   'gpt-5.2': { input: 1.75, output: 14 },
   'gpt-5-mini': { input: 0.25, output: 2 },
   'gpt-5-nano': { input: 0.05, output: 0.4 },
