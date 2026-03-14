@@ -141,7 +141,7 @@ ${htmlContent}
     ),
   ).then((jobs) => {
     // filter out invalid jobs
-    return jobs.filter((job) => !!job.externalId && !!job.externalUrl);
+    return jobs.filter((job) => !!job.externalId && job.externalUrl?.startsWith('https://'));
   });
 
   return {
