@@ -1,6 +1,7 @@
 'use client';
 
 import { LogOutIcon, MoonIcon, SunIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { Separator, useError } from '@first2apply/ui';
 import { useTheme } from 'next-themes';
@@ -9,8 +10,18 @@ import Link from 'next/link';
 import { signOut } from '../actions';
 
 export function MenuItems() {
-  const { theme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const { handleError } = useError();
+  const currentTheme = resolvedTheme || theme;
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return null;
+
+  const onToggleTheme = () => {
+    setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+  };
 
   const onLogout = async () => {
     try {
@@ -29,13 +40,13 @@ export function MenuItems() {
         <Link
           href="#"
           onClick={(evt) => {
-            setTheme(theme === 'dark' ? 'light' : 'dark');
+            onToggleTheme();
             evt.preventDefault();
           }}
           className="flex items-center justify-center"
         >
-          {theme === 'dark' ? <SunIcon className="h-7 w-7" /> : <MoonIcon className="h-7 w-7" />}
-          <span className="ml-4">Turn the lights {theme === 'dark' ? 'on' : 'off'}</span>
+          {currentTheme === 'dark' ? <SunIcon className="h-7 w-7" /> : <MoonIcon className="h-7 w-7" />}
+          <span className="ml-4">Turn the lights {currentTheme === 'dark' ? 'on' : 'off'}</span>
         </Link>
       </li>
       <Separator />
