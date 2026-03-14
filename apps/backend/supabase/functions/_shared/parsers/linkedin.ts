@@ -87,6 +87,7 @@ export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: stri
       companyLogo,
       location,
       labels: [],
+      tags: [],
     };
   };
   const parseElementV2 = (el: Element): ParsedJob | null => {
