@@ -15,24 +15,28 @@ Deno.test('parseLinkedInJobs parses v1 list markup', async () => {
   });
 
   assert(result.listFound, 'Expected LinkedIn list markup to be located');
-  assertEquals(result.elementsCount, 2);
-  assertEquals(result.jobs.length, 2);
+  assertEquals(result.elementsCount, 50);
+  assertEquals(result.jobs.length, 25);
 
-  const [firstJob, secondJob] = result.jobs;
+  const [firstJob] = result.jobs;
 
   assert(firstJob, 'First job should be parsed');
-  assertEquals(firstJob.siteId, 99);
-  assertEquals(firstJob.externalId, '1234567890');
-  assertEquals(firstJob.title, 'Senior Automation Engineer');
-  assertEquals(firstJob.companyName, 'Stealthy Systems');
-  assertEquals(firstJob.location, 'Remote');
-  assertEquals(firstJob.companyLogo, 'https://media.licdn.com/logo.png');
+  assertEquals(firstJob.externalId, '4358318235');
+  assertEquals(firstJob.externalUrl, 'https://www.linkedin.com/jobs/view/4358318235');
+  assertEquals(firstJob.title, 'Senior Technical Recruiter');
+  assertEquals(firstJob.companyName, 'Jua');
+  assert(firstJob.companyLogo, 'Company logo should be parsed');
+  assertEquals(firstJob.location, 'Zurich');
 
-  assert(secondJob, 'Second job should be parsed');
-  assertEquals(secondJob.externalId, '2345678901');
-  assertEquals(secondJob.title, 'Browser Automation Specialist');
-  assertEquals(secondJob.companyName, 'JobHack Labs');
-  assertEquals(secondJob.location, 'Austin, TX');
+  const lastJob = result.jobs.at(-1);
+
+  assert(lastJob, 'Last job should be parsed');
+  assertEquals(lastJob.externalId, '4370949635');
+  assertEquals(lastJob.externalUrl, 'https://www.linkedin.com/jobs/view/4370949635');
+  assertEquals(lastJob.title, 'Recruitment Consultant');
+  assertEquals(lastJob.companyName, 'CJ Recruitment');
+  assert(lastJob.companyLogo, 'Company logo should be parsed');
+  assertEquals(lastJob.location, 'Zurich, Switzerland');
 });
 
 Deno.test('Dice job parsing', async () => {
@@ -43,8 +47,6 @@ Deno.test('Dice job parsing', async () => {
     html: fileContent,
   });
 
-  console.log(result.jobs.length);
-  // console.log(result.jobs.map((j) => j.title));
   assert(result.listFound, 'Expected Dice list markup to be located');
   assertEquals(result.elementsCount, 20);
   assertEquals(result.jobs.length, 20);
