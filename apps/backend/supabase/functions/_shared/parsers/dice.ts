@@ -31,21 +31,23 @@ export function parseDiceJobs({ siteId, html }: { siteId: number; html: string }
 
   const jobElements = Array.from(jobsList.querySelectorAll('div[data-testid="job-card"]')) as Element[];
 
-  const jobs = jobElements.map((el): ParsedJob | null => {
-    const externalId = el?.getAttribute('data-id')?.trim();
+  const parseJob = (el: Element): ParsedJob | null => {
+    const externalId = el.getAttribute('data-id')?.trim();
     if (!externalId) return null;
 
-    const jobGuid = el?.getAttribute('data-job-guid')?.trim();
+    const jobGuid = el.getAttribute('data-job-guid')?.trim();
     if (!jobGuid) return null;
     const externalUrl = `https://www.dice.com/job-detail/${jobGuid}`.trim();
 
     const title = el.querySelector('.content > div')?.textContent?.trim();
     if (!title) return null;
 
-    const companyName = el.querySelector('.header > span > a:nth-child(2)')?.textContent?.trim();
-    if (!companyName) return null;
-
     const companyLogo = el.querySelector('.header > span > a')?.querySelector('img')?.getAttribute('src') || undefined;
+
+    const companyName = companyLogo
+      ? el.querySelector('.header > span > a:nth-child(2)')?.textContent?.trim()
+      : el.querySelector('.header > span > p')?.textContent?.trim();
+    if (!companyName) return null;
 
     const location = el.querySelector('.content > span > div > div')?.textContent.trim();
 
@@ -73,9 +75,11 @@ export function parseDiceJobs({ siteId, html }: { siteId: number; html: string }
       labels: [],
       tags,
     };
-  });
+  };
 
+  const jobs = jobElements.map(parseJob);
   const validJobs = jobs.filter((job): job is ParsedJob => !!job);
+
   return {
     jobs: validJobs,
     listFound: true,
