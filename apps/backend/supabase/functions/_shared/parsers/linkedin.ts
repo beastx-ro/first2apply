@@ -227,7 +227,10 @@ export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: stri
   };
   const parseElementV4 = (el: Element): ParsedJob | null => {
     const card = el.querySelector(':scope > div > div > div > div');
-    if (!card) return null;
+    if (!card) {
+      console.warn('No card element found');
+      return null;
+    }
 
     // Extract external URL and ID
     const getJobId = () => {
@@ -258,9 +261,11 @@ export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: stri
     };
 
     const externalId = getJobId();
-    if (!externalId) return null;
+    if (!externalId) {
+      console.warn('No externalId found');
+      return null;
+    }
 
-    // https://www.linkedin.com/jobs/view/4323524962/apply/?openSDUIApplyFlow=true&trackingId=nMwhn7gETJGszwQ55tFSGQ%3D%3D
     const externalUrl = `https://www.linkedin.com/jobs/view/${externalId}`;
 
     const detailsEl = card.querySelector(':scope > div:first-child > div:first-child');
@@ -281,6 +286,8 @@ export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: stri
       console.log('Missing title or companyName', { title, companyName });
       return null;
     }
+
+    const companyLogo = card.querySelector(':scope figure img')?.getAttribute('src') || undefined;
 
     // check for remote/on-site/hybrid in location
     const jobType = location?.toLowerCase().includes('remote')
@@ -339,6 +346,7 @@ export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: stri
       externalUrl,
       title,
       companyName,
+      companyLogo,
       location: cleanedLocation,
       jobType,
       labels: [],
@@ -361,7 +369,7 @@ export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: stri
     elementsCount = jobElements.length;
     jobs = jobElements.map((el): ParsedJob | null => parseElementV3(el));
   } else if (parserVersion === 4) {
-    const jobElements = Array.from(jobsList.querySelectorAll('div[data-view-name="job-search-job-card"]')) as Element[];
+    const jobElements = Array.from(jobsList.querySelectorAll('div[data-view-tracking-scope]')) as Element[];
     elementsCount = jobElements.length;
     jobs = jobElements.map((el): ParsedJob | null => parseElementV4(el));
   }
@@ -392,8 +400,6 @@ export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: stri
 
       return job;
     });
-
-  console.log(JSON.stringify({ parserVersion, elementsCount, jobs }, null, 2));
 
   return {
     jobs: validJobs,
