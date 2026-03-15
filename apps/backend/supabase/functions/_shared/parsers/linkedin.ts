@@ -401,9 +401,11 @@ export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: stri
       return job;
     });
 
+  const listFound = jobsList !== null && elementsCount > 0;
+
   return {
     jobs: validJobs,
-    listFound: jobsList !== null,
+    listFound,
     elementsCount,
   };
 }
