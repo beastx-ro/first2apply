@@ -1,10 +1,13 @@
 import { assert, assertEquals } from '@std/assert';
 
+import { TestLogger } from './logger.ts';
 import { parseDiceJobs } from './parsers/dice.ts';
 import { parseLinkedInJobs } from './parsers/linkedin.ts';
 
 const linkedinUrl = new URL('./__fixtures__/jobBoards/linkedin.html', import.meta.url);
 const diceUrl = new URL('./__fixtures__/jobBoards/dice.html', import.meta.url);
+
+const logger = new TestLogger();
 
 Deno.test('parseLinkedInJobs parses v1 list markup', async () => {
   const fileContent = await Deno.readTextFile(linkedinUrl);
@@ -12,10 +15,12 @@ Deno.test('parseLinkedInJobs parses v1 list markup', async () => {
   const result = parseLinkedInJobs({
     siteId: 99,
     html: fileContent,
+    logger,
   });
 
+  logger.info('Parsed LinkedIn jobs result:', result);
   assert(result.listFound, 'Expected LinkedIn list markup to be located');
-  assertEquals(result.elementsCount, 50);
+  assertEquals(result.elementsCount, 25);
   assertEquals(result.jobs.length, 25);
 
   const [firstJob] = result.jobs;

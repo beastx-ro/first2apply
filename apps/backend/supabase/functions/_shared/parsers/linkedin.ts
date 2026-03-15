@@ -1,11 +1,20 @@
 import { DOMParser, Element, NodeType } from 'deno-dom-wasm';
 
+import { ILogger } from '../logger.ts';
 import { JobSiteParseResult, ParsedJob } from '../parsers/parserTypes.ts';
 
 /**
  * Method used to parse a linkedin job page.
  */
-export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: string }): JobSiteParseResult {
+export function parseLinkedInJobs({
+  siteId,
+  html,
+  logger,
+}: {
+  siteId: number;
+  html: string;
+  logger: ILogger;
+}): JobSiteParseResult {
   const document = new DOMParser().parseFromString(html, 'text/html');
   if (!document) throw new Error('Could not parse html');
 
@@ -25,35 +34,56 @@ export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: stri
 
   let parserVersion = 1;
   let jobsList = document.querySelector('.jobs-search__results-list');
-  if (!jobsList) {
+  let jobElements: Element[] = jobsList ? (Array.from(jobsList.querySelectorAll('li')) as Element[]) : [];
+  let listFound = jobsList !== null && jobElements.length > 0;
+
+  if (!listFound) {
     // check if the user is logged into LinkedIn because then it has a totally different layout
     jobsList =
       document.querySelector('ul li[data-occludable-job-id]')?.closest('ul') ??
       document.querySelector('.scaffold-layout__list ul') ??
       null;
-    if (jobsList) parserVersion = 2;
+
+    if (jobsList) {
+      parserVersion = 2;
+      jobElements = Array.from(jobsList.querySelectorAll('li')) as Element[];
+      listFound = jobElements.length > 0;
+    }
   }
-  if (!jobsList) {
+  if (!listFound) {
     // try to find the new layout
     jobsList =
       document.querySelector('div[data-view-name="jobs-home-infinite-jymbii-jobs-feed-module"]') ??
       document.querySelector('div[data-view-name="jobs-home-top-jymbii-jobs-feed-module"]') ??
       document.querySelector('div[data-view-name="feed-full-update"]') ??
       null;
-    if (jobsList) parserVersion = 3;
+    if (jobsList) {
+      parserVersion = 3;
+      jobElements = Array.from(jobsList.querySelectorAll('div[data-view-name="job-card"]')) as Element[];
+      listFound = jobElements.length > 0;
+    }
   }
-  if (!jobsList) {
+  if (!listFound) {
     // new AI search results layout
     jobsList = document.querySelector('div[componentkey="SearchResultsMainContent"]') ?? null;
-    if (jobsList) parserVersion = 4;
-  }
 
-  if (!jobsList) {
-    return {
-      jobs: [],
-      listFound: false,
-      elementsCount: 0,
-    };
+    if (jobsList) {
+      parserVersion = 4;
+      jobElements = Array.from(jobsList.querySelectorAll('div[data-view-tracking-scope]')) as Element[];
+      listFound = jobElements.length > 0;
+    }
+  }
+  if (!listFound) {
+    // v2 of the new AI search results layout
+    jobsList = document.querySelector('div[componentkey="SearchResultsMainContent"]') ?? null;
+
+    if (jobsList) {
+      parserVersion = 5;
+      jobElements = Array.from(
+        jobsList.querySelectorAll('div[componentkey^="job-card-component-ref"] > div[componentkey]'),
+      ) as Element[];
+      listFound = jobElements.length > 0;
+    }
   }
 
   const parseElementV1 = (el: Element): ParsedJob | null => {
@@ -228,7 +258,6 @@ export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: stri
   const parseElementV4 = (el: Element): ParsedJob | null => {
     const card = el.querySelector(':scope > div > div > div > div');
     if (!card) {
-      console.warn('No card element found');
       return null;
     }
 
@@ -262,7 +291,7 @@ export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: stri
 
     const externalId = getJobId();
     if (!externalId) {
-      console.warn('No externalId found');
+      logger.error('No externalId found');
       return null;
     }
 
@@ -270,7 +299,7 @@ export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: stri
 
     const detailsEl = card.querySelector(':scope > div:first-child > div:first-child');
     if (!detailsEl) {
-      console.log('No detailsEl found');
+      logger.error('No detailsEl found');
       return null;
     }
 
@@ -283,7 +312,7 @@ export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: stri
     const location = detailsEl.querySelector(':scope > div > p:nth-child(3)')?.textContent?.trim() ?? null;
 
     if (!title || !companyName) {
-      console.log('Missing title or companyName', { title, companyName });
+      logger.error('Missing title or companyName', { title, companyName });
       return null;
     }
 
@@ -353,25 +382,98 @@ export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: stri
       tags,
     };
   };
+  const parseElementV5 = (el: Element): ParsedJob | null => {
+    const externalUrlId = el.getAttribute('componentkey')?.trim().replace('job-card-component-ref-', '');
+    if (!externalUrlId) {
+      logger.error('No externalUrlId found');
+      return null;
+    }
+    const externalUrl = `https://www.linkedin.com/jobs/view/${externalUrlId}`;
+
+    const mainInfoEl = el.querySelector(
+      ':scope > div > div > div:first-child > div:first-child > div:first-child',
+    ) as Element;
+    if (!mainInfoEl) {
+      logger.error('No mainInfoEl found');
+      return null;
+    }
+
+    const titleEl = mainInfoEl.querySelector(':scope > p:first-child');
+    if (!titleEl) {
+      logger.error('No titleEl found');
+      return null;
+    }
+    const rawTitle =
+      titleEl.childElementCount > 1
+        ? (titleEl.querySelector(':scope > span:not([aria-hidden])')?.textContent?.trim() ?? null)
+        : (titleEl.textContent?.trim() ?? null);
+    const title = rawTitle?.replace('(Verified job)', '').trim() ?? null;
+
+    const companyName = mainInfoEl.querySelector(':scope > div:nth-child(2) > p')?.textContent?.trim();
+    const locationAndType = mainInfoEl.querySelector(':scope > p:nth-child(3)')?.textContent?.trim();
+
+    if (!title || !companyName) {
+      logger.error('Missing title or companyName', { title, companyName });
+      return null;
+    }
+
+    const location = locationAndType
+      ?.replace(/\(remote\)/i, '')
+      .replace(/\(on-site\)/i, '')
+      .replace(/\(hybrid\)/i, '')
+      .trim();
+
+    const jobType = locationAndType?.toLowerCase().includes('remote')
+      ? 'remote'
+      : locationAndType?.toLowerCase().includes('hybrid')
+        ? 'hybrid'
+        : 'onsite';
+
+    const companyLogo =
+      el.querySelector(':scope > div:first-child figure:first-child img')?.getAttribute('src') || undefined;
+
+    // can have 1 or 2 divs here, need to check the second one for the tags if it exists or else check the first one
+    const metadataEl = el.querySelector(':scope > div > div > div:nth-child(2)');
+    const tagEls = Array.from(metadataEl?.querySelectorAll(':scope > div p') ?? []) as Element[];
+    const tags = tagEls
+      .map((tagEl) => {
+        if (tagEl.childElementCount > 1) {
+          // if there are multiple spans, get the text content of the one that is not visually hidden
+          const visibleSpan = (Array.from(tagEl.querySelectorAll('span')) as Element[]).find(
+            (span) => span.getAttribute('aria-hidden') !== 'true',
+          );
+          return visibleSpan?.textContent?.trim() || tagEl.textContent?.trim() || '';
+        }
+
+        return tagEl.textContent?.trim() ?? '';
+      })
+      .filter((text) => text.length > 1);
+
+    return {
+      siteId,
+      externalId: externalUrlId,
+      externalUrl,
+      title,
+      companyName,
+      companyLogo,
+      location,
+      jobType,
+      labels: [],
+      tags,
+    };
+  };
 
   let jobs: Array<ParsedJob | null> = [];
-  let elementsCount = 0;
   if (parserVersion === 1) {
-    const jobElements = Array.from(jobsList.querySelectorAll('li')) as Element[];
-    elementsCount = jobElements.length;
     jobs = jobElements.map((el): ParsedJob | null => parseElementV1(el));
   } else if (parserVersion === 2) {
-    const jobElements = Array.from(jobsList.querySelectorAll('li')) as Element[];
-    elementsCount = jobElements.length;
     jobs = jobElements.map((el): ParsedJob | null => parseElementV2(el));
   } else if (parserVersion === 3) {
-    const jobElements = Array.from(jobsList.querySelectorAll('div[data-view-name="job-card"]')) as Element[];
-    elementsCount = jobElements.length;
     jobs = jobElements.map((el): ParsedJob | null => parseElementV3(el));
   } else if (parserVersion === 4) {
-    const jobElements = Array.from(jobsList.querySelectorAll('div[data-view-tracking-scope]')) as Element[];
-    elementsCount = jobElements.length;
     jobs = jobElements.map((el): ParsedJob | null => parseElementV4(el));
+  } else if (parserVersion === 5) {
+    jobs = jobElements.map((el): ParsedJob | null => parseElementV5(el));
   }
 
   const validJobs = jobs
@@ -401,11 +503,13 @@ export function parseLinkedInJobs({ siteId, html }: { siteId: number; html: stri
       return job;
     });
 
-  const listFound = jobsList !== null && elementsCount > 0;
+  logger.info(
+    `Parsed LinkedIn jobs with parser version ${parserVersion}. Found ${validJobs.length} valid jobs out of ${jobElements.length} elements.`,
+  );
 
   return {
     jobs: validJobs,
     listFound,
-    elementsCount,
+    elementsCount: jobElements.length,
   };
 }

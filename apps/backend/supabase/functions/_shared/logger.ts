@@ -60,3 +60,21 @@ export const createLoggerWithMeta = (meta: Record<string, string>) => {
 
   return new Logger(mezmoLogger);
 };
+
+export class TestLogger implements ILogger {
+  debug(message: string, data?: Record<string, any>) {
+    console.debug(message, data);
+  }
+  info(message: string, data?: Record<string, any>) {
+    console.info(message, data);
+  }
+  error(message: string, data?: Record<string, any>) {
+    console.error(message, data);
+  }
+  addMeta() {
+    // No-op for test logger
+  }
+  flush() {
+    // No-op for test logger
+  }
+}

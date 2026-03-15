@@ -191,7 +191,7 @@ async function parseSiteJobsList({
 }): Promise<JobSiteParseResult> {
   switch (site.provider) {
     case SiteProvider.linkedin:
-      return parseLinkedInJobs({ siteId: site.id, html });
+      return parseLinkedInJobs({ siteId: site.id, html, ...context });
     case SiteProvider.glassdoor:
       return parseGlassDoorJobs({ siteId: site.id, html });
     case SiteProvider.indeed:
@@ -489,6 +489,7 @@ export function parseGlassDoorJobs({ siteId, html }: { siteId: number; html: str
       location,
       salary,
       labels: [],
+      tags: [],
     };
   });
 
@@ -602,6 +603,7 @@ export function parseIndeedJobs({ siteId, html }: { siteId: number; html: string
       location,
       salary,
       labels: [],
+      tags: [],
     };
   });
 
@@ -667,6 +669,7 @@ export function parseFlexjobsJobs({ siteId, html }: { siteId: number; html: stri
       jobType,
       description,
       labels: [],
+      tags: [],
     };
   });
 
@@ -741,6 +744,7 @@ export function parseBestjobsJobs({ siteId, html }: { siteId: number; html: stri
       location,
       salary,
       labels: [],
+      tags: [],
     };
   });
 
@@ -814,6 +818,7 @@ export function parseEchojobsJobs({ siteId, html }: { siteId: number; html: stri
       location,
       salary,
       labels: [],
+      tags: [],
     };
   });
 
@@ -881,6 +886,7 @@ export function parseRemotiveJobs({ siteId, html }: { siteId: number; html: stri
       jobType: 'remote',
       location,
       labels: [],
+      tags: [],
     };
   });
 
@@ -942,7 +948,7 @@ export function parseRemoteioJobs({ siteId, html }: { siteId: number; html: stri
 
     const location = el.querySelector('div:nth-child(2) > div')?.textContent?.trim();
 
-    let tags: string[] | undefined;
+    let tags: string[] = [];
     const tagsList = Array.from(el.querySelectorAll('div:nth-child(4) > span')) as Element[];
     if (tagsList.length > 0) {
       tags = tagsList.map((tag) => tag.querySelector('a')?.textContent.trim()).filter((t): t is string => !!t);
@@ -1030,6 +1036,7 @@ export function parseBuiltinJobs({ siteId, html }: { siteId: number; html: strin
       // jobType,
       location,
       labels: [],
+      tags: [],
     };
   });
 
@@ -1251,6 +1258,7 @@ async function parseZipRecruiterJobs({ siteId, html }: { siteId: number; html: s
         companyName,
         location,
         labels: [],
+        tags: [],
       };
     });
   };
@@ -1290,6 +1298,7 @@ async function parseZipRecruiterJobs({ siteId, html }: { siteId: number; html: s
           location,
           salary,
           labels: [],
+          tags: [],
         };
       }),
     );
@@ -1359,6 +1368,7 @@ export function parseUSAJobsJobs({ siteId, html }: { siteId: number; html: strin
       salary,
       jobType,
       labels: [],
+      tags: [],
     };
   });
 
@@ -1417,6 +1427,7 @@ export function parseTalentJobs({ siteId, html }: { siteId: number; html: string
       location,
       jobType,
       labels: [],
+      tags: [],
     };
   });
 
