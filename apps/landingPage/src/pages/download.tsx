@@ -108,7 +108,7 @@ export default function Download() {
 
             {/* linux */}
             <a
-              href="https://s3.eu-central-1.amazonaws.com/first2apply.com/releases/linux/x64/first2apply-latest-amd64.deb"
+              href="https://s3.eu-central-1.amazonaws.com/first2apply.com/releases/linux/x64/first2apply-latest.deb"
               onClick={() => {
                 sendGTMEvent({
                   event: 'file_download',
