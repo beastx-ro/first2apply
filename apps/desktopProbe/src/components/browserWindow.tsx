@@ -171,7 +171,7 @@ export const BrowserWindow = forwardRef<BrowserWindowHandle, BrowserWindowProps>
           <div className="ml-2">
             <TooltipProvider delayDuration={500}>
               <Tooltip>
-                <TooltipTrigger className="flex gap-3">
+                <TooltipTrigger className="flex gap-3" asChild>
                   <Button variant="default" onClick={() => customActionButton.onClick()}>
                     {customActionButton.text}
                   </Button>
