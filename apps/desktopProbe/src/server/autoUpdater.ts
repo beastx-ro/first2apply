@@ -3,6 +3,7 @@ import { NewAppVersion } from '@/lib/types';
 import { getExceptionMessage } from '@first2apply/core';
 import { Notification, app, autoUpdater, shell } from 'electron';
 import { ScheduledTask, schedule } from 'node-cron';
+import * as fs from 'fs';
 import * as semver from 'semver';
 
 import { ILogger } from './logger';
@@ -216,10 +217,49 @@ export class F2aAutoUpdater {
         throw new Error(`Release metadata not found for version ${latestVersion}`);
       }
 
+
       // show the update notification
+      let updateURL = release.updateTo.url;
+      if (process.platform === 'linux') {
+        try {
+          if (process.env.FLATPAK_ID || fs.existsSync('/.flatpak-info')) {
+            updateURL = updateURL.replace(/\.deb$/, '.flatpak').replace(/_amd64/, '-x86_64').replace(/-amd64/, '-x86_64');
+          } else if (fs.existsSync('/etc/os-release')) {
+            const osRelease = fs.readFileSync('/etc/os-release', 'utf8').toLowerCase();
+            const isRpm = [
+              'id_like="fedora"', 'id_like=fedora',
+              'id_like="suse"', 'id_like=suse',
+              'id_like="rhel"', 'id_like=rhel',
+              'id="fedora"', 'id=fedora',
+              'id="centos"', 'id=centos',
+            ].some(id => osRelease.includes(id));
+            
+            const isArch = [
+              'id="arch"', 'id=arch',
+              'id_like="arch"', 'id_like=arch'
+            ].some(id => osRelease.includes(id));
+
+            if (isRpm) {
+              // Note: rpm maker appends -1 release by default, but it's easier to just swap extension
+              // If the S3 URL exact format differs, the maintainer will adjust it in their publish script.
+              updateURL = updateURL.replace(/\.deb$/, '.rpm').replace(/_amd64/, '-x86_64').replace(/-amd64/, '-x86_64');
+              // fix for typical rpm naming (version-1.x86_64.rpm) vs version-x86_64.rpm
+              if (!updateURL.match(/-\d+\.x86_64\.rpm$/)) {
+                 updateURL = updateURL.replace(/\.x86_64\.rpm$/, '-1.x86_64.rpm').replace(/-x86_64\.rpm$/, '-1.x86_64.rpm');
+              }
+            } else if (isArch) {
+              // Default to flatpak for Arch / Steam Deck
+              updateURL = updateURL.replace(/\.deb$/, '.flatpak').replace(/_amd64/, '-x86_64').replace(/-amd64/, '-x86_64');
+            }
+          }
+        } catch (e) {
+          this._logger.error(`Error determining Linux package type: ${getExceptionMessage(e)}`);
+        }
+      }
+
       this._showUpdateNotification({
         releaseName: release.updateTo.name,
-        updateURL: release.updateTo.url,
+        updateURL,
       });
     } else {
       this._logger.info('no updates available');
