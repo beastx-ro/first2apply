@@ -2,9 +2,9 @@ import { config as loadEnvVars } from 'dotenv';
 
 import { MakerAppX } from '@electron-forge/maker-appx';
 import { MakerDeb } from '@electron-forge/maker-deb';
+import { MakerDMG } from '@electron-forge/maker-dmg';
 import { MakerFlatpak } from '@electron-forge/maker-flatpak';
 import { MakerRpm } from '@electron-forge/maker-rpm';
-import { MakerDMG } from '@electron-forge/maker-dmg';
 import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
 import { WebpackPlugin } from '@electron-forge/plugin-webpack';
@@ -66,30 +66,31 @@ const config: ForgeConfig = {
       devCert: path.join(__dirname, 'packagers', 'appx', 'devcert.pfx'),
       certPass: 'first2apply',
     }),
-    new MakerRpm({
-      options: {
-        name: 'first2apply',
-        bin: 'First 2 Apply',
-        icon: path.join(__dirname, 'packagers', 'icons', 'paper-plane.png'),
-        mimeType: ['x-scheme-handler/first2apply'],
-      }
-    }),
-    new MakerFlatpak({
-      options: {
-        id: 'com.first2apply.desktop',
-        productName: 'First 2 Apply',
-        genericName: 'Job Search',
-        icon: path.join(__dirname, 'packagers', 'icons', 'paper-plane.png'),
-        categories: ['Utility'],
-        mimeType: ['x-scheme-handler/first2apply'],
-      }
-    }),
     new MakerDeb({
       options: {
         name: 'First 2 Apply',
         bin: 'First 2 Apply',
         icon: path.join(__dirname, 'packagers', 'icons', 'paper-plane.png'),
         mimeType: ['x-scheme-handler/first2apply'],
+      },
+    }),
+    new MakerRpm({
+      options: {
+        name: 'First 2 Apply',
+        bin: 'First 2 Apply',
+        icon: path.join(__dirname, 'packagers', 'icons', 'paper-plane.png'),
+        mimeType: ['x-scheme-handler/first2apply'],
+      },
+    }),
+    new MakerFlatpak({
+      options: {
+        id: process.env.APP_BUNDLE_ID,
+        productName: 'First 2 Apply',
+        genericName: 'Job Search',
+        icon: path.join(__dirname, 'packagers', 'icons', 'paper-plane.png'),
+        categories: ['Utility'],
+        mimeType: ['x-scheme-handler/first2apply'],
+        files: [],
       },
     }),
     {

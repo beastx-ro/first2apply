@@ -468,7 +468,7 @@ importers:
         specifier: ^7.10.2
         version: 7.10.2
       '@electron-forge/maker-flatpak':
-        specifier: ^7.11.1
+        specifier: ^7.10.2
         version: 7.11.1
       '@electron-forge/maker-rpm':
         specifier: ^7.10.2
