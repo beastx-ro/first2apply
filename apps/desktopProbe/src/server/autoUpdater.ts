@@ -1,9 +1,11 @@
+import * as dotenv from 'dotenv';
+
 import { IAnalyticsClient } from '@/lib/analytics';
 import { NewAppVersion } from '@/lib/types';
-import { getExceptionMessage } from '@first2apply/core';
+import { getExceptionMessage, throwError } from '@first2apply/core';
 import { Notification, app, autoUpdater, shell } from 'electron';
-import { ScheduledTask, schedule } from 'node-cron';
 import * as fs from 'fs';
+import { ScheduledTask, schedule } from 'node-cron';
 import * as semver from 'semver';
 
 import { ILogger } from './logger';
@@ -217,46 +219,8 @@ export class F2aAutoUpdater {
         throw new Error(`Release metadata not found for version ${latestVersion}`);
       }
 
-
       // show the update notification
-      let updateURL = release.updateTo.url;
-      if (process.platform === 'linux') {
-        try {
-          if (process.env.FLATPAK_ID || fs.existsSync('/.flatpak-info')) {
-            updateURL = updateURL.replace(/\.deb$/, '.flatpak').replace(/_amd64/, '-x86_64').replace(/-amd64/, '-x86_64');
-          } else if (fs.existsSync('/etc/os-release')) {
-            const osRelease = fs.readFileSync('/etc/os-release', 'utf8').toLowerCase();
-            const isRpm = [
-              'id_like="fedora"', 'id_like=fedora',
-              'id_like="suse"', 'id_like=suse',
-              'id_like="rhel"', 'id_like=rhel',
-              'id="fedora"', 'id=fedora',
-              'id="centos"', 'id=centos',
-            ].some(id => osRelease.includes(id));
-            
-            const isArch = [
-              'id="arch"', 'id=arch',
-              'id_like="arch"', 'id_like=arch'
-            ].some(id => osRelease.includes(id));
-
-            if (isRpm) {
-              // Note: rpm maker appends -1 release by default, but it's easier to just swap extension
-              // If the S3 URL exact format differs, the maintainer will adjust it in their publish script.
-              updateURL = updateURL.replace(/\.deb$/, '.rpm').replace(/_amd64/, '-x86_64').replace(/-amd64/, '-x86_64');
-              // fix for typical rpm naming (version-1.x86_64.rpm) vs version-x86_64.rpm
-              if (!updateURL.match(/-\d+\.x86_64\.rpm$/)) {
-                 updateURL = updateURL.replace(/\.x86_64\.rpm$/, '-1.x86_64.rpm').replace(/-x86_64\.rpm$/, '-1.x86_64.rpm');
-              }
-            } else if (isArch) {
-              // Default to flatpak for Arch / Steam Deck
-              updateURL = updateURL.replace(/\.deb$/, '.flatpak').replace(/_amd64/, '-x86_64').replace(/-amd64/, '-x86_64');
-            }
-          }
-        } catch (e) {
-          this._logger.error(`Error determining Linux package type: ${getExceptionMessage(e)}`);
-        }
-      }
-
+      const updateURL = await this._getManualUpdateURL(release);
       this._showUpdateNotification({
         releaseName: release.updateTo.name,
         updateURL,
@@ -264,6 +228,40 @@ export class F2aAutoUpdater {
     } else {
       this._logger.info('no updates available');
     }
+  }
+
+  /**
+   * Get the update URL for manual updates. On Linux we have different packages for different distros,
+   * so we need to check the distro and return the correct URL.
+   * On other platforms we can just return the URL from the feed JSON.
+   */
+  private async _getManualUpdateURL(release: ReleaseJson['releases'][number]) {
+    let updateURL = release.updateTo.url;
+    if (process.platform === 'linux') {
+      const osReleaseFile = '/etc/os-release';
+      if (fs.existsSync(osReleaseFile)) {
+        const osReleaseContent = fs.readFileSync(osReleaseFile, 'utf-8');
+        const osReleaseInfo = dotenv.parse(osReleaseContent);
+
+        const distro = osReleaseInfo.ID?.toLowerCase() ?? throwError('Distro ID not found in os-release file');
+        let packageType: LinuxPackageType;
+        if (LINUX_PACKAGE_DISTRO_MAP.deb.includes(distro)) {
+          packageType = 'deb';
+        } else if (LINUX_PACKAGE_DISTRO_MAP.rpm.includes(distro)) {
+          packageType = 'rpm';
+        } else {
+          packageType = 'flatpak';
+        }
+
+        const urlParts = release.updateTo.url.split('/');
+        const fileName = urlParts[urlParts.length - 1];
+        const newFileName = fileName.replace(/(deb|rpm|flatpak)/, packageType);
+        urlParts[urlParts.length - 1] = newFileName;
+        updateURL = urlParts.join('/');
+      }
+    }
+
+    return updateURL;
   }
 
   /**
@@ -278,3 +276,10 @@ export class F2aAutoUpdater {
     return message;
   }
 }
+
+type LinuxPackageType = 'deb' | 'rpm' | 'flatpak';
+const LINUX_PACKAGE_DISTRO_MAP: Record<LinuxPackageType, string[]> = {
+  deb: ['debian', 'ubuntu', 'linuxmint', 'pop'],
+  rpm: ['fedora', 'rhel', 'centos', 'rocky', 'almalinux', 'opensuse', 'suse'],
+  flatpak: ['*'],
+};
