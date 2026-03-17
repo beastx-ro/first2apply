@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
       .eq('user_id', user.id);
     if (listLinksErr) throw new Error(listLinksErr.message);
     const userLinkCount = existingLinks?.length ?? 0;
-    const HARD_MAX_LINKS_PER_USER = 50;
+    const HARD_MAX_LINKS_PER_USER = 100;
 
     if (userLinkCount >= HARD_MAX_LINKS_PER_USER) {
       throw new Error(
