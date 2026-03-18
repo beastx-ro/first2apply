@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react"
-import type { Link } from "@first2apply/core"
+import type { Link, WebPageRuntimeData } from "@first2apply/core"
 
 import { useError } from "./useError"
 import { useSdk } from "./useSdk"
@@ -14,6 +14,7 @@ type LinksContextType = {
   createLink: (
     newLink: Pick<Link, "title" | "url"> & {
       html: string
+      webPageRuntimeData: WebPageRuntimeData
     }
   ) => Promise<Link>
   updateLink: (
@@ -84,6 +85,7 @@ export const LinksProvider = ({
   const onCreateLink = async (
     newLink: Pick<Link, "title" | "url"> & {
       html: string
+      webPageRuntimeData: WebPageRuntimeData
     }
   ) => {
     const createdLink = await sdk.createLink(newLink)

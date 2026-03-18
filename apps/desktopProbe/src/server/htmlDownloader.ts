@@ -1,3 +1,4 @@
+import { WebPageRuntimeData } from '@first2apply/core';
 import { BrowserWindow } from 'electron';
 import { backOff } from 'exponential-backoff';
 
@@ -56,7 +57,12 @@ export class HtmlDownloader {
   }: {
     url: string;
     scrollTimes?: number;
-    callback: (_: { html: string; maxRetries: number; retryCount: number }) => Promise<T>;
+    callback: (_: {
+      html: string;
+      webPageRuntimeData: WebPageRuntimeData;
+      maxRetries: number;
+      retryCount: number;
+    }) => Promise<T>;
   }): Promise<T> {
     if (!this._pool) throw new Error('Pool not initialized');
 
@@ -68,7 +74,14 @@ export class HtmlDownloader {
       return backOff(
         async () => {
           const html: string = await window.webContents.executeJavaScript('document.documentElement.innerHTML');
-          return callback({ html, maxRetries, retryCount: retryCount++ });
+
+          // also grab runtime data from the page
+          const linkedInComoRehydration = await window.webContents.executeJavaScript('window.__como_rehydration__');
+          const webPageRuntimeData: WebPageRuntimeData = {
+            linkedInComoRehydration,
+          };
+
+          return callback({ html, webPageRuntimeData, maxRetries, retryCount: retryCount++ });
         },
         {
           jitter: 'full',

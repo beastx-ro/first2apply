@@ -131,11 +131,11 @@ export class JobScanner {
             .loadUrl({
               url: link.url,
               scrollTimes: 5,
-              callback: async ({ html, maxRetries, retryCount }) => {
+              callback: async ({ html, webPageRuntimeData, maxRetries, retryCount }) => {
                 if (!this._isRunning) return []; // stop if the scanner is closed
 
                 const { newJobs, parseFailed } = await this._supabaseApi.scanHtmls([
-                  { linkId: link.id, content: html, maxRetries, retryCount },
+                  { linkId: link.id, content: html, webPageRuntimeData, maxRetries, retryCount },
                 ]);
 
                 if (parseFailed) {

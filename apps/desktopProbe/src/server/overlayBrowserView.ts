@@ -1,4 +1,5 @@
 import { OverlayBrowserViewResult } from '@/lib/types';
+import { WebPageRuntimeData } from '@first2apply/core';
 import { BrowserWindow, WebContentsView } from 'electron';
 
 /**
@@ -142,12 +143,19 @@ export class OverlayBrowserView {
     const title = await this._searchView.webContents.executeJavaScript('document.title');
     const url = this._searchView.webContents.getURL();
 
+    // also grab runtime data from the page
+    const linkedInComoRehydration = await this._searchView.webContents.executeJavaScript('window.__como_rehydration__');
+    const webPageRuntimeData: WebPageRuntimeData = {
+      linkedInComoRehydration,
+    };
+
     this.close();
 
     return {
       url,
       title,
       html,
+      webPageRuntimeData,
     };
   }
 

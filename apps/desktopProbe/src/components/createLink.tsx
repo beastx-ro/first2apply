@@ -99,6 +99,7 @@ export function CreateLink() {
       url: jobBoardModalResponse.url,
       title, // use the title provided by the user
       html: jobBoardModalResponse.html,
+      webPageRuntimeData: jobBoardModalResponse.webPageRuntimeData,
     });
     toast({
       title: 'Link created',

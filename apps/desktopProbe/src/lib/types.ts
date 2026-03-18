@@ -1,3 +1,5 @@
+import { WebPageRuntimeData } from '@first2apply/core';
+
 export const AVAILABLE_CRON_RULES = [
   {
     name: 'Every 30 minutes',

@@ -12,6 +12,7 @@ import {
   Profile,
   Review,
   StripeConfig,
+  WebPageRuntimeData,
 } from '@first2apply/core';
 import { User } from '@supabase/supabase-js';
 
@@ -89,11 +90,22 @@ export async function getUser(): Promise<User | null> {
 /**
  * Function used to create a new link.
  */
-export async function createLink({ title, url, html }: { title: string; url: string; html: string }): Promise<Link> {
+export async function createLink({
+  title,
+  url,
+  html,
+  webPageRuntimeData,
+}: {
+  title: string;
+  url: string;
+  html: string;
+  webPageRuntimeData: WebPageRuntimeData;
+}): Promise<Link> {
   const { link } = await _mainProcessApiCall<{ link: Link }>('create-link', {
     title,
     url,
     html,
+    webPageRuntimeData,
   });
   return link;
 }

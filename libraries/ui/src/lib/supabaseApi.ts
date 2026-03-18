@@ -5,6 +5,7 @@ import {
   JobLabel,
   JobStatus,
   Link,
+  WebPageRuntimeData,
 } from "@first2apply/core"
 import {
   FunctionsHttpError,
@@ -104,10 +105,12 @@ export class F2aSupabaseApi {
     title,
     url,
     html,
+    webPageRuntimeData,
   }: {
     title: string
     url: string
     html: string
+    webPageRuntimeData: WebPageRuntimeData
   }) {
     // for debugging, use a test.html file
     // const htmlFixture = fs.readFileSync(path.join(__dirname, '../../../test.html'), 'utf-8');
@@ -121,6 +124,7 @@ export class F2aSupabaseApi {
             title,
             url,
             html,
+            webPageRuntimeData,
           },
         }
       )
@@ -178,6 +182,7 @@ export class F2aSupabaseApi {
     htmls: {
       linkId: number
       content: string
+      webPageRuntimeData: WebPageRuntimeData
       maxRetries: number
       retryCount: number
     }[]
