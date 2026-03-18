@@ -6,6 +6,7 @@
   "typings": "build/index.d.ts",
   "scripts": {
     "dev": "tsc -p tsconfig.json -w",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "build": "tsc -p tsconfig.json",
     "test#": "jest --config ./jest.config.ts --verbose",
     "lint": "eslint src/",

@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "",
   "scripts": {
+    "typecheck": "cd supabase/functions && deno check **/*.ts",
     "build": "cd supabase/functions && deno check **/*.ts",
     "stop": "npx supabase stop",
     "start": "npx supabase start",

@@ -5,6 +5,7 @@
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "build": "tsc",
     "dev": "tsc --watch",
     "lint": "eslint src/",

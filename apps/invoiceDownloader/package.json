@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\"",
     "lint": "eslint src/",
     "watch": "nodemon --exec \"node --require ts-node/register --inspect=0.0.0.0:9229 src/main.ts\"",

@@ -8,6 +8,7 @@
     "start": "electron-forge start",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
+    "typecheck": "tsc --noEmit",
     "build": "tsc --noEmit",
     "prettier": "prettier --check \"src/**/*.{ts,tsx}\"",
     "package": "electron-forge package",
