@@ -2,7 +2,7 @@
   "name": "@beastx/first2apply",
   "version": "2.4.0",
   "description": "",
-  "packageManager": "pnpm@10.25.0",
+  "packageManager": "pnpm@10.32.1",
   "scripts": {
     "up": "docker compose up -d",
     "debug:edge": "npx supabase functions serve --inspect-mode run",
@@ -94,7 +94,7 @@
     "release-it": "^17.11.0",
     "slackify-markdown": "^4.5.0",
     "style-loader": "^3.3.4",
-    "supabase": "^2.76.8",
+    "supabase": "^2.78.1",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.6",
     "ts-loader": "^9.5.4",

@@ -325,8 +325,8 @@ importers:
         specifier: ^3.3.4
         version: 3.3.4(webpack@5.102.1)
       supabase:
-        specifier: ^2.76.8
-        version: 2.76.8
+        specifier: ^2.78.1
+        version: 2.81.2
       supertest:
         specifier: ^7.2.2
         version: 7.2.2
@@ -10600,8 +10600,8 @@ packages:
     resolution: {integrity: sha512-MvjXzkz/BOfyVDkG0oFOtBxHX2u3gKbMHIF/dXblZsgD3BWOFLmHovIpZY7BykJdAjcqRCBi1WYBNdEC9yI7vg==}
     engines: {node: '>= 8.0'}
 
-  supabase@2.76.8:
-    resolution: {integrity: sha512-Mhu3KNioxSjymdaHu6hQ/qZKzu/v1AzIEnYOOZ9+ATtSfrQNjqiMg9sivKx1vToKqcDBm3BXjmg8OX65sZW2Pw==}
+  supabase@2.81.2:
+    resolution: {integrity: sha512-5hVmXR0UtTEagLXlmVMsBk3JfnCAddYzyNirq9TNUkHbjL5xAGuzSKgvOd/3CHrOzoBx6WK6/jMya37ipFp47g==}
     engines: {npm: '>=8'}
     hasBin: true
 
@@ -10689,6 +10689,10 @@ packages:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
     deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+
+  tar@7.5.11:
+    resolution: {integrity: sha512-ChjMH33/KetonMTAtpYdgUFr0tbz69Fp2v7zWxQfYZX4g5ZN2nOBXm1R2xyA+lMIKrLKIoKAwFj93jE/avX9cQ==}
+    engines: {node: '>=18'}
 
   tar@7.5.7:
     resolution: {integrity: sha512-fov56fJiRuThVFXD6o6/Q354S7pnWMJIVlDBYijsTNx6jKSE4pvrDTs6lUnmGvNyfJwFQQwWy3owKz1ucIhveQ==}
@@ -24404,12 +24408,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  supabase@2.76.8:
+  supabase@2.81.2:
     dependencies:
       bin-links: 6.0.0
       https-proxy-agent: 7.0.6
       node-fetch: 3.3.2
-      tar: 7.5.7
+      tar: 7.5.11
     transitivePeerDependencies:
       - supports-color
 
@@ -24577,6 +24581,14 @@ snapshots:
       minizlib: 2.1.2
       mkdirp: 1.0.4
       yallist: 4.0.0
+
+  tar@7.5.11:
+    dependencies:
+      '@isaacs/fs-minipass': 4.0.1
+      chownr: 3.0.0
+      minipass: 7.1.2
+      minizlib: 3.1.0
+      yallist: 5.0.0
 
   tar@7.5.7:
     dependencies:
