@@ -1,4 +1,4 @@
-import { JobSite } from '@first2apply/core';
+import { JobSite, WebPageRuntimeData } from '@first2apply/core';
 import { throwError } from '@first2apply/core';
 import { DbSchema, JobType, Link, SiteProvider, User } from '@first2apply/core';
 import { SupabaseClient } from '@supabase/supabasefork';
@@ -136,11 +136,13 @@ export async function parseJobsListUrl({
   allJobSites,
   link,
   html,
+  webPageRuntimeData,
   context,
 }: {
   allJobSites: JobSite[];
   link: Link;
   html: string;
+  webPageRuntimeData?: WebPageRuntimeData;
   // dependencies
   context: EdgeFunctionAuthorizedContext;
 }) {
@@ -160,9 +162,11 @@ export async function parseJobsListUrl({
     return { jobs: [], site, parseFailed: false };
   }
 
+  context.logger.addMeta('provider', site.provider);
   const { jobs, listFound, elementsCount, llmApiCallCost } = await parseSiteJobsList({
     site,
     html,
+    webPageRuntimeData,
     url,
     ...context,
   });
@@ -179,11 +183,13 @@ async function parseSiteJobsList({
   site,
   html,
   url,
+  webPageRuntimeData,
   ...context
 }: {
   site: JobSite;
   html: string;
   url: string;
+  webPageRuntimeData?: WebPageRuntimeData;
 
   logger: ILogger;
   supabaseAdminClient: SupabaseClient<DbSchema, 'public'>;
@@ -191,7 +197,7 @@ async function parseSiteJobsList({
 }): Promise<JobSiteParseResult> {
   switch (site.provider) {
     case SiteProvider.linkedin:
-      return parseLinkedInJobs({ siteId: site.id, html, ...context });
+      return parseLinkedInJobs({ siteId: site.id, html, webPageRuntimeData, ...context });
     case SiteProvider.glassdoor:
       return parseGlassDoorJobs({ siteId: site.id, html });
     case SiteProvider.indeed:

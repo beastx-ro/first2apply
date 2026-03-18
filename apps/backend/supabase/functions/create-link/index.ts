@@ -1,4 +1,4 @@
-import { DbSchema, Job, Link } from '@first2apply/core';
+import { DbSchema, Job, Link, WebPageRuntimeData } from '@first2apply/core';
 import { getExceptionMessage } from '@first2apply/core';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.48.1';
 
@@ -25,10 +25,11 @@ Deno.serve(async (req) => {
     });
     const { user, supabaseClient } = context;
 
-    const { title, url, html } = (await req.json()) as {
+    const { title, url, html, webPageRuntimeData } = (await req.json()) as {
       title: string;
       url: string;
       html?: string;
+      webPageRuntimeData?: WebPageRuntimeData;
     };
     logger.info(`Creating link: ${title} - ${url}`);
 
@@ -106,6 +107,7 @@ Deno.serve(async (req) => {
         allJobSites,
         link,
         html,
+        webPageRuntimeData,
         context,
       });
 

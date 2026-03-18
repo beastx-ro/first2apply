@@ -56,4 +56,5 @@ export type OverlayBrowserViewResult = {
   url: string;
   title: string;
   html: string;
+  webPageRuntimeData: WebPageRuntimeData;
 };

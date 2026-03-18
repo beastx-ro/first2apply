@@ -1,3 +1,4 @@
+import { WebPageRuntimeData } from '@first2apply/core';
 import { DOMParser, Element, NodeType } from 'deno-dom-wasm';
 
 import { ILogger } from '../logger.ts';
@@ -9,10 +10,12 @@ import { JobSiteParseResult, ParsedJob } from '../parsers/parserTypes.ts';
 export function parseLinkedInJobs({
   siteId,
   html,
+  webPageRuntimeData,
   logger,
 }: {
   siteId: number;
   html: string;
+  webPageRuntimeData?: WebPageRuntimeData;
   logger: ILogger;
 }): JobSiteParseResult {
   const document = new DOMParser().parseFromString(html, 'text/html');
@@ -36,6 +39,8 @@ export function parseLinkedInJobs({
   let jobsList = document.querySelector('.jobs-search__results-list');
   let jobElements: Element[] = jobsList ? (Array.from(jobsList.querySelectorAll('li')) as Element[]) : [];
   let listFound = jobsList !== null && jobElements.length > 0;
+
+  logger.info(`webPageRuntimeData data provided: ${webPageRuntimeData ? 'yes' : 'no'}`);
 
   if (!listFound) {
     // check if the user is logged into LinkedIn because then it has a totally different layout
@@ -82,6 +87,61 @@ export function parseLinkedInJobs({
       jobElements = Array.from(
         jobsList.querySelectorAll('div[componentkey^="job-card-component-ref"] > div[componentkey]'),
       ) as Element[];
+      listFound = jobElements.length > 0;
+    }
+  }
+  // Pre-built map of componentKey UUID -> job ID, populated from RSC hydration data for V6
+  const jobIdMap = new Map<string, string>();
+  if (!listFound) {
+    // v3 of the new AI search results layout (UUID componentkeys instead of job-card-component-ref)
+    jobsList = document.querySelector('div[componentkey="SearchResultsMainContent"]') ?? null;
+
+    if (jobsList) {
+      const rehydrateScript = document.querySelector('script#rehydrate-data');
+      let rehydrationStrings: string[] = [];
+      if (webPageRuntimeData?.linkedInComoRehydration) {
+        // If the rehydration data is provided directly in the webPageRuntimeData (from the HTML downloader), use it
+        logger.info('Using rehydration data from webPageRuntimeData');
+        rehydrationStrings = webPageRuntimeData.linkedInComoRehydration as string[];
+      } else if (rehydrateScript) {
+        logger.info('Parsing rehydration data from DOM');
+        const scriptContent = rehydrateScript.textContent ?? '';
+        // Extract and evaluate the JavaScript array (contains single-quoted strings, not valid JSON)
+        const arrayStart = scriptContent.indexOf('[');
+        const arrayEnd = scriptContent.lastIndexOf(']');
+
+        if (arrayStart !== -1 && arrayEnd !== -1) {
+          try {
+            // Use Function constructor to evaluate the JavaScript array literal safely
+            const arrayLiteral = scriptContent.substring(arrayStart, arrayEnd + 1);
+            const evalFunc = new Function(`return ${arrayLiteral};`);
+            rehydrationStrings = evalFunc();
+          } catch {
+            logger.error('Failed to parse __como_rehydration__ data');
+          }
+        }
+      }
+
+      for (const chunk of rehydrationStrings) {
+        // Each chunk contains multiple RSC rows separated by \n
+        // A job card row has both componentKey UUID and JobCardFrameworkImplDismissedState_ID
+        const rows = chunk.split('\n');
+        for (const row of rows) {
+          const keyMatch = row.match(/"componentKey":"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"/);
+          const idMatch = row.match(/JobCardFrameworkImplDismissedState_(\d+)/);
+          if (keyMatch && idMatch) {
+            jobIdMap.set(keyMatch[1], idMatch[1]);
+          }
+        }
+      }
+
+      parserVersion = 6;
+      jobElements = Array.from(
+        jobsList.querySelectorAll('div[role="button"][componentkey] > div[componentkey]'),
+      ).filter((el) => {
+        const uuid = (el as Element).getAttribute('componentkey');
+        return uuid && jobIdMap.has(uuid);
+      }) as Element[];
       listFound = jobElements.length > 0;
     }
   }
@@ -462,6 +522,90 @@ export function parseLinkedInJobs({
       tags,
     };
   };
+  const parseElementV6 = (el: Element): ParsedJob | null => {
+    const uuid = el.getAttribute('componentkey')?.trim();
+    if (!uuid) {
+      logger.error('No componentkey found');
+      return null;
+    }
+
+    const externalId = jobIdMap.get(uuid);
+    if (!externalId) {
+      logger.error('No job ID found in hydration data for component', { uuid });
+      return null;
+    }
+    const externalUrl = `https://www.linkedin.com/jobs/view/${externalId}`;
+
+    // Same DOM structure as V5
+    const mainInfoEl = el.querySelector(
+      ':scope > div > div > div:first-child > div:first-child > div:first-child',
+    ) as Element;
+    if (!mainInfoEl) {
+      logger.error('No mainInfoEl found');
+      return null;
+    }
+
+    const titleEl = mainInfoEl.querySelector(':scope > p:first-child');
+    if (!titleEl) {
+      logger.error('No titleEl found');
+      return null;
+    }
+    const rawTitle =
+      titleEl.childElementCount > 1
+        ? (titleEl.querySelector(':scope > span:not([aria-hidden])')?.textContent?.trim() ?? null)
+        : (titleEl.textContent?.trim() ?? null);
+    const title = rawTitle?.replace('(Verified job)', '').trim() ?? null;
+
+    const companyName = mainInfoEl.querySelector(':scope > div:nth-child(2) > p')?.textContent?.trim();
+    const locationAndType = mainInfoEl.querySelector(':scope > p:nth-child(3)')?.textContent?.trim();
+
+    if (!title || !companyName) {
+      logger.error('Missing title or companyName', { title, companyName });
+      return null;
+    }
+
+    const location = locationAndType
+      ?.replace(/\(remote\)/i, '')
+      .replace(/\(on-site\)/i, '')
+      .replace(/\(hybrid\)/i, '')
+      .trim();
+
+    const jobType = locationAndType?.toLowerCase().includes('remote')
+      ? 'remote'
+      : locationAndType?.toLowerCase().includes('hybrid')
+        ? 'hybrid'
+        : 'onsite';
+
+    const companyLogo =
+      el.querySelector(':scope > div:first-child figure:first-child img')?.getAttribute('src') || undefined;
+
+    const metadataEl = el.querySelector(':scope > div > div > div:nth-child(2)');
+    const tagEls = Array.from(metadataEl?.querySelectorAll(':scope > div p') ?? []) as Element[];
+    const tags = tagEls
+      .map((tagEl) => {
+        if (tagEl.childElementCount > 1) {
+          const visibleSpan = (Array.from(tagEl.querySelectorAll('span')) as Element[]).find(
+            (span) => span.getAttribute('aria-hidden') !== 'true',
+          );
+          return visibleSpan?.textContent?.trim() || tagEl.textContent?.trim() || '';
+        }
+        return tagEl.textContent?.trim() ?? '';
+      })
+      .filter((text) => text.length > 1);
+
+    return {
+      siteId,
+      externalId,
+      externalUrl,
+      title,
+      companyName,
+      companyLogo,
+      location,
+      jobType,
+      labels: [],
+      tags,
+    };
+  };
 
   let jobs: Array<ParsedJob | null> = [];
   if (parserVersion === 1) {
@@ -474,6 +618,8 @@ export function parseLinkedInJobs({
     jobs = jobElements.map((el): ParsedJob | null => parseElementV4(el));
   } else if (parserVersion === 5) {
     jobs = jobElements.map((el): ParsedJob | null => parseElementV5(el));
+  } else if (parserVersion === 6) {
+    jobs = jobElements.map((el): ParsedJob | null => parseElementV6(el));
   }
 
   const validJobs = jobs
