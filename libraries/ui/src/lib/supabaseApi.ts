@@ -106,11 +106,13 @@ export class F2aSupabaseApi {
     url,
     html,
     webPageRuntimeData,
+    force,
   }: {
     title: string
     url: string
     html: string
     webPageRuntimeData: WebPageRuntimeData
+    force: boolean
   }) {
     // for debugging, use a test.html file
     // const htmlFixture = fs.readFileSync(path.join(__dirname, '../../../test.html'), 'utf-8');
@@ -125,6 +127,7 @@ export class F2aSupabaseApi {
             url,
             html,
             webPageRuntimeData,
+            force,
           },
         }
       )

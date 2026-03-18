@@ -77,13 +77,14 @@ export function initRendererIpcApi({
 
   ipcMain.handle('get-user', async () => _apiCall(() => supabaseApi.getUser()));
 
-  ipcMain.handle('create-link', async (_, { title, url, html, webPageRuntimeData }) =>
+  ipcMain.handle('create-link', async (_, { title, url, html, webPageRuntimeData, force }) =>
     _apiCall(async () => {
       const { link, newJobs } = await supabaseApi.createLink({
         title,
         url,
         html,
         webPageRuntimeData,
+        force,
       });
 
       // intentionally not awaited to not have the user wait until JDs are in

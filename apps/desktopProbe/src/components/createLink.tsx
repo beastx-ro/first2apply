@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 
 import { useError } from '@/hooks/error';
 import { OverlayBrowserViewResult } from '@/lib/types';
-import { JobSite, Link } from '@first2apply/core';
+import { JobSite, Link, getExceptionMessage } from '@first2apply/core';
 import { useForm } from '@first2apply/ui';
 import { useSites } from '@first2apply/ui';
 import { useLinks } from '@first2apply/ui';
@@ -89,7 +89,7 @@ export function CreateLink() {
     }
   };
 
-  const onSaveSearch = async ({ title }: { title: string }) => {
+  const onSaveSearch = async ({ title, force }: { title: string; force: boolean }) => {
     if (!jobBoardModalResponse) {
       handleError({ error: new Error('No job search data'), title: 'Error saving job search' });
       return;
@@ -100,6 +100,7 @@ export function CreateLink() {
       title, // use the title provided by the user
       html: jobBoardModalResponse.html,
       webPageRuntimeData: jobBoardModalResponse.webPageRuntimeData,
+      force,
     });
     toast({
       title: 'Link created',
@@ -194,7 +195,7 @@ const JobSearchSubmitDialog = ({
   title: string;
   url: string;
   isOpen: boolean;
-  onSaveJobSearch: (data: { title: string }) => Promise<Link>;
+  onSaveJobSearch: (data: { title: string; force: boolean }) => Promise<Link>;
   onCancel: () => void;
 }) => {
   if (!isOpen) {
@@ -202,7 +203,7 @@ const JobSearchSubmitDialog = ({
   }
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { handleError } = useError();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { toast } = useToast();
 
   const formSchema = z.object({
@@ -221,13 +222,13 @@ const JobSearchSubmitDialog = ({
   const onSubmit = async (data: { title: string }) => {
     setIsSubmitting(true);
     try {
-      await onSaveJobSearch(data);
+      await onSaveJobSearch({ title: data.title, force: !!errorMessage });
       toast({
         title: 'Job search created',
         description: `Job search ${data.title} created successfully`,
       });
     } catch (error) {
-      handleError({ error, title: 'Error creating job search' });
+      setErrorMessage(getExceptionMessage(error, true));
     } finally {
       setIsSubmitting(false);
     }
@@ -248,6 +249,12 @@ const JobSearchSubmitDialog = ({
           <DialogDescription>
             Give this search a name so you can easily find it later. First 2 Apply will keep monitoring this search and
             let you know when it finds new jobs.
+            {errorMessage && (
+              <Alert variant="destructive" className="mt-4">
+                <AlertTitle>Error saving job search</AlertTitle>
+                <AlertDescription>{errorMessage}</AlertDescription>
+              </Alert>
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -305,8 +312,10 @@ const JobSearchSubmitDialog = ({
                     <Icons.spinner2 className="h-4 w-4 animate-spin" />
                     Scanning site...
                   </>
+                ) : errorMessage ? (
+                  'Save Anyway'
                 ) : (
-                  'Save search'
+                  'Save Search'
                 )}
               </Button>
             </div>

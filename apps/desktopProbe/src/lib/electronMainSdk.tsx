@@ -95,17 +95,20 @@ export async function createLink({
   url,
   html,
   webPageRuntimeData,
+  force,
 }: {
   title: string;
   url: string;
   html: string;
   webPageRuntimeData: WebPageRuntimeData;
+  force: boolean;
 }): Promise<Link> {
   const { link } = await _mainProcessApiCall<{ link: Link }>('create-link', {
     title,
     url,
     html,
     webPageRuntimeData,
+    force,
   });
   return link;
 }

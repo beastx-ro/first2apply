@@ -25,11 +25,12 @@ Deno.serve(async (req) => {
     });
     const { user, supabaseClient } = context;
 
-    const { title, url, html, webPageRuntimeData } = (await req.json()) as {
+    const { title, url, html, webPageRuntimeData, force } = (await req.json()) as {
       title: string;
       url: string;
       html?: string;
       webPageRuntimeData?: WebPageRuntimeData;
+      force?: boolean;
     };
     logger.info(`Creating link: ${title} - ${url}`);
 
@@ -111,7 +112,7 @@ Deno.serve(async (req) => {
         context,
       });
 
-      if (parseFailed) {
+      if (parseFailed && !force) {
         // save the html dump for debugging
         const { error: htmlDumpError } = await supabaseClient.from('html_dumps').insert([{ url: link.url, html }]);
         if (htmlDumpError) {

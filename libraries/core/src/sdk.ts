@@ -108,7 +108,13 @@ export interface First2ApplyApiSdk {
   listLinks(): Promise<Link[]>;
 
   /** Create a new link */
-  createLink(_: { title: string; url: string; html: string; webPageRuntimeData: WebPageRuntimeData }): Promise<Link>;
+  createLink(_: {
+    title: string;
+    url: string;
+    html: string;
+    webPageRuntimeData: WebPageRuntimeData;
+    force: boolean;
+  }): Promise<Link>;
 
   /** Update an existing link */
   updateLink(_: { linkId: number; title: string; url: string }): Promise<Link>;

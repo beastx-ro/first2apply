@@ -15,6 +15,7 @@ type LinksContextType = {
     newLink: Pick<Link, "title" | "url"> & {
       html: string
       webPageRuntimeData: WebPageRuntimeData
+      force: boolean
     }
   ) => Promise<Link>
   updateLink: (
@@ -86,6 +87,7 @@ export const LinksProvider = ({
     newLink: Pick<Link, "title" | "url"> & {
       html: string
       webPageRuntimeData: WebPageRuntimeData
+      force: boolean
     }
   ) => {
     const createdLink = await sdk.createLink(newLink)
