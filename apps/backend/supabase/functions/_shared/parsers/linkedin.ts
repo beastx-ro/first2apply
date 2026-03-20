@@ -99,11 +99,7 @@ export function parseLinkedInJobs({
     if (jobsList) {
       const rehydrateScript = document.querySelector('script#rehydrate-data');
       let rehydrationStrings: string[] = [];
-      if (webPageRuntimeData?.linkedInComoRehydration) {
-        // If the rehydration data is provided directly in the webPageRuntimeData (from the HTML downloader), use it
-        logger.info('Using rehydration data from webPageRuntimeData');
-        rehydrationStrings = webPageRuntimeData.linkedInComoRehydration as string[];
-      } else if (rehydrateScript) {
+      if (rehydrateScript) {
         logger.info('Parsing rehydration data from DOM');
         const scriptContent = rehydrateScript.textContent ?? '';
         // Extract and evaluate the JavaScript array (contains single-quoted strings, not valid JSON)
@@ -120,6 +116,10 @@ export function parseLinkedInJobs({
             logger.error('Failed to parse __como_rehydration__ data');
           }
         }
+      } else if (webPageRuntimeData?.linkedInComoRehydration) {
+        // If the rehydration data is provided directly in the webPageRuntimeData (from the HTML downloader), use it
+        logger.info('Using rehydration data from webPageRuntimeData');
+        rehydrationStrings = webPageRuntimeData.linkedInComoRehydration as string[];
       }
 
       for (const chunk of rehydrationStrings) {
