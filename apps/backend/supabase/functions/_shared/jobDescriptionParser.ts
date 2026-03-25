@@ -17,12 +17,14 @@ const SITE_PROVIDER_QUERY_SELECTORS: Record<SiteProvider, SiteProviderQuerySelec
       '.jobs-box__html-content > .job-details-module__content',
       '.jobs-description__container .jobs-box__html-content',
       '.job-details-module.artdeco-card',
+      'div[data-sdui-component="com.linkedin.sdui.generated.jobseeker.dsl.impl.aboutTheJob"]',
     ],
   },
   [SiteProvider.glassdoor]: {
     description: [
       '[data-brandviews*="jobview-description"]',
-      '.JobDetails_JobDescriptionUpdates__uW_fK', // fallback
+      '.JobDetails_JobDescriptionUpdates__uW_fK',
+      '.JobDetails_jobDescription__uW_fK',
     ],
   },
   [SiteProvider.indeed]: {
