@@ -50,7 +50,7 @@ const SITE_PROVIDER_QUERY_SELECTORS: Record<SiteProvider, SiteProviderQuerySelec
     description: ['section div.tw-mt-8 > div.left > div'],
   },
   [SiteProvider.remoteio]: {
-    description: ['#job-description'],
+    description: ['#job-description', '[data-testid="text-job-description"]'],
   },
   [SiteProvider.builtin]: {
     description: ['.job-post-item .container.py-lg .row > .col-12 > .position-relative'],

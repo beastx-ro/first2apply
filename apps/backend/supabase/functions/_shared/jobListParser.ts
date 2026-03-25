@@ -12,6 +12,7 @@ import { ILogger } from './logger.ts';
 import { parseDiceJobs } from './parsers/dice.ts';
 import { parseLinkedInJobs } from './parsers/linkedin.ts';
 import { JobSiteParseResult, ParsedJob } from './parsers/parserTypes.ts';
+import { parseRemoteioJobs } from './parsers/remoteio.ts';
 import { checkUserSubscription } from './subscription.ts';
 
 const turndownService = new turndown({
@@ -893,84 +894,6 @@ export function parseRemotiveJobs({ siteId, html }: { siteId: number; html: stri
       location,
       labels: [],
       tags: [],
-    };
-  });
-
-  const validJobs = jobs.filter((job): job is ParsedJob => !!job);
-  return {
-    jobs: validJobs,
-    listFound: true,
-    elementsCount: jobElements.length,
-  };
-}
-
-/**
- * Method used to parse a remoteio job page.
- */
-export function parseRemoteioJobs({ siteId, html }: { siteId: number; html: string }): JobSiteParseResult {
-  const document = new DOMParser().parseFromString(html, 'text/html');
-  if (!document) throw new Error('Could not parse html');
-
-  // check if the list is empty first
-  const noResultsNode = document.querySelector('.shadow-singlePost');
-  if (noResultsNode && noResultsNode.textContent.trim().toLowerCase().startsWith('no results found')) {
-    return {
-      jobs: [],
-      listFound: true,
-      elementsCount: 0,
-    };
-  }
-
-  const jobsList = document.querySelector('main');
-  if (!jobsList)
-    return {
-      jobs: [],
-      listFound: false,
-      elementsCount: 0,
-    };
-
-  const jobElements = Array.from(jobsList.querySelectorAll('.shadow-singlePost')) as Element[];
-
-  const jobs = jobElements.map((el): ParsedJob | null => {
-    const jobInfo = el.querySelector('div:nth-child(2) > a');
-    if (!jobInfo) return null;
-
-    const externalUrl = `https://www.remote.io${jobInfo.getAttribute('href')}`?.trim();
-    if (!externalUrl) return null;
-
-    const externalId = externalUrl.split('?')[0].split('/').pop();
-    if (!externalId) return null;
-
-    const title = jobInfo.textContent?.trim();
-    if (!title) return null;
-
-    const company = el.querySelector('div:first-child img');
-    if (company === null) return null;
-
-    const companyName = company.getAttribute('alt')?.trim();
-    if (!companyName) return null;
-
-    const companyLogo = company.getAttribute('src')?.trim();
-
-    const location = el.querySelector('div:nth-child(2) > div')?.textContent?.trim();
-
-    let tags: string[] = [];
-    const tagsList = Array.from(el.querySelectorAll('div:nth-child(4) > span')) as Element[];
-    if (tagsList.length > 0) {
-      tags = tagsList.map((tag) => tag.querySelector('a')?.textContent.trim()).filter((t): t is string => !!t);
-    }
-
-    return {
-      siteId,
-      externalId,
-      externalUrl,
-      title,
-      companyName,
-      companyLogo,
-      jobType: 'remote',
-      location,
-      tags,
-      labels: [],
     };
   });
 
