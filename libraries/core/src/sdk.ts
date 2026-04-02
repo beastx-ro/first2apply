@@ -1,6 +1,5 @@
 import type { User } from '@supabase/supabase-js';
 
-import { WebPageRuntimeData } from './scraperTypes';
 import type {
   AdvancedMatchingConfig,
   Job,
@@ -12,6 +11,7 @@ import type {
   Profile,
   Review,
   StripeConfig,
+  WebPageRuntimeData,
 } from './types';
 
 /**
