@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
         }
 
         throw new Error(
-          'Hmm, we couldn’t detect any jobs on this page. This usually means you’re viewing a single job instead of a list of jobs. If that’s not the case, the site layout may have changed. You can still save it for now while we fix it, or contact us so we can take a look.',
+          `Hmm, we couldn’t detect any jobs on this ${site.name} page. This usually means you’re viewing a single job instead of a list of jobs. If that’s not the case, the site layout may have changed. You can still save it for now while we fix it, or contact us so we can take a look.`,
         );
       }
 
