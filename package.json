@@ -94,7 +94,7 @@
     "release-it": "^17.11.0",
     "slackify-markdown": "^4.5.0",
     "style-loader": "^3.3.4",
-    "supabase": "^2.78.1",
+    "supabase": "2.84.2",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.6",
     "ts-loader": "^9.5.4",

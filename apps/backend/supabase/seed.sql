@@ -80,6 +80,7 @@ public.html_dumps (
   user_id uuid not null default auth.uid (),
   url text not null,
   html text not null,
+  webpage_runtime_data jsonb null,
   constraint html_dumps_pkey primary key (id)
 ) tablespace pg_default;
 

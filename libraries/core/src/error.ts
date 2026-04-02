@@ -26,3 +26,10 @@ export function getExceptionMessage(error: unknown, noStackTrace = false) {
 export function throwError(message: string): never {
   throw new Error(message);
 }
+
+export class RateLimitError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'RateLimitError';
+  }
+}

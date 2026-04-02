@@ -1,7 +1,8 @@
-import { WebPageRuntimeData } from '@first2apply/core';
-import { BrowserWindow } from 'electron';
+import { RateLimitError, WebPageRuntimeData } from '@first2apply/core';
+import { BrowserWindow, Session } from 'electron';
 import { backOff } from 'exponential-backoff';
 
+import { consumeRuntimeData } from './browserHelpers';
 import { sleep, waitRandomBetween } from './helpers';
 import { ILogger } from './logger';
 import { WorkerQueue } from './workerQueue';
@@ -44,6 +45,14 @@ export class HtmlDownloader {
   }
 
   /**
+   * Get the Electron session used by this downloader's browser windows.
+   */
+  getSession(): Session {
+    if (!this._pool) throw new Error('HtmlDownloader not initialized');
+    return this._pool.getSession();
+  }
+
+  /**
    * Load the HTML of a given URL with concurrency support.
    *
    * Takes in a callback that will be called with the HTML content. Will be retried if it fails
@@ -75,11 +84,8 @@ export class HtmlDownloader {
         async () => {
           const html: string = await window.webContents.executeJavaScript('document.documentElement.innerHTML');
 
-          // also grab runtime data from the page
-          const linkedInComoRehydration = await window.webContents.executeJavaScript('window.__como_rehydration__');
-          const webPageRuntimeData: WebPageRuntimeData = {
-            linkedInComoRehydration,
-          };
+          // Read runtime data captured by the protocol handler (stored in main-process memory)
+          const webPageRuntimeData: WebPageRuntimeData = consumeRuntimeData(url);
 
           return callback({ html, webPageRuntimeData, maxRetries, retryCount: retryCount++ });
         },
@@ -125,7 +131,7 @@ export class HtmlDownloader {
         if (statusCode === 429 || title?.toLowerCase().startsWith('just a moment')) {
           this._logger.debug(`429 status code detected: ${url}`);
           await waitRandomBetween(20_000, 40_000);
-          throw new Error('rate limit exceeded');
+          throw new RateLimitError('rate limit exceeded');
         }
 
         // scroll to bottom a few times to trigger infinite loading
@@ -157,7 +163,11 @@ export class HtmlDownloader {
         jitter: 'full',
         numOfAttempts: 20,
         maxDelay: 5_000,
-        retry: () => {
+        retry: (error) => {
+          if (error instanceof RateLimitError) {
+            return false;
+          }
+
           // perform retries only if the window is still running
           return this._isRunning;
         },
@@ -183,6 +193,8 @@ class BrowserWindowPool {
    * Class constructor.
    */
   constructor(instances: number, incognitoMode: boolean) {
+    const partition = incognitoMode ? `incognito` : `persist:scraper`;
+
     for (let i = 0; i < instances; i++) {
       const window = new BrowserWindow({
         show: false,
@@ -191,7 +203,7 @@ class BrowserWindowPool {
         height: 1200,
         webPreferences: {
           webSecurity: true,
-          partition: incognitoMode ? `incognito` : `persist:scraper`,
+          partition,
         },
       });
 
@@ -213,6 +225,13 @@ class BrowserWindowPool {
     }
 
     this._queue = new WorkerQueue(instances);
+  }
+
+  /**
+   * Get the Electron session used by the pool's browser windows.
+   */
+  getSession(): Session {
+    return this._pool[0].window.webContents.session;
   }
 
   /**

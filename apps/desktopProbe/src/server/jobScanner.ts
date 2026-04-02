@@ -8,6 +8,7 @@ import { ScheduledTask, schedule } from 'node-cron';
 import path from 'path';
 
 import { AVAILABLE_CRON_RULES, JobScannerSettings } from '../lib/types';
+import { installLinkedInDecorator } from './browserHelpers';
 import { chunk, promiseAllSequence, waitRandomBetween } from './helpers';
 import { HtmlDownloader } from './htmlDownloader';
 import { ILogger } from './logger';
@@ -68,6 +69,11 @@ export class JobScanner {
     this._incognitoHtmlDownloader = incognitoHtmlDownloader;
     this._onNavigate = onNavigate;
     this._analytics = analytics;
+
+    // Install LinkedIn protocol interceptor on the normal scraper session.
+    // This must happen after init() so the pool (and its session) exists.
+
+    installLinkedInDecorator(normalHtmlDownloader.getSession());
 
     // used for testing
     // fs.unlinkSync(settingsPath);

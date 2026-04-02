@@ -2,6 +2,8 @@ import { OverlayBrowserViewResult } from '@/lib/types';
 import { WebPageRuntimeData } from '@first2apply/core';
 import { BrowserWindow, WebContentsView } from 'electron';
 
+import { consumeRuntimeData } from './browserHelpers';
+
 /**
  * Class used to render a WebContentsView on top of the main window
  * to be used as a browser window. The UI (back/forward buttons, URL bar, etc)
@@ -32,6 +34,7 @@ export class OverlayBrowserView {
 
     this._searchView = new WebContentsView({
       webPreferences: {
+        // the partition here is shared with the main window, so that cookies and local storage are shared
         partition: 'persist:scraper',
       },
     });
@@ -80,7 +83,7 @@ export class OverlayBrowserView {
    */
   canGoBack(): boolean {
     if (!this._searchView) {
-      throw new Error('Search view is not ready');
+      return false;
     }
 
     return this._searchView.webContents.navigationHistory.canGoBack();
@@ -100,7 +103,7 @@ export class OverlayBrowserView {
    */
   canGoForward(): boolean {
     if (!this._searchView) {
-      throw new Error('Search view is not ready');
+      return false;
     }
 
     return this._searchView.webContents.navigationHistory.canGoForward();
@@ -143,11 +146,8 @@ export class OverlayBrowserView {
     const title = await this._searchView.webContents.executeJavaScript('document.title');
     const url = this._searchView.webContents.getURL();
 
-    // also grab runtime data from the page
-    const linkedInComoRehydration = await this._searchView.webContents.executeJavaScript('window.__como_rehydration__');
-    const webPageRuntimeData: WebPageRuntimeData = {
-      linkedInComoRehydration,
-    };
+    // Read runtime data captured by the protocol handler (stored in main-process memory)
+    const webPageRuntimeData: WebPageRuntimeData = consumeRuntimeData(url);
 
     this.close();
 

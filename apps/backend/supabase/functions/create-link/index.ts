@@ -114,7 +114,13 @@ Deno.serve(async (req) => {
 
       if (parseFailed && !force) {
         // save the html dump for debugging
-        const { error: htmlDumpError } = await supabaseClient.from('html_dumps').insert([{ url: link.url, html }]);
+        const { error: htmlDumpError } = await supabaseClient.from('html_dumps').insert([
+          {
+            url: link.url,
+            html,
+            webpage_runtime_data: webPageRuntimeData,
+          },
+        ]);
         if (htmlDumpError) {
           logger.error(`failed to save html dump for link ${inFlightLink.id}: ${htmlDumpError.message}`);
         }

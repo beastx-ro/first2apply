@@ -97,29 +97,25 @@ export function parseLinkedInJobs({
     jobsList = document.querySelector('div[componentkey="SearchResultsMainContent"]') ?? null;
 
     if (jobsList) {
-      const rehydrateScript = document.querySelector('script#rehydrate-data');
+      // Evaluate a JS string containing `window.__como_rehydration__ = [...]`
+      // into the actual string array. The array uses single-quoted JS strings
+      // so it can't be parsed as JSON — we use `new Function` instead.
+      const evalRehydrationScript = (raw: string): string[] => {
+        const start = raw.indexOf('[');
+        const end = raw.lastIndexOf(']');
+        if (start === -1 || end === -1) return [];
+
+        return new Function(`return ${raw.substring(start, end + 1)};`)();
+      };
+
       let rehydrationStrings: string[] = [];
+      const rehydrateScript = document.querySelector('script#rehydrate-data');
       if (rehydrateScript) {
         logger.info('Parsing rehydration data from DOM');
-        const scriptContent = rehydrateScript.textContent ?? '';
-        // Extract and evaluate the JavaScript array (contains single-quoted strings, not valid JSON)
-        const arrayStart = scriptContent.indexOf('[');
-        const arrayEnd = scriptContent.lastIndexOf(']');
-
-        if (arrayStart !== -1 && arrayEnd !== -1) {
-          try {
-            // Use Function constructor to evaluate the JavaScript array literal safely
-            const arrayLiteral = scriptContent.substring(arrayStart, arrayEnd + 1);
-            const evalFunc = new Function(`return ${arrayLiteral};`);
-            rehydrationStrings = evalFunc();
-          } catch {
-            logger.error('Failed to parse __como_rehydration__ data');
-          }
-        }
-      } else if (webPageRuntimeData?.linkedInComoRehydration) {
-        // If the rehydration data is provided directly in the webPageRuntimeData (from the HTML downloader), use it
+        rehydrationStrings = evalRehydrationScript(rehydrateScript.textContent ?? '');
+      } else if (webPageRuntimeData?.linkedin) {
         logger.info('Using rehydration data from webPageRuntimeData');
-        rehydrationStrings = webPageRuntimeData.linkedInComoRehydration as string[];
+        rehydrationStrings = evalRehydrationScript(webPageRuntimeData.linkedin?.comoRehydration as string);
       }
 
       for (const chunk of rehydrationStrings) {
@@ -142,6 +138,7 @@ export function parseLinkedInJobs({
         const uuid = (el as Element).getAttribute('componentkey');
         return uuid && jobIdMap.has(uuid);
       }) as Element[];
+
       listFound = jobElements.length > 0;
     }
   }

@@ -109,6 +109,7 @@ export type HtmlDump = {
   url: string;
   html: string;
   created_at: Date;
+  webpage_runtime_data?: WebPageRuntimeData;
 };
 export type Note = {
   id: number;
@@ -152,6 +153,14 @@ export type AdvancedMatchingConfig = {
   ai_api_input_tokens_used: number;
   ai_api_output_tokens_used: number;
 };
+
+export type WebPageRuntimeData = Partial<Record<SiteProvider, ProviderRuntimeData>>;
+export type LinkedinRuntimeData = {
+  type: SiteProvider.linkedin;
+  comoRehydration: string;
+};
+
+export type ProviderRuntimeData = LinkedinRuntimeData;
 
 /**
  * Supabase database schema.
@@ -205,7 +214,7 @@ export type DbSchema = {
       };
       html_dumps: {
         Row: HtmlDump;
-        Insert: Pick<HtmlDump, 'url' | 'html'>;
+        Insert: Pick<HtmlDump, 'url' | 'html' | 'webpage_runtime_data'>;
         Update: never;
         Relationships: [];
       };
