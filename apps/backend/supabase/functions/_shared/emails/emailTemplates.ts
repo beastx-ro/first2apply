@@ -24,6 +24,7 @@ export type NewJobAlertEmailTemplate = EmailTemplateBase & {
   payload: {
     new_jobs_count: number;
     new_jobs: Array<{
+      providerName: string;
       title: string;
       url: string;
       description?: string;

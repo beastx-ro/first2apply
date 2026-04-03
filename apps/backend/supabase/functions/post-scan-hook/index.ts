@@ -167,6 +167,15 @@ async function sendNewJobLinksEmail({
     return;
   }
 
+  // load sites
+  const { data: sitesData, error: sitesError } = await supabaseClient.from('sites').select('*');
+  const jobSites: JobSite[] = sitesData ?? [];
+  if (sitesError) {
+    logger.error(`failed to load sites: ${getExceptionMessage(sitesError)}`);
+    return;
+  }
+  const siteMap = new Map(jobSites.map((site) => [site.id, site]));
+
   // send the email
   logger.info(`sending email to ${user.email} for ${newJobs.length} new jobs ...`);
   await mailer.sendEmail({
@@ -178,6 +187,7 @@ async function sendNewJobLinksEmail({
       payload: {
         new_jobs_count: newJobs.length,
         new_jobs: newJobs.map((job) => ({
+          providerName: siteMap.get(job.siteId)?.provider ?? 'unknown',
           title: job.title,
           url: `${new URL(`/jobs/${job.id}`, webappUrl).href}`,
           description: job.description?.slice(0, 200) ?? '',
