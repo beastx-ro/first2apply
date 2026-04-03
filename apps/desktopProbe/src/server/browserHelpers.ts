@@ -1,4 +1,5 @@
 import { SiteProvider, WebPageRuntimeData } from '@first2apply/core';
+import { createHash } from 'crypto';
 import { Session } from 'electron';
 
 /**
@@ -53,7 +54,8 @@ export function installLinkedInDecorator(session: Session): void {
     if (rehydrationScript) {
       // Store captured data in main-process memory so it can be retrieved
       // directly without injecting scripts into the page (which CSP blocks).
-      runtimeDataStore.set(request.url, {
+      const hash = getStoreHashFromUrl(request.url);
+      runtimeDataStore.set(hash, {
         linkedin: { type: SiteProvider.linkedin, comoRehydration: rehydrationScript },
       });
 
@@ -78,7 +80,30 @@ export function installLinkedInDecorator(session: Session): void {
  * for a given URL. Call from the main process — no renderer round-trip needed.
  */
 export function consumeRuntimeData(url: string): WebPageRuntimeData {
-  const data = runtimeDataStore.get(url);
-  if (data) runtimeDataStore.delete(url);
+  const hash = getStoreHashFromUrl(url);
+  const data = runtimeDataStore.get(hash);
+  if (data) runtimeDataStore.delete(hash);
   return data ?? {};
+}
+
+/**
+ * Get a store hash from a url.
+ */
+export function getStoreHashFromUrl(url: string): string {
+  let urlToHash = url;
+  if (url.includes('linkedin.com/jobs/search-results')) {
+    const urlObj = new URL(url);
+
+    // only keep some known query params that affect the page content
+    const relevantParams = ['keywords', 'geoId'];
+    const filteredParams = new URLSearchParams(
+      [...urlObj.searchParams].filter(([key]) => relevantParams.includes(key)),
+    );
+
+    urlObj.search = filteredParams.toString();
+    urlToHash = urlObj.toString();
+  }
+
+  const hash = createHash('sha256').update(urlToHash).digest('hex');
+  return hash;
 }
