@@ -325,8 +325,8 @@ async function createKeezInvoiceFromStripeInvoice({
         //       value: netAmountCurrency,
         //       exchangeRate,
         //       decimals: 4,
-        //     })
-        //   )
+        //     }),
+        //   ),
         // ),
 
         netAmountCurrency: multiplier * fromCents(netAmountCurrency),
@@ -362,7 +362,7 @@ async function createKeezInvoiceFromStripeInvoice({
 
         // VAT
         vatPercent,
-        vatAmountCurrency: multiplier * vatAmountCurrency,
+        vatAmountCurrency: _.round(multiplier * vatAmountCurrency, 2),
         vatAmount:
           multiplier *
           fromCents(
