@@ -452,14 +452,18 @@ export function parseLinkedInJobs({
       return null;
     }
 
-    const titleEl = mainInfoEl.querySelector(':scope > p:first-child');
+    const titleEl =
+      mainInfoEl.querySelector(':scope > p:first-child') ||
+      mainInfoEl.querySelector(':scope > div:first-child > p:first-child');
     if (!titleEl) {
-      logger.error('No titleEl found');
+      // logger.error('No titleEl found');
       return null;
     }
     const rawTitle =
       titleEl.childElementCount > 1
-        ? (titleEl.querySelector(':scope > span:not([aria-hidden])')?.textContent?.trim() ?? null)
+        ? titleEl.querySelector(':scope > span:not([aria-hidden])')?.textContent?.trim() ||
+          titleEl.querySelector(':scope > span[aria-hidden="true"]')?.textContent?.trim() ||
+          null
         : (titleEl.textContent?.trim() ?? null);
     const title = rawTitle?.replace('(Verified job)', '').trim() ?? null;
 
@@ -519,13 +523,13 @@ export function parseLinkedInJobs({
   const parseElementV6 = (el: Element): ParsedJob | null => {
     const uuid = el.getAttribute('componentkey')?.trim();
     if (!uuid) {
-      logger.error('No componentkey found');
+      // logger.error('No componentkey found');
       return null;
     }
 
     const externalId = jobIdMap.get(uuid);
     if (!externalId) {
-      logger.error('No job ID found in hydration data for component', { uuid });
+      // logger.error('No job ID found in hydration data for component', { uuid });
       return null;
     }
     const externalUrl = `https://www.linkedin.com/jobs/view/${externalId}`;
@@ -535,7 +539,7 @@ export function parseLinkedInJobs({
       ':scope > div > div > div:first-child > div:first-child > div:first-child',
     ) as Element;
     if (!mainInfoEl) {
-      logger.error('No mainInfoEl found');
+      // logger.error('No mainInfoEl found');
       return null;
     }
 
@@ -543,7 +547,7 @@ export function parseLinkedInJobs({
       mainInfoEl.querySelector(':scope > p:first-child') ||
       mainInfoEl.querySelector(':scope > div:first-child > p:first-child');
     if (!titleEl) {
-      logger.error('No titleEl found');
+      // logger.error('No titleEl found');
       return null;
     }
     const rawTitle =
@@ -558,7 +562,7 @@ export function parseLinkedInJobs({
     const locationAndType = mainInfoEl.querySelector(':scope > p:nth-child(3)')?.textContent?.trim();
 
     if (!title || !companyName) {
-      logger.error('Missing title or companyName', { title, companyName });
+      // logger.error('Missing title or companyName', { title, companyName });
       return null;
     }
 
