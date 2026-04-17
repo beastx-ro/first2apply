@@ -125,9 +125,10 @@ Deno.serve(async (req) => {
           logger.error(`failed to save html dump for link ${inFlightLink.id}: ${htmlDumpError.message}`);
         }
 
-        throw new Error(
-          `Hmm, we couldn’t detect any jobs on this ${site.name} page. This usually means you’re viewing a single job instead of a list of jobs. If that’s not the case, the site layout may have changed. You can still save it for now while we fix it, or contact us so we can take a look.`,
-        );
+        const errorMessage = `Hmm, we couldn’t detect any jobs on this ${site.name} page. This usually means you’re viewing a single job instead of a list of jobs. If that’s not the case, the site layout may have changed. You can still save it for now while we fix it, or contact us so we can take a look.`;
+        logger.error(errorMessage);
+        // temp disable this error until we can fix linkedin
+        // throw new Error(errorMessage);
       }
 
       logger.info(`parsed ${jobs.length} jobs from ${link.url}`);
