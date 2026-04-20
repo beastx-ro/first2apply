@@ -27,7 +27,7 @@ export function parseRemoteioJobs({ siteId, html }: { siteId: number; html: stri
       elementsCount: 0,
     };
 
-  const jobElements = Array.from(jobsList.querySelectorAll(':scope > div')) as Element[];
+  const jobElements = Array.from(jobsList.querySelectorAll(':scope > div > div')) as Element[];
 
   const jobs = jobElements.map((el): ParsedJob | null => {
     const jobInfo = el.querySelector('a');
