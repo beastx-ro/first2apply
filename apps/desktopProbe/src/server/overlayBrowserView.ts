@@ -2,7 +2,7 @@ import { OverlayBrowserViewResult } from '@/lib/types';
 import { WebPageRuntimeData } from '@first2apply/core';
 import { BrowserWindow, WebContentsView } from 'electron';
 
-import { consumeRuntimeData } from './browserHelpers';
+import { getLinkedinReactContextBuilder } from './browserHelpers';
 
 /**
  * Class used to render a WebContentsView on top of the main window
@@ -142,12 +142,18 @@ export class OverlayBrowserView {
       throw new Error('Search view is not set');
     }
 
+    if (this._searchView.webContents.getURL().includes('linkedin.com')) {
+      await this._searchView.webContents.executeJavaScript(getLinkedinReactContextBuilder()).catch((error) => {
+        error;
+      });
+    }
+
     const html = await this._searchView.webContents.executeJavaScript('document.documentElement.outerHTML');
     const title = await this._searchView.webContents.executeJavaScript('document.title');
     const url = this._searchView.webContents.getURL();
 
     // Read runtime data captured by the protocol handler (stored in main-process memory)
-    const webPageRuntimeData: WebPageRuntimeData = consumeRuntimeData(url);
+    const webPageRuntimeData: WebPageRuntimeData = {};
 
     this.close();
 
@@ -171,7 +177,7 @@ export class OverlayBrowserView {
     }
 
     if (this._searchView) {
-      this._mainWindow.contentView.removeChildView(this._searchView);
+      this._mainWindow?.contentView.removeChildView(this._searchView);
       this._searchView.webContents.close();
       this._searchView = undefined;
     }

@@ -30,6 +30,13 @@ function extractRehydrationScript(html: string): string | undefined {
  */
 export function installLinkedInDecorator(session: Session): void {
   session.protocol.handle('https', async (request) => {
+    const urlObj = new URL(request.url);
+    const isLinkedIn = urlObj.hostname === 'www.linkedin.com';
+
+    if (!isLinkedIn) {
+      return session.fetch(request, { bypassCustomProtocolHandlers: true });
+    }
+
     const isGet = request.method === 'GET';
     const destination = request.headers.get('sec-fetch-dest');
     const accept = request.headers.get('accept') ?? '';
@@ -106,4 +113,41 @@ export function getStoreHashFromUrl(url: string): string {
 
   const hash = createHash('sha256').update(urlToHash).digest('hex');
   return hash;
+}
+
+export function getLinkedinReactContextBuilder(): string {
+  return `
+  const stringifyCircularJSON = obj => {
+    const seen = new WeakSet();
+    return JSON.stringify(obj, (k, v) => {
+      // Skip DOM/windows/frames
+      if (v instanceof Window) return;
+      if (v instanceof Element) return;
+      if (v instanceof Document) return;
+
+      if (typeof v === "bigint") return v.toString();
+      if (v !== null && typeof v === 'object') {
+        if (seen.has(v)) return;
+        seen.add(v);
+      }
+      return v;
+    });
+  };
+
+  const jobListElements = document.querySelectorAll("div[componentkey='SearchResultsMainContent'] div[componentkey]");
+  jobListElements.forEach(el => {
+    const reactKeys = Object.keys(el).filter(k => k.startsWith("__reactProps"));
+    const reactContext = reactKeys.map(key => {
+      const value = el[key];
+      const seen = new WeakSet();
+      const stringifiedValue = stringifyCircularJSON(value);
+
+      return {
+        key,
+        value: stringifiedValue,
+      };
+    });
+    el.setAttribute('f2a-react-context', JSON.stringify(reactContext))
+  });
+`;
 }

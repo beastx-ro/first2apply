@@ -1,8 +1,8 @@
-import { RateLimitError, WebPageRuntimeData } from '@first2apply/core';
+import { RateLimitError, WebPageRuntimeData, getExceptionMessage } from '@first2apply/core';
 import { BrowserWindow, Session } from 'electron';
 import { backOff } from 'exponential-backoff';
 
-import { consumeRuntimeData } from './browserHelpers';
+import { getLinkedinReactContextBuilder } from './browserHelpers';
 import { sleep, waitRandomBetween } from './helpers';
 import { ILogger } from './logger';
 import { WorkerQueue } from './workerQueue';
@@ -82,10 +82,17 @@ export class HtmlDownloader {
       let retryCount = 0;
       return backOff(
         async () => {
+          // for linkedin, dump react context into a custom attribute for certain elements
+          if (window.webContents.getURL().includes('linkedin.com')) {
+            await window.webContents.executeJavaScript(getLinkedinReactContextBuilder()).catch((error) => {
+              this._logger.error(`Failed to inject LinkedIn decorator: ${getExceptionMessage(error)}`);
+            });
+          }
+
           const html: string = await window.webContents.executeJavaScript('document.documentElement.innerHTML');
 
           // Read runtime data captured by the protocol handler (stored in main-process memory)
-          const webPageRuntimeData: WebPageRuntimeData = consumeRuntimeData(url);
+          const webPageRuntimeData: WebPageRuntimeData = {};
 
           return callback({ html, webPageRuntimeData, maxRetries, retryCount: retryCount++ });
         },

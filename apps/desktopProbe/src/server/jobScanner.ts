@@ -73,7 +73,7 @@ export class JobScanner {
     // Install LinkedIn protocol interceptor on the normal scraper session.
     // This must happen after init() so the pool (and its session) exists.
 
-    installLinkedInDecorator(normalHtmlDownloader.getSession());
+    // installLinkedInDecorator(normalHtmlDownloader.getSession());
 
     // used for testing
     // fs.unlinkSync(settingsPath);
