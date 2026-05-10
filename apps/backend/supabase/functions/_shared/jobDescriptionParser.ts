@@ -72,6 +72,9 @@ const SITE_PROVIDER_QUERY_SELECTORS: Record<SiteProvider, SiteProviderQuerySelec
   [SiteProvider.talent]: {
     description: ['.sc-e78c1cd5-10.sc-e78c1cd5-11.sc-207c7d5e-10.dwTTNY.gdYndp.jkXeTb > p'],
   },
+  [SiteProvider.hiringCafe]: {
+    description: ['article.prose', 'article[class*="prose"]'],
+  },
   [SiteProvider.custom]: {
     description: ['#job-description'],
   },
@@ -138,6 +141,8 @@ export async function parseJobDescriptionUpdates({
       return parseUSAJobsJobDescription({ html });
     case SiteProvider.talent:
       return parseTalentJobDescription({ html });
+    case SiteProvider.hiringCafe:
+      return parseHiringCafeJobDescription({ html });
     case SiteProvider.custom:
       return await parseCustomJobDescription({ html, user, job, ...context });
   }
@@ -604,6 +609,25 @@ function parseUSAJobsJobDescription({ html }: { html: string }): JobDescriptionU
 function parseTalentJobDescription({ html }: { html: string }): JobDescriptionUpdates {
   const { descriptionContainer } = extractCommonDomElements({
     provider: SiteProvider.talent,
+    html,
+  });
+
+  let description: string | undefined;
+  if (descriptionContainer) {
+    description = turndownService.turndown(descriptionContainer.innerHTML);
+  }
+
+  return {
+    description,
+  };
+}
+
+/**
+ * Parse a Hiring Cafe job description from the HTML.
+ */
+function parseHiringCafeJobDescription({ html }: { html: string }): JobDescriptionUpdates {
+  const { descriptionContainer } = extractCommonDomElements({
+    provider: SiteProvider.hiringCafe,
     html,
   });
 

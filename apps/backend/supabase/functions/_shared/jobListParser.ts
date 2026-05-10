@@ -10,6 +10,7 @@ import { parseCustomJobs } from './customJobsParser.ts';
 import { EdgeFunctionAuthorizedContext } from './edgeFunctions.ts';
 import { ILogger } from './logger.ts';
 import { parseDiceJobs } from './parsers/dice.ts';
+import { parseHiringCafeJobs } from './parsers/hiringCafe.ts';
 import { parseLinkedInJobs } from './parsers/linkedin.ts';
 import { JobSiteParseResult, ParsedJob } from './parsers/parserTypes.ts';
 import { parseRemoteioJobs } from './parsers/remoteio.ts';
@@ -231,6 +232,8 @@ async function parseSiteJobsList({
       return parseUSAJobsJobs({ siteId: site.id, html });
     case SiteProvider.talent:
       return parseTalentJobs({ siteId: site.id, html });
+    case SiteProvider.hiringCafe:
+      return parseHiringCafeJobs({ siteId: site.id, html });
     case SiteProvider.custom:
       return parseCustomJobs({ siteId: site.id, html, url, ...context });
   }
