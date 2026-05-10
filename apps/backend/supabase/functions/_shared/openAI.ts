@@ -45,7 +45,7 @@ export function buildOpenAiClient({ modelName }: { modelName?: SupportedModel })
   const openAi = new AzureOpenAI({
     apiKey: env.azureFoundryConfig.apiKey,
     endpoint: env.azureFoundryConfig.apiEndpoint,
-    apiVersion: '2024-12-01-preview',
+    apiVersion: '2025-04-01-preview',
   });
 
   const model = modelName ?? 'gpt-5.4';
