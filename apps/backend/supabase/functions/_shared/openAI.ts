@@ -17,10 +17,11 @@ type OpenAIResponse = {
 const env = parseEnv();
 
 // o3* classes seems to have been superseded by gpt-5* models.
-const SUPPORTED_MODELS = ['gpt-5.4', 'gpt-5-mini'] as const;
+const SUPPORTED_MODELS = ['gpt-5.5', 'gpt-5.4', 'gpt-5-mini'] as const;
 type SupportedModel = (typeof SUPPORTED_MODELS)[number];
 
 const COST_PER_MODEL: Record<SupportedModel, { input: number; output: number }> = {
+  'gpt-5.5': { input: 5, output: 30 },
   'gpt-5.4': { input: 2.5, output: 15 },
   // 'gpt-5.2': { input: 1.75, output: 14 },
   'gpt-5-mini': { input: 0.25, output: 2 },
@@ -30,8 +31,6 @@ const COST_PER_MODEL: Record<SupportedModel, { input: number; output: number }> 
   // 'o4-mini': { input: 1.1, output: 4.4 },
   // o3: { input: 2.0, output: 8.0 },
   // 'o3-mini': { input: 1.1, output: 4.4 },
-  // 'DeepSeek-R1-0528': { input: 1.35, output: 5.4 },
-  // '01': { input: 15, output: 60 },
 };
 
 export type AzureFoundryConfig = {
