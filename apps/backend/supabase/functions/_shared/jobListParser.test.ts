@@ -2,11 +2,13 @@ import { assert, assertEquals } from '@std/assert';
 
 import { TestLogger } from './logger.ts';
 import { parseDiceJobs } from './parsers/dice.ts';
+import { parseHiringCafeJobs } from './parsers/hiringCafe.ts';
 import { parseLinkedInJobs } from './parsers/linkedin.ts';
 import { parseRemoteioJobs } from './parsers/remoteio.ts';
 
 const linkedinUrl = new URL('./__fixtures__/jobBoards/linkedin.html', import.meta.url);
 const diceUrl = new URL('./__fixtures__/jobBoards/dice.html', import.meta.url);
+const hiringCafeUrl = new URL('./__fixtures__/jobBoards/hiringcafe.html', import.meta.url);
 
 const logger = new TestLogger();
 
@@ -121,4 +123,30 @@ Deno.test('Remote.io job parsing', async () => {
   assertEquals(lastJob.salary, '$84,800 / year');
   assertEquals(lastJob.tags, ['Customer Service', '5d']);
   assert(lastJob.companyLogo, 'Company logo should be parsed');
+});
+
+Deno.test('Hiring Cafe job parsing', async () => {
+  const fileContent = await Deno.readTextFile(hiringCafeUrl);
+
+  const result = parseHiringCafeJobs({
+    siteId: 102,
+    html: fileContent,
+  });
+
+  assert(result.listFound, 'Expected Hiring Cafe list markup to be located');
+  assertEquals(result.elementsCount, 10);
+  assertEquals(result.jobs.length, 10);
+
+  const [firstJob] = result.jobs;
+
+  assert(firstJob, 'First job should be parsed');
+  assertEquals(firstJob.siteId, 102);
+  assertEquals(firstJob.externalId, 'uqwr7pqvbx1llubw');
+  assertEquals(firstJob.externalUrl, 'https://hiring.cafe/job/uqwr7pqvbx1llubw');
+  assertEquals(firstJob.title, 'Drive Systems Sales Specialist');
+  assertEquals(firstJob.companyName, 'Schneider Electric');
+  assertEquals(firstJob.location, 'Milan or Stezzano or Turin');
+  assertEquals(firstJob.jobType, 'onsite');
+  assertEquals(firstJob.tags, ['Full Time']);
+  assert(firstJob.companyLogo, 'Company logo should be parsed');
 });
