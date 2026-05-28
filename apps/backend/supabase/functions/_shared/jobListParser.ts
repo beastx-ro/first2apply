@@ -666,8 +666,18 @@ export function parseFlexjobsJobs({ siteId, html }: { siteId: number; html: stri
       if (jobTypeText.includes('hybrid') || jobTypeText.includes('option')) jobType = 'hybrid';
       else if (jobTypeText.includes('no remote')) jobType = 'onsite';
     }
+    let salary: string | undefined;
+    const salaryEl = el.querySelector(`li#salartRange-0-${externalId}`);
+    if (salaryEl) {
+      salary = salaryEl.textContent?.trim();
+    }
 
     const description = el.querySelector(`p#description-${externalId}`)?.textContent?.trim();
+
+    const otherTagsEls = Array.from(
+      el.querySelectorAll(`ul > li.tag-name:not(#remoteoption-0-${externalId}):not(#salartRange-0-${externalId})`),
+    );
+    const tags = otherTagsEls.map((t) => t.textContent?.trim() || '').filter((t) => !!t);
 
     return {
       siteId,
@@ -677,9 +687,10 @@ export function parseFlexjobsJobs({ siteId, html }: { siteId: number; html: stri
       companyName,
       location,
       jobType,
+      salary,
       description,
       labels: [],
-      tags: [],
+      tags,
     };
   });
 
