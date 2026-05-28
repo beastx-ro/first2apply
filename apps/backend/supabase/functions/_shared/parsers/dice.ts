@@ -1,6 +1,7 @@
 import { DOMParser, Element } from 'deno-dom-wasm';
 
 import { JobSiteParseResult, ParsedJob } from '../parsers/parserTypes.ts';
+import { isSalaryText } from './parserHelpers.ts';
 
 /**
  * Method used to parse a dice job page.
@@ -50,6 +51,15 @@ export function parseDiceJobs({ siteId, html }: { siteId: number; html: string }
     if (!companyName) return null;
 
     const location = el.querySelector('.content > span > div > div')?.textContent.trim();
+    let jobType: ParsedJob['jobType'] = 'onsite';
+    if (location) {
+      const locationLower = location.toLowerCase();
+      if (locationLower.includes('remote')) {
+        jobType = 'remote';
+      } else if (locationLower.includes('hybrid')) {
+        jobType = 'hybrid';
+      }
+    }
 
     const tags: string[] = [];
     const postedAt = el
@@ -59,10 +69,17 @@ export function parseDiceJobs({ siteId, html }: { siteId: number; html: string }
       tags.push(postedAt);
     }
 
-    const otherTags = Array.from(el.querySelectorAll('.content > div.box'))
+    const otherTags = Array.from(el.querySelectorAll('.content > div:last-child > div > p'))
       .map((el) => el.textContent?.trim() || '')
       .filter((t) => !!t);
     tags.push(...otherTags);
+
+    // try to extract salary from other tags
+    const salaryTag = tags.find((t) => isSalaryText(t));
+    const salary = salaryTag || undefined;
+    if (salaryTag) {
+      tags.splice(tags.indexOf(salaryTag), 1);
+    }
 
     return {
       siteId,
@@ -72,6 +89,8 @@ export function parseDiceJobs({ siteId, html }: { siteId: number; html: string }
       companyName,
       companyLogo,
       location,
+      jobType,
+      salary,
       labels: [],
       tags,
     };
