@@ -543,17 +543,17 @@ export function parseIndeedJobs({ siteId, html }: { siteId: number; html: string
 
   const jobs = jobElements.map((el): ParsedJob | null => {
     const jobLinkEl = el.querySelector('.jobTitle > a');
-    const externalId = jobLinkEl?.getAttribute('id')?.trim();
+    if (!jobLinkEl) return null;
+
+    const externalId = jobLinkEl.getAttribute('id')?.trim();
     if (!externalId) return null;
 
-    const externalHref = jobLinkEl?.getAttribute('href')?.trim();
+    const externalHref = jobLinkEl.getAttribute('href')?.trim();
     if (!externalHref) return null;
 
-    let externalUrl = `https://www.indeed.com${externalHref}`;
-    if (externalHref === '#') {
-      const jk = jobLinkEl?.getAttribute('data-jk')?.trim();
-      externalUrl = `https://www.indeed.com/viewjob?jk=${jk}`;
-    }
+    const jk = jobLinkEl.getAttribute('data-jk')?.trim();
+    if (!jk) return null;
+    const externalUrl = `https://www.indeed.com/viewjob?jk=${jk}`;
 
     const title = jobLinkEl?.querySelector('span')?.textContent?.trim() || '';
     if (!title) return null;

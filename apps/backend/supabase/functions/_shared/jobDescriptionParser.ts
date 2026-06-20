@@ -28,7 +28,7 @@ const SITE_PROVIDER_QUERY_SELECTORS: Record<SiteProvider, SiteProviderQuerySelec
     ],
   },
   [SiteProvider.indeed]: {
-    description: ['#JobDescriptionUpdatesText', '#jobDescriptionText'],
+    description: ['#JobDescriptionUpdatesText', '#jobDescriptionText', 'p.error-description'],
   },
   [SiteProvider.remoteok]: {
     description: ['.description'],
@@ -234,7 +234,12 @@ function parseIndeedJobDescription({ html }: { html: string }): JobDescriptionUp
     const globalDataMatch = html.match(/window\._initialData\s*=\s*({.*?});?\s*(?=\n|$|<\/script>)/s);
 
     if (globalDataMatch) {
-      const globalData = JSON.parse(globalDataMatch[1]);
+      let globalData: any;
+      try {
+        globalData = JSON.parse(globalDataMatch[1]);
+      } catch {
+        throw new Error(`Failed to parse indeed global data from script tag: ${globalDataMatch.toString()}`);
+      }
       // Extract job data from the hostQueryExecutionResult
       const jobData = globalData?.hostQueryExecutionResult?.data?.jobData?.results?.[0]?.job;
 
