@@ -231,14 +231,30 @@ function parseIndeedJobDescription({ html }: { html: string }): JobDescriptionUp
 
   // helpers
   function extractFromScriptTag() {
-    const globalDataMatch = html.match(/window\._initialData\s*=\s*({.*?});?\s*(?=\n|$|<\/script>)/s);
+    const document = new DOMParser().parseFromString(html, 'text/html');
+    if (!document) return;
 
-    if (globalDataMatch) {
+    // Find the <script> tags that assign `window._initialData`. Indeed can render multiple
+    // of these, and some are plain JS object literals (not valid JSON), so try each one and
+    // skip the ones that don't parse instead of failing the whole extraction.
+    const initialDataScripts = (Array.from(document.querySelectorAll('script')) as Element[]).filter((script) =>
+      script.textContent.includes('window._initialData'),
+    );
+
+    for (const script of initialDataScripts) {
+      // strip the `window._initialData =` prefix and the trailing `;` to isolate the JSON string
+      const textContent = script.textContent.trim();
+      const jsonString = textContent.slice(
+        textContent.indexOf('window._initialData={') + 'window._initialData='.length,
+        textContent.lastIndexOf('}') + 1,
+      );
+
       let globalData: any;
       try {
-        globalData = JSON.parse(globalDataMatch[1]);
+        globalData = JSON.parse(jsonString);
       } catch {
-        throw new Error(`Failed to parse indeed global data from script tag: ${globalDataMatch.toString()}`);
+        // not valid JSON (e.g. a JS object literal) -> try the next script
+        continue;
       }
       // Extract job data from the hostQueryExecutionResult
       const jobData = globalData?.hostQueryExecutionResult?.data?.jobData?.results?.[0]?.job;
