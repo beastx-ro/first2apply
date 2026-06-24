@@ -1271,10 +1271,10 @@ export function parseUSAJobsJobs({ siteId, html }: { siteId: number; html: strin
       listFound: false,
       elementsCount: 0,
     };
-  const jobElements = Array.from(jobsList.querySelectorAll(':scope > div')) as Element[];
+  const jobElements = Array.from(jobsList.querySelectorAll('.page-section')) as Element[];
 
   const jobs = jobElements.map((el): ParsedJob | null => {
-    const titleElement = el.querySelector('a[data-document-id]');
+    const titleElement = el.querySelector('h2 a[data-document-id]');
 
     const externalId = titleElement?.getAttribute('data-document-id')?.trim();
     if (!externalId) return null;
@@ -1286,18 +1286,14 @@ export function parseUSAJobsJobs({ siteId, html }: { siteId: number; html: strin
     const title = titleElement?.textContent?.trim();
     if (!title) return null;
 
-    const companyName = el
-      .querySelector(':scope > div:nth-child(2) > div:first-child > p:nth-child(2)')
-      ?.textContent?.trim();
+    const infoColumn = el.querySelector('.grid > div:first-child');
+
+    const companyName = infoColumn?.querySelector('div:first-child strong')?.textContent?.trim();
     if (!companyName) return null;
 
-    const location = el
-      .querySelector(':scope > div:nth-child(2) > div:first-child > p:nth-child(3)')
-      ?.textContent?.trim();
+    const location = infoColumn?.querySelector('div:nth-child(2)')?.textContent?.trim();
 
-    const salary = el
-      .querySelector(':scope > div:nth-child(2) > div:nth-child(2) > p:first-child')
-      ?.textContent?.trim();
+    const salary = el.querySelector('.grid > div:nth-child(2) span.badge-secondary')?.textContent?.trim();
 
     const jobType = location?.toLowerCase().includes('remote') ? 'remote' : 'onsite';
 
