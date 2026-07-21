@@ -2,57 +2,69 @@ import { parseEnv } from './env.ts';
 
 import { getExceptionMessage } from '@first2apply/core';
 import { SupabaseClient } from '@supabase/supabasefork';
-import { AzureOpenAI } from 'openai';
+import OpenAI from 'openai';
 
 import { ILogger } from './logger.ts';
 
-// Type for OpenAI API response with usage information
+// Type for an OpenAI-compatible API response with usage information.
+// OpenRouter additionally returns `cost` (in USD) when the request opts in via
+// `usage: { include: true }` (see OPENROUTER_ROUTING below).
 type OpenAIResponse = {
   usage?: {
     prompt_tokens?: number;
     completion_tokens?: number;
+    cost?: number;
   };
 };
 
 const env = parseEnv();
 
-// o3* classes seems to have been superseded by gpt-5* models.
-const SUPPORTED_MODELS = ['gpt-5.5', 'gpt-5.4', 'gpt-5-mini'] as const;
+const SUPPORTED_MODELS = ['deepseek/deepseek-v4-flash', 'deepseek/deepseek-v4-pro'] as const;
 type SupportedModel = (typeof SUPPORTED_MODELS)[number];
 
+// Fallback list-price estimate ($ per 1M tokens). Only used when OpenRouter does
+// not report an actual cost in the usage payload.
 const COST_PER_MODEL: Record<SupportedModel, { input: number; output: number }> = {
-  'gpt-5.5': { input: 5, output: 30 },
-  'gpt-5.4': { input: 2.5, output: 15 },
-  // 'gpt-5.2': { input: 1.75, output: 14 },
-  'gpt-5-mini': { input: 0.25, output: 2 },
-  // 'gpt-5-nano': { input: 0.05, output: 0.4 },
-  // 'gpt-4o': { input: 2.5, output: 10 },
-  // 'gpt-4o-mini': { input: 0.15, output: 0.6 },
-  // 'o4-mini': { input: 1.1, output: 4.4 },
-  // o3: { input: 2.0, output: 8.0 },
-  // 'o3-mini': { input: 1.1, output: 4.4 },
+  'deepseek/deepseek-v4-flash': { input: 0.09, output: 0.18 },
+  'deepseek/deepseek-v4-pro': { input: 0.435, output: 0.87 },
 };
 
-export type AzureFoundryConfig = {
-  apiEndpoint: string;
+// Extra request fields understood by OpenRouter (not part of the OpenAI type).
+// Spread into every chat completion call.
+export const OPENROUTER_ROUTING = {
+  // Only route to providers that actually honor response_format / json_schema,
+  // so our structured (zod) outputs never silently degrade to free text.
+  provider: { require_parameters: true },
+  // DeepSeek V4 has a thinking mode; keep it off so we don't pay for reasoning
+  // tokens and the response `content` stays a clean JSON string to parse.
+  reasoning: { enabled: false },
+  // Ask OpenRouter to include the real dollar cost of the call in `usage`.
+  usage: { include: true },
+} as const;
+
+export type OpenRouterConfig = {
   apiKey: string;
 };
 
 /**
- * Build a new Azure OpenAI client.
+ * Build a new OpenRouter (OpenAI-compatible) client.
  */
 export function buildOpenAiClient({ modelName }: { modelName?: SupportedModel }) {
-  const openAi = new AzureOpenAI({
-    apiKey: env.azureFoundryConfig.apiKey,
-    endpoint: env.azureFoundryConfig.apiEndpoint,
-    apiVersion: '2025-04-01-preview',
+  const openAi = new OpenAI({
+    apiKey: env.openRouterConfig.apiKey,
+    baseURL: 'https://openrouter.ai/api/v1',
+    defaultHeaders: {
+      // Optional attribution headers used by OpenRouter for dashboards/rankings.
+      'HTTP-Referer': env.webappUrl,
+      'X-Title': 'First 2 Apply',
+    },
   });
 
-  const model = modelName ?? 'gpt-5.4';
+  const model = modelName ?? 'deepseek/deepseek-v4-flash';
   if (!(model in COST_PER_MODEL)) {
     throw new Error(`Unsupported model: ${model}`);
   }
-  console.log(`Using model ${model} for Azure OpenAI calls.`);
+  console.log(`Using model ${model} via OpenRouter.`);
   const { input, output } = COST_PER_MODEL[model];
   const llmConfig = {
     model,
@@ -72,9 +84,11 @@ export type LLMConfig = {
 function computeLlmApiCallCost({ llmConfig, response }: { llmConfig: LLMConfig; response: OpenAIResponse }) {
   const inputTokensUsed = response.usage?.prompt_tokens ?? 0;
   const outputTokensUsed = response.usage?.completion_tokens ?? 0;
+  // Prefer the actual cost reported by OpenRouter; fall back to our estimate.
   const cost =
+    response.usage?.cost ??
     (llmConfig.costPerMillionInputTokens / 1_000_000) * inputTokensUsed +
-    (llmConfig.costPerMillionOutputTokens / 1_000_000) * outputTokensUsed;
+      (llmConfig.costPerMillionOutputTokens / 1_000_000) * outputTokensUsed;
 
   return { cost, inputTokensUsed, outputTokensUsed };
 }
@@ -97,7 +111,7 @@ export async function logAiUsage({
     response,
   });
 
-  // persist the cost of the OpenAI API call
+  // persist the cost of the LLM API call
   const { error: countUsageError } = await supabaseAdminClient.rpc('log_ai_usage', {
     for_user_id: forUserId,
     cost_increment: cost,

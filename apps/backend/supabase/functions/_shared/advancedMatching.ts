@@ -1,10 +1,10 @@
-import { AdvancedMatchingConfig, DbSchema, Job, JobStatus, throwError } from '@first2apply/core';
+import { AdvancedMatchingConfig, DbSchema, getExceptionMessage, Job, JobStatus, throwError } from '@first2apply/core';
 import { SupabaseClient } from '@supabase/supabasefork';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import { z } from 'zod';
 
 import { ILogger } from './logger.ts';
-import { buildOpenAiClient, logAiUsage } from './openAI.ts';
+import { buildOpenAiClient, logAiUsage, OPENROUTER_ROUTING } from './openAI.ts';
 import { checkUserSubscription } from './subscription.ts';
 
 /**
@@ -56,23 +56,28 @@ export async function applyAdvancedMatchingFilters({
     };
   }
 
-  // prompt OpenAI to determine if the job should be excluded
+  // prompt the LLM to determine if the job should be excluded
   if (job.description && advancedMatching.chatgpt_prompt) {
-    logger.info('prompting OpenAI to determine if the job should be excluded ...');
+    logger.info('prompting the LLM to determine if the job should be excluded ...');
 
-    const { exclusionDecision } = await promptOpenAI({
-      prompt: advancedMatching.chatgpt_prompt,
-      job,
-      logger,
-      supabaseAdminClient,
-    });
+    try {
+      const { exclusionDecision } = await promptOpenAI({
+        prompt: advancedMatching.chatgpt_prompt,
+        job,
+        logger,
+        supabaseAdminClient,
+      });
 
-    if (exclusionDecision.excluded) {
-      logger.info(`job excluded by OpenAI: ${exclusionDecision.reason}`);
-      return {
-        newStatus: 'excluded_by_advanced_matching',
-        excludeReason: exclusionDecision.reason ?? undefined,
-      };
+      if (exclusionDecision.excluded) {
+        logger.info(`job excluded by the LLM: ${exclusionDecision.reason}`);
+        return {
+          newStatus: 'excluded_by_advanced_matching',
+          excludeReason: exclusionDecision.reason ?? undefined,
+        };
+      }
+    } catch (error) {
+      // fail open: a model or JSON-parse failure must not drop a job or break the scan
+      logger.error(`advanced matching LLM call failed, keeping job as-is: ${getExceptionMessage(error)}`);
     }
   }
 
@@ -112,7 +117,7 @@ async function promptOpenAI({
   supabaseAdminClient: SupabaseClient<DbSchema, 'public'>;
 }) {
   const { llmConfig, openAi } = buildOpenAiClient({
-    modelName: 'gpt-5.5',
+    modelName: 'deepseek/deepseek-v4-pro',
   });
 
   const response = await openAi.chat.completions.create({
@@ -130,8 +135,9 @@ async function promptOpenAI({
         }),
       },
     ],
-    max_completion_tokens: 3000,
+    max_tokens: 3000,
     response_format: zodResponseFormat(JobExclusionFormat, 'JobExclusion'),
+    ...OPENROUTER_ROUTING,
   });
 
   const choice = response.choices[0];

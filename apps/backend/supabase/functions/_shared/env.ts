@@ -1,11 +1,11 @@
 import { throwError } from '@first2apply/core';
 
-import { AzureFoundryConfig } from './openAI.ts';
+import { OpenRouterConfig } from './openAI.ts';
 
 export type First2ApplyBackendEnv = {
   supabaseUrl: string;
   supabaseServiceRoleKey: string;
-  azureFoundryConfig: AzureFoundryConfig;
+  openRouterConfig: OpenRouterConfig;
   mailerLiteApiKey?: string;
   mailerSendApiKey?: string;
   mezmoApiKey: string;
@@ -19,9 +19,8 @@ export function parseEnv(): First2ApplyBackendEnv {
   return {
     supabaseUrl: Deno.env.get('SUPABASE_URL') ?? '',
     supabaseServiceRoleKey: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-    azureFoundryConfig: {
-      apiEndpoint: Deno.env.get('AZURE_AI_FOUNDRY_ENDPOINT') ?? '',
-      apiKey: Deno.env.get('AZURE_AI_FOUNDRY_API_KEY') ?? '',
+    openRouterConfig: {
+      apiKey: Deno.env.get('OPENROUTER_API_KEY') ?? '',
     },
     mailerLiteApiKey: Deno.env.get('MAILERLITE_API_KEY'),
     mailerSendApiKey: Deno.env.get('MAILERSEND_API_KEY'),

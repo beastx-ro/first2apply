@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { denoHashString } from './deno.ts';
 import { JobDescriptionUpdates } from './jobDescriptionParser.ts';
 import { ILogger } from './logger.ts';
-import { buildOpenAiClient, logAiUsage } from './openAI.ts';
+import { OPENROUTER_ROUTING, buildOpenAiClient, logAiUsage } from './openAI.ts';
 import { JobSiteParseResult, ParsedJob } from './parsers/parserTypes.ts';
 
 /**
@@ -35,7 +35,7 @@ export async function parseCustomJobs({
   const { logger } = context;
 
   const { openAi, llmConfig } = buildOpenAiClient({
-    modelName: 'gpt-5.5',
+    modelName: 'deepseek/deepseek-v4-flash',
     ...context,
   });
 
@@ -97,8 +97,9 @@ ${htmlContent}
         content: generateUserPrompt(),
       },
     ],
-    max_completion_tokens: 50_000,
+    max_tokens: 50_000,
     response_format: zodResponseFormat(PARSE_JOBS_PAGE_SCHEMA, 'ParseJobsPageResponse'),
+    ...OPENROUTER_ROUTING,
   });
 
   const choice = response.choices[0];
@@ -257,7 +258,7 @@ ${withAdvancedMatchingPreferences}
 
   const { userPrompt, htmlContent } = generateUserPrompt();
   const { openAi, llmConfig } = buildOpenAiClient({
-    modelName: 'gpt-5-mini',
+    modelName: 'deepseek/deepseek-v4-flash',
     ...context,
   });
 
@@ -273,8 +274,9 @@ ${withAdvancedMatchingPreferences}
         content: userPrompt,
       },
     ],
-    max_completion_tokens: 10_000,
+    max_tokens: 10_000,
     response_format: zodResponseFormat(PARSE_JOB_DESCRIPTION_SCHEMA, 'ParseJobDescriptionResponse'),
+    ...OPENROUTER_ROUTING,
   });
 
   const choice = response.choices[0];
