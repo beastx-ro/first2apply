@@ -120,6 +120,30 @@ Deno.serve(async (req) => {
   }
 });
 
+const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+// last_scraped_at defaults to now() at insert (equal to created_at), so a
+// brand-new link looks "just scraped". Require last_scraped_at to be at least
+// this far past created_at before treating it as a real, completed scrape.
+const SCRAPE_LEEWAY_MS = 60 * 1000;
+
+/**
+ * Custom job boards are parsed with an expensive LLM call, so we only scan a
+ * given link at most once per 24h, measured from the last successful scrape
+ * (last_scraped_at). New links (last_scraped_at ~= created_at) are never treated
+ * as scraped, so they always get their first scan.
+ */
+function wasScrapedWithinLast24h(link: Link): boolean {
+  const lastScrapedMs = new Date(link.last_scraped_at).getTime();
+  if (Number.isNaN(lastScrapedMs)) return false;
+
+  // A never-scraped link still has last_scraped_at at its insert default (~created_at).
+  const createdMs = new Date(link.created_at).getTime();
+  const hasRealScrape = Number.isNaN(createdMs) || lastScrapedMs - createdMs > SCRAPE_LEEWAY_MS;
+  if (!hasRealScrape) return false;
+
+  return Date.now() - lastScrapedMs < TWENTY_FOUR_HOURS_MS;
+}
+
 async function parseHtmlToJobsList({
   html,
   allJobSites,
@@ -145,6 +169,14 @@ async function parseHtmlToJobsList({
   const targetSite = allJobSites.find((site) => site.id === link.site_id);
   if (targetSite?.deprecated) {
     logger.info(`skip parsing for deprecated site ${targetSite.name}`);
+    return { jobs: [], currentUrlParseFailed: false };
+  }
+
+  // custom job boards use an expensive LLM parse, so scan them at most once per 24h.
+  // Returning early here skips the LLM call and leaves last_scraped_at untouched,
+  // so the window is measured from the last real scrape (not bumped on each skip).
+  if (targetSite?.provider === SiteProvider.custom && wasScrapedWithinLast24h(link)) {
+    logger.info(`skip custom job board scan for link ${link.id}, last scraped at ${link.last_scraped_at}`);
     return { jobs: [], currentUrlParseFailed: false };
   }
 
