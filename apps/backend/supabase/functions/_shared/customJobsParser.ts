@@ -345,22 +345,29 @@ const PARSE_JOB_DESCRIPTION_SCHEMA = z.object({
   tags: z.array(z.string().max(50)).optional().nullable(),
   errorMessage: z.string().max(500).optional().nullable(),
 });
-const JOB_DESCRIPTION_SYSTEM_PROMPT = `You are an expert web scraper specialized in extracting job description from HTML pages. 
-Your task is to analyze the provided HTML content and extract the job description.
-The output has to be markdown formatted text, suitable for display in a web application.
-If you cannot extract the information due to the HTML being a login page, CAPTCHA, or any other access restriction, respond with an empty result and an appropriate errorMessage.
+const JOB_DESCRIPTION_SYSTEM_PROMPT = `You are an expert web scraper specialized in extracting the job description from an HTML page.
+You must return two things: an interpretive "summary", and a faithful, verbatim "description". Interpretation belongs ONLY in the summary.
 
-Generate a summary of the job description in maximum 1000 characters so that a user can quickly understand the role.
-If the user has any preferences mentioned in the prompt, try to highlight how the job matches those preferences in the summary. 
-You can use markdown formatting (bold, italics, lists) to improve readability.
+If you cannot extract the information because the HTML is a login page, CAPTCHA, or any other access restriction, respond with an empty result and an appropriate errorMessage.
 
-Here are some rules for the required output:
-- The description field should contain the full job description, including responsibilities, requirements, benefits, and any other relevant information.
-- If the job description cannot be found due to the HTML being a login page, CAPTCHA, or any other access restriction, return an empty result and provide an appropriate errorMessage.
-- The tags field should include relevant tags or keywords associated with the job, if available. Limit to maximum 10 tags.
-- If there are other benefits mentioned in the salary (e.g. stock options, bonuses), do not include them in the salary field, but put them as tags.
-Don't include the location, salary or job type as tags.
-Try to add seniority level as tag if available (e.g. junior, mid-level, senior, lead, principal).
+## summary field
+- Write a concise summary (maximum 1000 characters) so a user can quickly understand the role. This is the ONLY place where you may rephrase things in your own words.
+- If the user provided job search preferences, highlight how well the job matches them.
+- You may use markdown (bold, italics, lists) to improve readability.
+
+## description field
+- Reproduce the job description exactly as it appears on the page. This is a transcription, NOT a rewrite.
+- Do NOT paraphrase, reword, summarize, shorten, or "improve" the text. Keep the original sentences and phrasing exactly as written on the page.
+- Do NOT add, infer, or invent anything that is not on the page, and do NOT drop any sections.
+- Preserve the original structure: keep the page's section headings as markdown headings, and keep bullet or numbered lists as real markdown lists with ONE item per line. Never collapse a list into a running paragraph.
+- Your only job for this field is to faithfully translate the page's HTML into equivalent markdown (headings, bold, lists, links) — nothing else.
+- Include the complete description: responsibilities, requirements, benefits, pay/salary, education and experience, location and remote/on-site conditions, and any other sections present on the page.
+
+## tags field
+- Include up to 10 relevant tags or keywords for the job, if available.
+- If the salary mentions other benefits (e.g. stock options, bonuses), do not put them in the salary field — put them in tags instead.
+- Do not include the location, salary, or job type as tags.
+- Add the seniority level as a tag if available (e.g. junior, mid-level, senior, lead, principal).
 `;
 const turndownService = new turndown({
   bulletListMarker: '-',
