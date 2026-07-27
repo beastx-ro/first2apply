@@ -8,6 +8,7 @@ import { parseRemoteioJobs } from './parsers/remoteio.ts';
 
 const linkedinUrl = new URL('./__fixtures__/jobBoards/linkedin.html', import.meta.url);
 const diceUrl = new URL('./__fixtures__/jobBoards/dice.html', import.meta.url);
+const diceNoResultsUrl = new URL('./__fixtures__/jobBoards/dice-no-results.html', import.meta.url);
 const hiringCafeUrl = new URL('./__fixtures__/jobBoards/hiringcafe.html', import.meta.url);
 
 const logger = new TestLogger();
@@ -56,27 +57,59 @@ Deno.test('Dice job parsing', async () => {
   });
 
   assert(result.listFound, 'Expected Dice list markup to be located');
-  assertEquals(result.elementsCount, 20);
-  assertEquals(result.jobs.length, 20);
+  assertEquals(result.elementsCount, 31);
+  assertEquals(result.jobs.length, 31);
 
   const [firstJob] = result.jobs;
 
   assert(firstJob, 'First job should be parsed');
   assertEquals(firstJob.siteId, 100);
-  assertEquals(firstJob.externalId, 'c5832c4d0a5c79c2d8a85ef576cf71fc');
-  assertEquals(firstJob.externalUrl, 'https://www.dice.com/job-detail/1bfeeb74-b0a1-4597-a41d-1b00a2b0d8b9');
-  assertEquals(firstJob.title, 'Lead Fullstack Engineer (React and Node)');
-  assertEquals(firstJob.companyName, 'Simple Solutions');
-  assertEquals(firstJob.location, 'Remote');
+  assertEquals(firstJob.externalId, '98786fd466ac0d22304559e8afb5f891');
+  assertEquals(firstJob.externalUrl, 'https://www.dice.com/job-detail/abf85c41-21c0-418c-9493-908c5db3f115');
+  assertEquals(firstJob.title, 'C++ Software Engineer');
+  assertEquals(firstJob.companyName, 'FishEye Software');
+  assertEquals(firstJob.location, 'Marlborough, Massachusetts');
+  assertEquals(firstJob.jobType, 'onsite');
+  assertEquals(firstJob.salary, 'USD 80,000.00 - 190,000.00 per year');
+  assertEquals(firstJob.tags, ['Today', 'Sponsored', 'Full-time']);
+  assert(firstJob.companyLogo, 'Company logo should be parsed');
+
+  // remote and hybrid roles are derived from the location line
+  const remoteJob = result.jobs.find((job) => job.externalId === '964a1857dd7ee0e4c1d9985e2c9143e2');
+  assert(remoteJob, 'Remote job should be parsed');
+  assertEquals(remoteJob.location, 'Remote');
+  assertEquals(remoteJob.jobType, 'remote');
+
+  const hybridJob = result.jobs.find((job) => job.externalId === 'c9b4b414b29f0a03dda3f88c5891e9bc');
+  assert(hybridJob, 'Hybrid job should be parsed');
+  assertEquals(hybridJob.location, 'Hybrid in Los Angeles, California');
+  assertEquals(hybridJob.jobType, 'hybrid');
 
   const lastJob = result.jobs.at(-1);
 
   assert(lastJob, 'Last job should be parsed');
-  assertEquals(lastJob.externalId, '1d68b1152388f1d0f6d6a988287ff5db');
-  assertEquals(lastJob.externalUrl, 'https://www.dice.com/job-detail/f0c57849-ea4a-4ed3-a885-f42f87f6be5f');
-  assertEquals(lastJob.title, 'Backend Engineer, AI');
-  assertEquals(lastJob.companyName, 'Bjak Sdn Bhd');
-  assertEquals(lastJob.location, 'New York, New York');
+  assertEquals(lastJob.externalId, '42489a54b97eaf28f376c6a572a7ab4b');
+  assertEquals(lastJob.externalUrl, 'https://www.dice.com/job-detail/43a0972d-683e-4a14-bd9d-1633b96c6445');
+  assertEquals(lastJob.title, 'Principal Software Engineer');
+  assertEquals(lastJob.companyName, 'WinMax Systems Corporation');
+  assertEquals(lastJob.location, 'Hybrid in Los Angeles, California');
+  assertEquals(lastJob.jobType, 'hybrid');
+  assertEquals(lastJob.salary, '75 - 82');
+  assertEquals(lastJob.tags, ['6d ago', 'Easy Apply', 'Contract']);
+  assert(lastJob.companyLogo, 'Company logo should be parsed');
+});
+
+Deno.test('Dice job parsing handles an empty result list', async () => {
+  const fileContent = await Deno.readTextFile(diceNoResultsUrl);
+
+  const result = parseDiceJobs({
+    siteId: 100,
+    html: fileContent,
+  });
+
+  assert(result.listFound, 'Expected Dice no results markup to be recognised');
+  assertEquals(result.elementsCount, 0);
+  assertEquals(result.jobs.length, 0);
 });
 
 Deno.test('Remote.io job parsing', async () => {
