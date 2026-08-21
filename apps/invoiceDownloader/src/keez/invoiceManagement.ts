@@ -597,7 +597,7 @@ async function getExchangeRateMap(): Promise<ExchangeRateMap> {
   if (exchangeRateMap) return exchangeRateMap;
 
   const currentYear = luxon.DateTime.now().year;
-  const BNR_CURRENCY_EXHANGE_RATE_FEED_URL = `https://bnr.ro/files/xml/years/nbrfxrates${currentYear}.xml`;
+  const BNR_CURRENCY_EXHANGE_RATE_FEED_URL = `https://curs.bnr.ro/files/xml/years/nbrfxrates${currentYear}.xml`;
   const result = await axios.get(BNR_CURRENCY_EXHANGE_RATE_FEED_URL);
   const xmlStr = result.data;
 
