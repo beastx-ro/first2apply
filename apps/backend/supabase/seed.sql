@@ -209,8 +209,30 @@ begin
   end if;
 
   return query
-  select *
-  from jobs
+    select
+    j.id,
+    j.user_id,
+    j."externalId",
+    j."externalUrl",
+    j."siteId",
+    j.title,
+    j."companyName",
+    j."companyLogo",
+    j.location,
+    j.created_at,
+    j.updated_at,
+    j.salary,
+    j.tags,
+    j."jobType",
+    j.status,
+    -- Lazy-load this when the user actually selects the job
+    null::text as description,
+    j.labels,
+    j.link_id,
+    -- Internal DB search data; no reason to send it to the client
+    null::tsvector as job_search_vector,
+    j.exclude_reason
+  from jobs j
   where user_id = auth.uid()
     and status = jobs_status
     and (jobs_after is null or (updated_at, id) < (after_updated_at, after_id))
