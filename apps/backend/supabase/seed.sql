@@ -198,7 +198,10 @@ create or replace function list_jobs(
     jobs_link_ids integer[] default null,
     jobs_labels text[] default null
 )
-returns setof jobs as $$
+returns setof jobs 
+language plpgsql
+security definer set search_path = public
+as $$
 declare
   after_id integer;
   after_updated_at timestamp;
@@ -420,7 +423,10 @@ create or replace function count_jobs(
     jobs_link_ids integer[] default null,
     jobs_labels text[] default null
 )
-returns table(status "Job Status", job_count bigint) as $$
+returns table(status "Job Status", job_count bigint) 
+language plpgsql
+security definer set search_path = public
+as $$
 begin
   return query
   select j.status, count(*) as job_count
