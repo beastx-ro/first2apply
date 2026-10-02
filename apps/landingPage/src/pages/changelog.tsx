@@ -17,6 +17,148 @@ type ChangelogContent = {
 
 const changelogContent: ChangelogContent[] = [
   {
+    version: '2.3.5',
+    date: new Date('2026-04-30'),
+    changes: [
+      {
+        title: 'Improvements',
+        content: [
+          'Upgraded to the latest Electron version',
+          'More reliable LinkedIn job parsing, including better job title detection',
+          'LinkedIn searches with an open job panel are no longer treated as different searches',
+        ],
+      },
+      {
+        title: 'Bug fixes',
+        content: ['Fixed job detection on Remote.io', 'Fixed pages failing to load inside the in-app browser'],
+      },
+    ],
+  },
+  {
+    version: '2.3.4',
+    date: new Date('2026-04-03'),
+    changes: [
+      {
+        title: 'Improvements',
+        content: ['Email alerts for new jobs now include the job board name'],
+      },
+      {
+        title: 'Bug fixes',
+        content: ['Fixed page data not being collected correctly during job searches'],
+      },
+    ],
+  },
+  {
+    version: '2.3.3',
+    date: new Date('2026-04-02'),
+    changes: [
+      {
+        title: 'Improvements',
+        content: [
+          'Support for the new LinkedIn AI-powered search results',
+          'Clearer error messages when a job search cannot be saved',
+        ],
+      },
+      {
+        title: 'Bug fixes',
+        content: ['Fixed job descriptions on LinkedIn and Remote.io'],
+      },
+    ],
+  },
+  {
+    version: '2.3.2',
+    date: new Date('2026-03-18'),
+    changes: [
+      {
+        title: 'New Features',
+        content: [
+          'Linux support for Flatpak and RPM, including Arch Linux and Steam Deck',
+          'Save a job search even when no jobs are detected on the page yet',
+        ],
+      },
+      {
+        title: 'Improvements',
+        content: [
+          'Better job detection by reading page data in addition to the HTML',
+          'Cleaner email alerts for new jobs',
+          'More accurate AI matching with newer OpenAI models',
+        ],
+      },
+      {
+        title: 'Bug fixes',
+        content: ['Fixed job parsing on LinkedIn, Indeed and Dice', 'Fixed Linux auto-updates'],
+      },
+    ],
+  },
+  {
+    version: '2.3.1',
+    date: new Date('2025-12-01'),
+    changes: [
+      {
+        title: 'Bug fixes',
+        content: [
+          'Pressing Enter when saving a job search now saves it instead of cancelling',
+          'Fixed job parsing on LinkedIn and FlexJobs',
+          'Custom job board searches no longer fail when a page cannot be parsed',
+        ],
+      },
+    ],
+  },
+  {
+    version: '2.3.0',
+    date: new Date('2025-11-16'),
+    changes: [
+      {
+        title: 'Improvements',
+        content: [
+          'Richer job details from custom job boards',
+          'Job descriptions now render formatted content correctly',
+        ],
+      },
+    ],
+  },
+  {
+    version: '2.2.0',
+    date: new Date('2025-11-16'),
+    changes: [
+      {
+        title: 'Improvements',
+        content: ['Notes are now easier to find on each job'],
+      },
+      {
+        title: 'Bug fixes',
+        content: [
+          'The job search title you enter is now used when saving a search',
+          'Fixed job parsing on LinkedIn and Dice',
+        ],
+      },
+    ],
+  },
+  {
+    version: '2.1.2',
+    date: new Date('2025-11-05'),
+    changes: [
+      {
+        title: 'Bug fixes',
+        content: [
+          'The in-app browser now stays logged in to the same job board accounts as job searches',
+          'Fixed job tags not showing correctly',
+          'Fixed LinkedIn searches with no results',
+        ],
+      },
+    ],
+  },
+  {
+    version: '2.1.0',
+    date: new Date('2025-10-27'),
+    changes: [
+      {
+        title: 'Improvements',
+        content: ['More details extracted from Indeed job descriptions'],
+      },
+    ],
+  },
+  {
     version: '2.0.0',
     date: new Date('2025-10-25'),
     changes: [
