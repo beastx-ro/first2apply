@@ -10,11 +10,11 @@ jobs:
   build-macos:
     runs-on: macos-latest
     environment: Production
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: '22'
           cache: 'pnpm'
-          
+
       - name: Install dependencies
         run: |
           pnpm install --frozen-lockfile
@@ -39,7 +39,13 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "" build.keychain
-          
+
+      - name: Check signing certificate
+        run: |
+          security find-identity -v -p codesigning build.keychain
+          security find-certificate -a -p build.keychain | \
+            openssl x509 -noout -subject -issuer -dates
+
       - name: Build macOS packages
         env:
           APP_BUNDLE_ID: ${{ secrets.APP_BUNDLE_ID }}
@@ -55,85 +61,85 @@ jobs:
         run: |
           pnpm make
           pnpm make --arch arm64
-          
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
-          
+
       - name: Upload to S3
         env:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
         run: |
           # Get the version from package.json
           VERSION=$(node -p "require('./apps/desktopProbe/package.json').version")
-          
+
           # Upload DMG file (Intel)
           INTEL_DMG_PATH="apps/desktopProbe/out/make/First 2 Apply-${VERSION}-x64.dmg"
           if [ -f "$INTEL_DMG_PATH" ]; then
             aws s3 cp "$INTEL_DMG_PATH" \
               s3://${S3_BUCKET_NAME}/releases/darwin/x64/first2apply-${VERSION}.dmg
           fi
-          
+
           # Upload DMG file (Apple Silicon)
           ARM64_DMG_PATH="apps/desktopProbe/out/make/First 2 Apply-${VERSION}-arm64.dmg"
           if [ -f "$ARM64_DMG_PATH" ]; then
             aws s3 cp "$ARM64_DMG_PATH" \
               s3://${S3_BUCKET_NAME}/releases/darwin/arm64/first2apply-${VERSION}.dmg
           fi
-          
+
           # Upload ZIP file (Intel)
           INTEL_ZIP_PATH="apps/desktopProbe/out/make/zip/darwin/x64/First 2 Apply-darwin-x64-${VERSION}.zip"
           if [ -f "$INTEL_ZIP_PATH" ]; then
             aws s3 cp "$INTEL_ZIP_PATH" \
               s3://${S3_BUCKET_NAME}/releases/darwin/x64/first2apply-${VERSION}.zip
           fi
-          
+
           # Upload ZIP file (Apple Silicon)
           ARM64_ZIP_PATH="apps/desktopProbe/out/make/zip/darwin/arm64/First 2 Apply-darwin-arm64-${VERSION}.zip"
           if [ -f "$ARM64_ZIP_PATH" ]; then
             aws s3 cp "$ARM64_ZIP_PATH" \
               s3://${S3_BUCKET_NAME}/releases/darwin/arm64/first2apply-${VERSION}.zip
           fi
-          
+
       - name: Update latest symlinks
         env:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
         run: |
           VERSION=$(node -p "require('./apps/desktopProbe/package.json').version")
-          
+
           # Create "latest" versions for easy linking
-          
+
           # Intel DMG
           INTEL_DMG_S3_PATH="s3://${S3_BUCKET_NAME}/releases/darwin/x64/first2apply-${VERSION}.dmg"
           if aws s3 ls "$INTEL_DMG_S3_PATH" > /dev/null 2>&1; then
             aws s3 cp "$INTEL_DMG_S3_PATH" \
               s3://${S3_BUCKET_NAME}/releases/darwin/x64/first2apply-latest.dmg
           fi
-          
+
           # Apple Silicon DMG
           ARM64_DMG_S3_PATH="s3://${S3_BUCKET_NAME}/releases/darwin/arm64/first2apply-${VERSION}.dmg"
           if aws s3 ls "$ARM64_DMG_S3_PATH" > /dev/null 2>&1; then
             aws s3 cp "$ARM64_DMG_S3_PATH" \
               s3://${S3_BUCKET_NAME}/releases/darwin/arm64/first2apply-latest.dmg
           fi
-          
+
           # Intel ZIP
           INTEL_ZIP_S3_PATH="s3://${S3_BUCKET_NAME}/releases/darwin/x64/first2apply-${VERSION}.zip"
           if aws s3 ls "$INTEL_ZIP_S3_PATH" > /dev/null 2>&1; then
             aws s3 cp "$INTEL_ZIP_S3_PATH" \
               s3://${S3_BUCKET_NAME}/releases/darwin/x64/first2apply-latest.zip
           fi
-          
+
           # Apple Silicon ZIP
           ARM64_ZIP_S3_PATH="s3://${S3_BUCKET_NAME}/releases/darwin/arm64/first2apply-${VERSION}.zip"
           if aws s3 ls "$ARM64_ZIP_S3_PATH" > /dev/null 2>&1; then
             aws s3 cp "$ARM64_ZIP_S3_PATH" \
               s3://${S3_BUCKET_NAME}/releases/darwin/arm64/first2apply-latest.zip
           fi
-          
+
       - name: Update RELEASES.json
         env:
           S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
