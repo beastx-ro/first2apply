@@ -697,7 +697,7 @@ export async function createReverseInvoices({
   await promiseAllBatched(stripeInvoices, 10, async (invoice) => {
     const paymentIntentId = invoice.payments?.data[0]?.payment?.payment_intent;
     const paymentIntent =
-      paymentIntentId === 'string' ? await stripe.paymentIntents.retrieve(paymentIntentId) : undefined;
+      typeof paymentIntentId === 'string' ? await stripe.paymentIntents.retrieve(paymentIntentId) : undefined;
 
     const latestCharge =
       typeof paymentIntent?.latest_charge === 'string'
